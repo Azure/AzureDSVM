@@ -40,7 +40,7 @@ the users desktop/laptop machine and will be found within
 be something like:
 
 ```{r credentials, eval=FALSE}
-# Credntials come from app creation in Active Directory wihtin Azure.
+# Credentials come from app creation in Active Directory within Azure.
  
 TID <- "72f9....db47"          # Tenant ID
 CID <- "9c52....074a"          # Client ID
