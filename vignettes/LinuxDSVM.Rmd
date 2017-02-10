@@ -102,46 +102,58 @@ context %>%
   not() %T>%
   print() ->
 rg_pre_exists
-    
+```
+# Creation
 
+Create the resource group within which all resources we create will be
+grouped.
+
+```{r create resource group}
 if (! rg_pre_exists)
 {
-  # with a possibly new resource group and hosted at the specified
-  # location. TODO Check the location of a pre-existing resource group
-  # and ensure it matches LOC? If not, then what? Maybe just override
-  # the LOC with the actual location.
-  #
   # Create a new resource group into which we create the VMs and
   # related resources. Resource group name is RG. TODO Seems that not
   # everyone can create new resource groups. Need to determine what
   # controls this. Perhaps it is a management issue and general users
-  # can not have access to manage resource groups. Instead, how do we
+  # cannot have access to manage resource groups. Instead, how do we
   # identify all the resources we create when deploying the virtual
   # machine? Do we get a list of resources in the resource group in
   # advance and compare it afterwards and simply remove all new
   # resources, assuming no one else created any in the same resource
-  # group in the meantime.
+  # group in the meantime. For now assume if prexists we simply do not
+  # remove the resource group.
 
   azureCreateResourceGroup(context, RG, LOC)
 
 }
 ```
+Create the actual Linux Data Science Virtual Machine.
 
 ```{r deploy}
-# Create the required Linux DSVM 
+# Create the required Linux DSVM - generally 4 minutes.
 
 ldsvm <- newLinuxDSVM(context, RG, LOC, "mydsvm07", USER, PUBKEY)
 
 ldsvm
 ```
 
+Prove that the server exists.
+
 ```{r prove exists}
 
-# Send a simple sysnte() command across to show the existence of the VM.
+# Send a simple system() command across to the new server to test its
+# existence. Expect a single line wiht an indication of how long the
+# server has been up and running.
 
-cmd <- paste("ssh -o StrictHostKeyChecking=no", ldsvm, "uptime")
+cmd <- paste("ssh -q",
+             "-o StrictHostKeyChecking=no",
+             "-o UserKnownHostsFile=/dev/null",
+             ldsvm, "uptime")
+cmd
 system(cmd)
 ```
+
+Cleanup after us.
 
 ```{r optionally delete resource group}
 # Delete the resource group now that we have proved existence. There
@@ -150,3 +162,5 @@ system(cmd)
 
 if (! rg_pre_exists) azureDeleteResourceGroup(context, RG)
 ```
+
+Once deleted we are consuming no more.
