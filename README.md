@@ -6,6 +6,7 @@ underlying AzureSMR for controlling Azure Resources.
 
 To get started with this package, see the Vignettes:
 
+  * [AzureDSR](https://github.com/Azure/AzureDSR/blob/master/vignettes/vignette.Rmd)
   * [Deploy a Linux Data Science Virtual Machine](https://github.com/Azure/AzureDSR/blob/master/vignettes/LinuxDSVM.Rmd)
 
 To install the package from github:
