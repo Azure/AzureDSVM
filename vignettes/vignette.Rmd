@@ -1,0 +1,28 @@
+---
+title: "AzureDSR Introduction"
+author: "ADS Asia Pacific, Microsoft"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+**This vignette works as the blurprint before the package is released.**
+
+# General Introduction
+
+`AzureDSR` offers functions that can be conveniently used by R data scientists for managing Azure instances, remote executing scalable and elastic data analytical jobs, and monitoring cloud resource consumption.
+
+# Preliminaries
+
+1. An Azure account.
+2. An initial setup for Active Directory following the instructions in `AzureSMR`.
+
+# `AzureDSR` functions
+
+|Function|Description|
+|------------------|-------------------------------------------------------------|
+|`dsvmCreate`|Create a DSVM with specific configurations such as OS, pricing tier, name, DNS, etc.|
+|`
