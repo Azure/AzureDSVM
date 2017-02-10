@@ -39,14 +39,15 @@ the users desktop/laptop machine and will be found within
 ~/.ssh/id_rsa.pub. The content's of the user's credentials file will
 be something like:
 
-> # These come from app creation in Active Directory.
-> 
-> TID <- "72f9....db47"          # Tenant ID
-> CID <- "9c52....074a"          # Client ID
-> KEY <- "9Efb....4nwV....ASa8=" # User key
-> 
-> PUBKEY <- readLines("~/.ssh/id_rsa.pub")
+<code>
+# These come from app creation in Active Directory.
+ 
+TID <- "72f9....db47"          # Tenant ID
+CID <- "9c52....074a"          # Client ID
+KEY <- "9Efb....4nwV....ASa8=" # User key
 
+PUBKEY <- readLines("~/.ssh/id_rsa.pub")
+</code>
 
 ```{r setup}
 # Load the required subscription resources: TID, CID, and KEY.
