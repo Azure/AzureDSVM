@@ -158,7 +158,7 @@ Cleanup after us.
 ```{r optionally delete resource group}
 # Delete the resource group now that we have proved existence. There
 # is probably no need to wait. Only delete if it did not pre-exist
-# this script.
+# this script. Deletion seems to take 10 minutes or more.
 
 if (! rg_pre_exists) azureDeleteResourceGroup(context, RG)
 ```
