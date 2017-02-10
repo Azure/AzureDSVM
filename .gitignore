@@ -26,3 +26,4 @@ vignettes/*.pdf
 inst/doc
 
 *_credentials.R
+*~
