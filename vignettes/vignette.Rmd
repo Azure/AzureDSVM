@@ -2,7 +2,8 @@
 title: "AzureDSR Introduction"
 author: "ADS Asia Pacific, Microsoft"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+# output: rmarkdown::html_vignette
+output: github_document
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::rmarkdown}
@@ -18,11 +19,27 @@ vignette: >
 # Preliminaries
 
 1. An Azure account.
-2. An initial setup for Active Directory following the instructions in `AzureSMR`.
+2. An initial setup for Active Directory following the instructions in `AzureSMR`. This is basically to get authentication confidentials that are used for using `AzureSMR` functions.
 
 # `AzureDSR` functions
 
+*Add your wish list here.*
+
+## Resource
+
 |Function|Description|
 |------------------|-------------------------------------------------------------|
-|`dsvmCreate`|Create a DSVM with specific configurations such as OS, pricing tier, name, DNS, etc.|
-|`
+|`newLinuxDSVM`|Create a Linux DSVM with specific configurations such as size, name, DNS, etc.|
+|`newWindowsDSVM`|Create a Windows DSVM with specific configurations such as size, name, DNS, etc.|
+|`operateDSVM`|Check status of, start, stop, or delete an existing DSVM instance in a resource group.|
+
+## Execution
+
+|Function|Description|
+
+## Helpers
+
+|Function|Description|
+|`getVMSizeInfo`|Get information about DSVM. E.g., number of cores, memory size, and pricing details|
+|`getDataConsumption`|Get data consumption of Azure subscription or a specific Azure instance under such subscription for a certain period|
+|`getCost`|Calculate cost of Azure subscription or a specified instance under such subscription for a certain period of time (measured in a specified currency).|

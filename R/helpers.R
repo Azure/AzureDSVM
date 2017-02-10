@@ -1,0 +1,60 @@
+#' @title Get available sizes for data science virtual machines.
+#' @return A data frame that contains basic information about the available DSVM sizes.
+getVMSizes <- function() {
+  size_info <- data.frame(
+    Sizes=c("Basic_A3",
+            "Standard_A4",
+            "Standard_A5",
+            "Standard_A6",
+            "Standard_A7",
+            "Standard_D3_v2",
+            "Standard_D4_v2",
+            "Standard_D12_v2",
+            "Standard_D13_v2",
+            "Standard_D14_v2"),
+    NumberOfCore=c(4,
+                   8,
+                   2,
+                   4,
+                   8,
+                   4,
+                   8,
+                   4,
+                   8,
+                   16),
+    MemorySizeInGB=c(7,
+                     14,
+                     14,
+                     28,
+                     56,
+                     14,
+                     28,
+                     28,
+                     56,
+                     112),
+    NumberOfDataDisks=c(8,
+                        16,
+                        4,
+                        8,
+                        16,
+                        8,
+                        16,
+                        8,
+                        16,
+                        32),
+    MaxIOPS=c("8x300",
+              "16x500",
+              "4x500",
+              "8x500",
+              "16x500",
+              "8x500",
+              "16x500",
+              "8x500",
+              "16x500",
+              "32x500")
+  )
+
+  size_info
+}
+
+#' @title Get data consumption of Azure subscription.

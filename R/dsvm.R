@@ -1,14 +1,33 @@
+#' @title Create new Linux Data Science Virtual Machine.
+#' @param context Authentication context of AzureSMR.
+#' @param resource.group The Azure resource group where the DSVM is created.
+#' @param location Location of the DSVM.
+#' @param vmname Name of the DSVM. Note in the name lowercase characters or numbers are allowed, while any special characters are not. Incorrect naming may lead to unsuccessful deployment of DSVM - normally it returns a 400 error from REST call.
+#' @param vmusername User name of the DSVM. It should be different from `vmname`.
+#' @param vmsize Size of the DSVM. The default is "Standard_D3_v2". All available sizes can be obtained by function `getVMSizes`.
+#' @param vmauthen Either "Key" or "Pass", meaning public-key based or password based authentication, respectively.
+#' @param pubkey Public key for the DSVM. Only applicable for public-key based authentication.
+#' @param mode Mode of virtual machine deployment. Default is "Sync".
 newLinuxDSVM <- function(context,
                          resource.group,
                          location,
                          vmname,
                          vmusername,
+                         vmsize="Standard_D3_v2",
+                         vmauthen="Key"
                          pubkey,
                          mode="Sync")
 {
+  if(missing(context)) stop("Please specify a context.")
+  if(missing(resource.group)) stop("Please specify a resouce group.")
+  if(missing(location)) stop("Please specify a location.")
+  if(missing(vmname)) stop("Please specify a virtual machine name.")
+  if(!(vmsize %in% getVMSizes()$Sizes)) stop("Please use an allowed size for DSVM. More info can be found by running getVMSizes().")
+  if(missing(vmauthen)) stop("Please specify authentication method, 'Key' for public key based and 'Pass' for password based.")
+
   # Specify the JSON for the parameters and template of a Linux Data
   # Science Virtual Machine.
-  
+
   param <- '
 "parameters": {
    "virtualMachines_newdsvm_adminPassword": {
@@ -17,7 +36,7 @@ newLinuxDSVM <- function(context,
     "virtualMachines_newdsvm_name": {
         "value": "<DEFAULT>"
     },
-    "networkInterfaces_newdsvm161_name": {
+    "networkInterfaces_newdsvm_name": {
         "value": "<DEFAULT>nic"
     },
     "networkSecurityGroups_newdsvm_nsg_name": {
@@ -29,13 +48,14 @@ newLinuxDSVM <- function(context,
     "virtualNetworks_dsvm_vnet_name": {
         "value": "<DEFAULT>vnet"
     },
-    "storageAccounts_dsvmdisks490_name": {
+    "storageAccounts_dsvmdisks_name": {
         "value": "<DEFAULT>sa"
     }
 }
 '
 
-  templ <- '
+  templ <- pastes0(
+'
 {
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
@@ -49,8 +69,8 @@ newLinuxDSVM <- function(context,
             "defaultValue": "newdsvm",
             "type": "String"
         },
-        "networkInterfaces_newdsvm161_name": {
-            "defaultValue": "newdsvm161",
+        "networkInterfaces_newdsvm_name": {
+            "defaultValue": "newdsvm",
             "type": "String"
         },
         "networkSecurityGroups_newdsvm_nsg_name": {
@@ -65,8 +85,8 @@ newLinuxDSVM <- function(context,
             "defaultValue": "dsvm-vnet",
             "type": "String"
         },
-        "storageAccounts_dsvmdisks490_name": {
-            "defaultValue": "dsvmdisks490",
+        "storageAccounts_dsvmdisks_name": {
+            "defaultValue": "dsvmdisks",
             "type": "String"
         }
     },
@@ -83,7 +103,7 @@ newLinuxDSVM <- function(context,
             },
             "properties": {
                 "hardwareProfile": {
-                    "vmSize": "Basic_A3"
+                    "vmSize": "<VMSIZE>"
                 },
                 "storageProfile": {
                     "imageReference": {
@@ -96,7 +116,7 @@ newLinuxDSVM <- function(context,
                         "name": "[parameters(\'virtualMachines_newdsvm_name\')]",
                         "createOption": "FromImage",
                         "vhd": {
-                            "uri": "[concat(\'https\', \'://\', parameters(\'storageAccounts_dsvmdisks490_name\'), \'.blob.core.windows.net\', concat(\'/vhds/\', parameters(\'virtualMachines_newdsvm_name\'),\'20168192442.vhd\'))]"
+                            "uri": "[concat(\'https\', \'://\', parameters(\'storageAccounts_dsvmdisks_name\'), \'.blob.core.windows.net\', concat(\'/vhds/\', parameters(\'virtualMachines_newdsvm_name\'),\'20168192442.vhd\'))]"
                         },
                         "caching": "ReadWrite"
                     },
@@ -106,13 +126,14 @@ newLinuxDSVM <- function(context,
                             "name": "[concat(parameters(\'virtualMachines_newdsvm_name\'),\'-disk-1\')]",
                             "createOption": "FromImage",
                             "vhd": {
-                                "uri": "[concat(\'https\', \'://\', parameters(\'storageAccounts_dsvmdisks490_name\'), \'.blob.core.windows.net\', concat(\'/vhds/\', parameters(\'virtualMachines_newdsvm_name\'),\'-disk-1-20168192442.vhd\'))]"
+                                "uri": "[concat(\'https\', \'://\', parameters(\'storageAccounts_dsvmdisks_name\'), \'.blob.core.windows.net\', concat(\'/vhds/\', parameters(\'virtualMachines_newdsvm_name\'),\'-disk-1-20168192442.vhd\'))]"
                             },
                             "caching": "None"
                         }
                     ]
-                },
-                "osProfile": {
+                },',
+                ifelse(vmauthen=="Key",
+                '"osProfile": {
                     "computerName": "[parameters(\'virtualMachines_newdsvm_name\')]",
                     "adminUsername": "<USERNAME>",
                     "linuxConfiguration": {
@@ -128,24 +149,29 @@ newLinuxDSVM <- function(context,
                     },
                     "secrets": [],
                     "adminPassword": "[parameters(\'virtualMachines_newdsvm_adminPassword\')]"
-                },
-                "networkProfile": {
+                },',
+                '"osProfile": {
+                    "computerName": "[parameters(\'virtualMachines_newdsvm_name\')]",
+                    "adminUsername": "<USERNAME>",
+                    "adminPassword": "[parameters(\'virtualMachines_newdsvm_adminPassword\')]"
+                },',
+                '"networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId(\'Microsoft.Network/networkInterfaces\', parameters(\'networkInterfaces_newdsvm161_name\'))]"
+                            "id": "[resourceId(\'Microsoft.Network/networkInterfaces\', parameters(\'networkInterfaces_newdsvm_name\'))]"
                         }
                     ]
                 }
             },
             "resources": [],
             "dependsOn": [
-                "[resourceId(\'Microsoft.Storage/storageAccounts\', parameters(\'storageAccounts_dsvmdisks490_name\'))]",
-                "[resourceId(\'Microsoft.Network/networkInterfaces\', parameters(\'networkInterfaces_newdsvm161_name\'))]"
+                "[resourceId(\'Microsoft.Storage/storageAccounts\', parameters(\'storageAccounts_dsvmdisks_name\'))]",
+                "[resourceId(\'Microsoft.Network/networkInterfaces\', parameters(\'networkInterfaces_newdsvm_name\'))]"
             ]
         },
         {
             "type": "Microsoft.Network/networkInterfaces",
-            "name": "[parameters(\'networkInterfaces_newdsvm161_name\')]",
+            "name": "[parameters(\'networkInterfaces_newdsvm_name\')]",
             "apiVersion": "2016-03-30",
             "location": "[resourceGroup().location]",
             "properties": {
@@ -213,6 +239,19 @@ newLinuxDSVM <- function(context,
                         }
                     },
                     {
+                        "name": "RServer",
+                        "properties": {
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "8080",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 1030,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
                         "name": "default-allow-ssh",
                         "properties": {
                             "protocol": "TCP",
@@ -221,7 +260,7 @@ newLinuxDSVM <- function(context,
                             "sourceAddressPrefix": "*",
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
-                            "priority": 1030,
+                            "priority": 1040,
                             "direction": "Inbound"
                         }
                     },
@@ -234,7 +273,7 @@ newLinuxDSVM <- function(context,
                             "sourceAddressPrefix": "*",
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
-                            "priority": 1040,
+                            "priority": 1050,
                             "direction": "Inbound"
                         }
                     }
@@ -288,7 +327,7 @@ newLinuxDSVM <- function(context,
                 "tier": "Standard"
             },
             "kind": "Storage",
-            "name": "[parameters(\'storageAccounts_dsvmdisks490_name\')]",
+            "name": "[parameters(\'storageAccounts_dsvmdisks_name\')]",
             "apiVersion": "2016-01-01",
             "location": "[resourceGroup().location]",
             "tags": {},
@@ -298,46 +337,94 @@ newLinuxDSVM <- function(context,
         }
     ]
 }
-'
+')
 
   # Record the location of the local authorised keys file on the new
   # Linux DSVM.
-  
+
   KEYPATH <- paste0("/home/", vmusername, "/.ssh/authorized_keys")
 
   # Update the parameter JSON with the virtual machine name.
-  
-  param %<>% 
+
+  param %<>%
     gsub("<DEFAULT>", vmname, .) %>%
     paste0(collapse="")
 
   # jsonlite::prettify(para_json)
 
   dname <- paste0(vmname, "_dpl")
-  
+
   # Update the template JSON with the appropriate parameters.
-  
+
   templ %<>%
     gsub("<DNS_LABEL>", vmname, .) %>%
     gsub("<USERNAME>", vmusername, .) %>%
+    gsub("<VMSIZE>", vmsize, .) %>%
     gsub("<KEYPATH>", KEYPATH, .) %>%
     gsub("<PUBKEY", pubkey, .) %>%
     paste0(collapse="")
-  
+
   # jsonlite::prettify(temp_json)
 
-  azureDeployTemplate(context,
-                      deplname=dname,
-                      templateJSON=templ,
-                      paramJSON=param, 
-                      resourceGroup=resource.group,
-                      mode=mode)
+  AzureSMR::azureDeployTemplate(context,
+                                deplname=dname,
+                                templateJSON=templ,
+                                paramJSON=param,
+                                resourceGroup=resource.group,
+                                mode=mode)
 
   fqdn <- paste0(vmname, ".", location, ".cloudapp.azure.com")
 
   if (tolower(mode) == "sync")
     attr(fqdn, "ip") <-
       system(paste("dig", fqdn, "+short"), intern=TRUE) # Get from the VM meta data?
-  
+
   return(fqdn)
+}
+
+newWindowsDSVM <- function() {
+  # more to come.
+}
+
+#' @title Operations on a data science virtual machine. Available operations are "Check", "Start", "Stop", and "Delete".
+#' @param context AzureSMR context.
+#' @param resource.group Resource group.
+#' @param vmname Name of the DSVM.
+#' @param operation Operations on the DSVM. Available operations are "Check", "Start", "Stop", "Delete", which check the status of, start running, stop running, and delete a DSVM, respectively.
+operateDSVM <- function(context,
+                        resource.group,
+                        vmname,
+                        operation) {
+  # check input arguments.
+
+  if (missing(context)) stop("Please specify AzureSMR context.")
+  if (missing(resource.group)) stop("Please specify resource group.")
+  if (missing(vmname)) stop("Please specify DSVM name.")
+  if (missing(operation)) stop("Please specify an operation on the DSVM")
+
+  # check if input operations are available.
+
+  if (!(operation %in% c("Check", "Start", "Stop", "Delete"))) stop("Please use an allowed operation, i.e., 'Check', 'Start', 'Stop', or 'Delete', for the DSVM.")
+
+  if (operation == "Check") {
+    AzureSMR::azureVMStatus(azureActiveContext=context,
+                            resourceGroup=resource.group,
+                            vmName=vmname,
+                            verbose=FALSE)
+  } else if (operation == "Start") {
+    AzureSMR::azureStartVM(azureActiveContext=context,
+                           resourceGroup=resource.group,
+                           vmName=vmname,
+                           verbose=FALSE)
+  } else if (operation == "Stop") {
+    AzureSMR::azureStopVM(azureActiveContext=context,
+                          resourceGroup=resource.group,
+                          vmName=vmname,
+                          verbose=FALSE)
+  } else {
+    AzureSMR::azureDeleteVM(azureActiveContext=context,
+                            resourceGroup=resource.group,
+                            vmName=vmname,
+                            verbose=FALSE)
+  }
 }
