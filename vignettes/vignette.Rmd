@@ -35,11 +35,16 @@ vignette: >
 
 ## Execution
 
+`msrdeploy` of Microsoft R Client provides a bunch of handy functions for remote login, execution, etc...
+
+What to do in `AzureDSR`: Generate an worker R script, which is then remotely executed with specific computing context, data reference, etc. This is taken care of by a interface object.
+
 |Function|Description|
 
 ## Helpers
 
 |Function|Description|
+|------------------|-------------------------------------------------------------|
 |`getVMSizeInfo`|Get information about DSVM. E.g., number of cores, memory size, and pricing details|
 |`getDataConsumption`|Get data consumption of Azure subscription or a specific Azure instance under such subscription for a certain period|
 |`getCost`|Calculate cost of Azure subscription or a specified instance under such subscription for a certain period of time (measured in a specified currency).|
