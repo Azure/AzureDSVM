@@ -1,0 +1,151 @@
+---
+title = "Using Azure Data Science Resources: Single Linux DSVM Quick Start"
+author= "Graham Williams"
+---
+
+# Use Case
+
+Our use case here is for a Data Scientist creating their R programs to
+analyse a dataset on their local compute platform (e.g., a laptop with
+6GB RAM running Ubuntu with R installed). Development is done with a
+dataset size (a random sample of the full dataset perhaps) that will
+not tax the available memory and will return results quickly. When the
+experimental setup is complete the script can be sent across to an
+considerably more capable compute engine on Azure.
+
+A Linux Data Science Virtual Machine is deployed, the analysis
+completed, results collected, and the compute resources deleted. Azure
+consumption costs are minimised.
+
+This specific demonstration simply creates a Linux Data Science
+Virtual Machine within a resource group, demonstrates it exists, and
+then deletes the resource group.
+
+This script is best run interactively to review its operation and
+ensure interaction with Azure completes.
+
+# Setup
+
+We assume there is already a subscription and we have obtained the
+credentials required. See
+[AzureSMR's Authentication Guide](https://github.com/Microsoft/AzureSMR/blob/master/vignettes/Authentication.Rmd)
+for details.  We will then ensure a resource group exists and within
+that resource group create a Linux DSVM. A public ssh key is used to
+access the server.
+
+To get started we need to load the obtained credentials as well as the
+user's ssh public key. Public keys on Linux are typically created on
+the users desktop/laptop machine and will be found within
+~/.ssh/id_rsa.pub. The content's of the user's credentials file will
+be something like:
+
+> # These come from app creation in Active Directory.
+> 
+> TID <- "72f9....db47"          # Tenant ID
+> CID <- "9c52....074a"          # Client ID
+> KEY <- "9Efb....4nwV....ASa8=" # User key
+> 
+> PUBKEY <- readLines("~/.ssh/id_rsa.pub")
+
+
+```{r setup}
+# Load the required subscription resources: TID, CID, and KEY.
+# Also includes the ssh PUBKEY for the user.
+
+USER <- Sys.getenv("USER")
+
+source(paste0(USER, "_credentials.R"))
+
+# Install the packages if required.
+
+devtools::install_github("Microsoft/AzureSMR")
+devtools::install_github("Azure/AzureDSR", auth_token=GIT_TOKEN)
+```
+
+```{r packages}
+# Load the required packages.
+
+library(AzureSMR)    # Support for managing Azure resources.
+library(AzureDSR)    # Further support for the Data Scientist.
+library(magrittr)    
+library(dplyr)
+library(rattle)      # Use weatherAUS as a "large" dataset.
+```
+
+```{r tuning}
+# Parameters for this script: the name for the new resource group and
+# its location across the Azure cloud. The resource name is used to
+# name the resource group that we will create transiently for the
+# purposes of this script.
+
+RG  <- "my_dsvm_rg_sea"  # Create if not already exist then kill.
+LOC <- "southeastasia"   # Where the resource group (resources) will be hosted.
+```
+
+```{r connect}
+# Connect to the Azure subscription and use this as the context for
+# our activities.
+
+context <- createAzureContext(tenantID=TID, clientID=CID, authKey=KEY)
+
+# Check if the resource group already exists. Take note this script
+# will not remove the resource group if it pre-existed.
+
+context %>%
+  azureListRG() %>%
+  filter(name == RG) %>%
+  select(name, location) %T>%
+  print() %>%
+  nrow() %>%
+  equals(0) %>%
+  not() %T>%
+  print() ->
+rg_pre_exists
+    
+
+if (! rg_pre_exists)
+{
+  # with a possibly new resource group and hosted at the specified
+  # location. TODO Check the location of a pre-existing resource group
+  # and ensure it matches LOC? If not, then what? Maybe just override
+  # the LOC with the actual location.
+  #
+  # Create a new resource group into which we create the VMs and
+  # related resources. Resource group name is RG. TODO Seems that not
+  # everyone can create new resource groups. Need to determine what
+  # controls this. Perhaps it is a management issue and general users
+  # can not have access to manage resource groups. Instead, how do we
+  # identify all the resources we create when deploying the virtual
+  # machine? Do we get a list of resources in the resource group in
+  # advance and compare it afterwards and simply remove all new
+  # resources, assuming no one else created any in the same resource
+  # group in the meantime.
+
+  azureCreateResourceGroup(context, RG, LOC)
+
+}
+```
+
+```{r deploy}
+# Create the required Linux DSVM 
+
+ldsvm <- newLinuxDSVM(context, RG, LOC, "mydsvm07", USER, PUBKEY)
+
+ldsvm
+```
+
+```{r prove exists}
+
+# Send a simple sysnte() command across to show the existence of the VM.
+
+cmd <- paste("ssh -o StrictHostKeyChecking=no", ldsvm, "uptime")
+system(cmd)
+```
+
+```{r optionally delete resource group}
+# Delete the resource group now that we have proved existence. There
+# is probably no need to wait. Only delete if it did not pre-exist
+# this script.
+
+if (! rg_pre_exists) azureDeleteResourceGroup(context, RG)
+```
