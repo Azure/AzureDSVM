@@ -26,6 +26,9 @@
         "adminPassword": {
             "value": "<PWD>"
         },
+        "adminPublicKey": {
+            "value": "<PUBKEY>"
+        },
         "diagnosticsStorageAccountName": {
             "value": "diagname"
         },
