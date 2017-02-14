@@ -52,8 +52,8 @@ newLinuxDSVM <- function(context,
   # the DSVM - normally it returns a 400 error from REST call. Check
   # the name here to ensure it is valid.
 
-  if (REGEXP OF lowercase AND digits to MATCH vmname)
-    stop("Invalid vmname - only lowercase and digits permitted.")
+#  if (REGEXP OF lowercase AND digits to MATCH vmname)
+#    stop("Invalid vmname - only lowercase and digits permitted.")
 
   # Specify the JSON for the parameters and template of a Linux Data
   # Science Virtual Machine.
