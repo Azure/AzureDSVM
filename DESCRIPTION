@@ -5,9 +5,7 @@ Version: 0.1.0
 Authors@R: c(
     person(family="Microsoft Coporation", role="cph"),
     person("Graham", "Williams", role=c("aut", "cre"), email="grwilli@microsoft.com"),
-    person("Le", "Zhang", role=c("aut"), email="zhle@microsoft.com")
-)
-Maintainer: grwilli@microsoft.com, zhle@microsoft.com
+    person("Le", "Zhang", role=c("aut"), email="zhle@microsoft.com"))
 Description: 
     The AzureDSR is a package that aims at providing handy methods, with the help of underlying AzureSMR package, for doing data science jobs on Azure cloud efficiently and economically. Basically it can be used with the following benefits.
     Easy operations such as create, start, and stop of Azure data science instances.
@@ -23,7 +21,7 @@ Imports:
     AzureSMR (>= 0.2.2),
     stringr (>= 1.1.0),
     stringi (>= 1.1.2),
-    magrittr (>=1.5),
+    magrittr (>= 1.5),
     dplyr (>= 0.5.0)
 Suggests: 
     knitr,
