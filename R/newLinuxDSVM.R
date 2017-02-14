@@ -22,7 +22,7 @@ newLinuxDSVM <- function(context,
                          location,
                          vmname,
                          vmusername,
-                         vmsize="Standard_D1_v2",
+                         vmsize="Standard_D3_v2",
                          vmauthen="Key",
                          pubkey,
                          mode="Sync")
@@ -366,9 +366,7 @@ newLinuxDSVM <- function(context,
             "dependsOn": []
         }
     ]
-}
-')
-
+}'))
   # Record the location of the local authorised keys file on the new
   # Linux DSVM.
 
