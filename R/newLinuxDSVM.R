@@ -62,7 +62,7 @@ newLinuxDSVM <- function(context,
   # Science Virtual Machine.
 
 
-  # Template and parameter JSON files are put in inst/etc. They are loaded when deploying an Azure instance.
+  # Template and parameter JSON files are put at inst/etc. They are loaded when deploying an Azure instance.
 
   para_path <- system.file("etc", "parameter.json", package="AzureDSR")
 
