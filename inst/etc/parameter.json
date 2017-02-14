@@ -1,0 +1,53 @@
+"parameters": {
+	"location": {
+	    "value": "<LOCATION>"
+	},
+	"virtualMachineName": {
+            "value": "<DEFAULT>"
+        },
+        "virtualMachineSize": {
+            "value": "<VMSIZE>"
+        },
+        "adminUsername": {
+            "value": "<USER>"
+        },
+        "storageAccountName": {
+            "value": "<DEFAULT>sa"
+        },
+        "virtualNetworkName": {
+            "value": "<DEFAULT>vnet"
+        },
+        "networkInterfaceName": {
+            "value": "<DEFAULT>nic"
+        },
+        "networkSecurityGroupName": {
+            "value": "<DEFAULT>sg"
+        },
+        "adminPassword": {
+            "value": "<PWD>"
+        },
+        "diagnosticsStorageAccountName": {
+            "value": "diagname"
+        },
+        "diagnosticsStorageAccountId": {
+            "value": "diagid"
+        },
+        "addressPrefix": {
+            "value": "addprefix"
+        },
+        "subnetName": {
+            "value": "subname"
+        },
+        "subnetPrefix": {
+            "value": "subprefix"
+        },
+        "publicIpAddressName": {
+            "value": "pubipname"
+        },
+        "publicIpAddressType": {
+            "value": "pubiptype"
+        },
+	"dnsLabel": {
+	    "value": "<DNS_LABEL>"
+	}
+    }
