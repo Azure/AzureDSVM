@@ -1,29 +1,59 @@
-#' @title Create new Linux Data Science Virtual Machine.
-#' @param context Authentication context of AzureSMR.
-#' @param resource.group The Azure resource group where the DSVM is created.
-#' @param location Location of the DSVM.
-#' @param vmname Name of the DSVM. Note in the name lowercase characters or numbers are allowed, while any special characters are not. Incorrect naming may lead to unsuccessful deployment of DSVM - normally it returns a 400 error from REST call.
-#' @param vmusername User name of the DSVM. It should be different from `vmname`.
-#' @param vmsize Size of the DSVM. The default is "Standard_D3_v2". All available sizes can be obtained by function `getVMSizes`.
-#' @param vmauthen Either "Key" or "Pass", meaning public-key based or password based authentication, respectively.
-#' @param pubkey Public key for the DSVM. Only applicable for public-key based authentication.
+#' @title Create new Linux Data Science Virtual Machine (DSVM).
+#' 
+#' @param context Authentication context of AzureSMR encapsulating the
+#'   TID, CID, and key obtained from Azure Actrive Directory.
+#' @param resource.group The Azure resource group where the DSVM is
+#'   created.
+#' @param location Location of the data centre to host the DSVM.
+#' @param vmname Name of the DSVM.  Lowercase characters or numbers
+#'   only. Special characters are not permitted.
+#' @param vmusername User name of the DSVM. It should be different
+#'   from `vmname`.
+#' @param vmsize Size of the DSVM. The default is
+#'   "Standard_D1_v2". All available sizes can be obtained by function
+#'   `getVMSizes`.
+#' @param vmauthen Either "Key" or "Pass", meaning public-key based or
+#'   password based authentication, respectively.
+#' @param pubkey Public key for the DSVM. Only applicable for
+#'   public-key based authentication.
 #' @param mode Mode of virtual machine deployment. Default is "Sync".
 newLinuxDSVM <- function(context,
                          resource.group,
                          location,
                          vmname,
                          vmusername,
-                         vmsize="Standard_D3_v2",
-                         vmauthen="Key"
+                         vmsize="Standard_D1_v2",
+                         vmauthen="Key",
                          pubkey,
                          mode="Sync")
 {
-  if(missing(context)) stop("Please specify a context.")
-  if(missing(resource.group)) stop("Please specify a resouce group.")
-  if(missing(location)) stop("Please specify a location.")
-  if(missing(vmname)) stop("Please specify a virtual machine name.")
-  if(!(vmsize %in% getVMSizes()$Sizes)) stop("Please use an allowed size for DSVM. More info can be found by running getVMSizes().")
-  if(missing(vmauthen)) stop("Please specify authentication method, 'Key' for public key based and 'Pass' for password based.")
+  # Preconditions.
+  
+  if(missing(context))
+    stop("Please specify a context (contains TID, CID, KEY).")
+  
+  if(missing(resource.group))
+    stop("Please specify an Azure resouce group.")
+  
+  if(missing(location))
+    stop("Please specify a data centre location.")
+  
+  if(missing(vmname))
+    stop("Please specify a virtual machine name.")
+  
+  if(missing(vmauthen)) # Never missing since has a default value of Key.
+    stop(paste("Please specify authentication method:",
+               "'Key' for public key or 'Pass' for password."))
+
+  if(!(vmsize %in% getVMSizes()$Sizes))
+    stop("Unknown vmsize - see getVMSizes() for allowed options.")
+  
+  # Incorrect naming of a vm may lead to an unsuccessful deployment of
+  # the DSVM - normally it returns a 400 error from REST call. Check
+  # the name here to ensure it is valid.
+
+  if (REGEXP OF lowercase AND digits to MATCH vmname)
+    stop("Invalid vmname - only lowercase and digits permitted.")
 
   # Specify the JSON for the parameters and template of a Linux Data
   # Science Virtual Machine.
