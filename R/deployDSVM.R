@@ -20,6 +20,7 @@
 #' @param vmpassword Pass word for the DSVM.
 #' @param vmdns DNS label for the VM address. The URL for accessing the deployed DSVM will be "<dns_label>.<location>.cloudapp.azure.com
 #' @param mode Mode of virtual machine deployment. Default is "Sync".
+#' @export
 deployDSVM <- function(context,
                        resource.group,
                        location,
