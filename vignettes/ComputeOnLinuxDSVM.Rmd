@@ -19,7 +19,7 @@ not tax the available memory and will return results quickly. When the
 experimental setup is complete the script can be sent across to an
 considerably more capable compute engine on Azure.
 
-A Linux Data Science Virtual Machine is deployed, the analysis
+A Linux Data Science Virtual Machine (DSVM) is deployed, the analysis
 completed, results collected, and the compute resources deleted. Azure
 consumption costs are minimised.
 
@@ -118,30 +118,47 @@ grouped.
 if (! rg_pre_exists)
 {
   # Create a new resource group into which we create the VMs and
-  # related resources. Resource group name is RG. TODO Seems that not
-  # everyone can create new resource groups. Need to determine what
-  # controls this. Perhaps it is a management issue and general users
-  # cannot have access to manage resource groups. Instead, how do we
-  # identify all the resources we create when deploying the virtual
-  # machine? Do we get a list of resources in the resource group in
-  # advance and compare it afterwards and simply remove all new
-  # resources, assuming no one else created any in the same resource
-  # group in the meantime. For now assume if prexists we simply do not
-  # remove the resource group.
+  # related resources. Resource group name is RG. 
+  
+  # To create a new resource group, one needs to add access control of Active Directory application at subscription level.
 
   azureCreateResourceGroup(context, RG, LOC)
 
 }
 ```
-Create the actual Linux Data Science Virtual Machine.
+Create the actual Linux DSVM with public key based authentication method. Name, username, and size can also be configured.
 
 ```{r deploy}
 # Create the required Linux DSVM - generally 4 minutes.
 
-ldsvm <- newLinuxDSVM(context, RG, LOC, "mydsvm07", USER, PUBKEY)
+ldsvm <- deployDSVM(context, 
+                    resource.group=RG,
+                    location=LOC,
+                    vmname="mydsvm001",
+                    vmusername=USER,
+                    vmsize="Basic_A7",
+                    vmos="Linux",
+                    vmauthen="Key",
+                    vmpubkey=PUBKEY)
 
 ldsvm
 ```
+
+`deployDSVM` also supports deployment of Windows DSVM, which can be achieved by setting the argument of `vmos` to "Windows".
+
+```{r}
+wdsvm <- deployDSVM(context,
+                    resource.group=RG,
+                    location=LOC,
+                    vmname="mydsvm002",
+                    vmusername=USER,
+                    vmsize="Standard_D3_v2",
+                    vmos="Windows",
+                    vmpassword=PASSWORD)
+
+wdsvm
+```
+
 
 Prove that the server exists.
 

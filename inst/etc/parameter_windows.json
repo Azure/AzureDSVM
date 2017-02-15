@@ -1,0 +1,33 @@
+"parameters": {
+    "location": {
+	"value": "<LOCATION>"
+    },
+    "virtualMachineSize": {
+	"value": "<VMSIZE>"
+    },
+    "adminUsername": {
+	"value": "<USER>"
+    },
+    "virtualMachines_adminPassword": {
+	"value": "<PWD>"
+    },
+    "virtualMachines_name": {
+	"value": "<DEFAULT>"
+    },
+    "networkInterfaces_name": {
+	"value": "<DEFAULT>nic"
+    },
+    "networkSecurityGroups_nsg_name": {
+	"value": "<DEFAULT>sg"
+    },
+    "publicIPAddresses_ip_name": {
+	"value": "<DEFAULT>ip"
+    },
+    "virtualNetworks_name": {
+	"value": "<DEFAULT>vnet"
+    },
+    "storageAccounts_dsvmdisks490_name": {
+	"value": "<DEFAULT>sa"
+    }
+}
+

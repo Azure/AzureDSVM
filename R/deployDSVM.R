@@ -1,4 +1,4 @@
-#' @title Create new Linux Data Science Virtual Machine (DSVM).
+#' @title Deploy a new Data Science Virtual Machine (DSVM).
 #'
 #' @param context Authentication context of AzureSMR encapsulating the
 #'   TID, CID, and key obtained from Azure Actrive Directory.
@@ -16,21 +16,23 @@
 #'   password based authentication, respectively.
 #' @param vmpubkey Public key for the DSVM. Only applicable for
 #'   public-key based authentication.
+#' @param vmpassword Pass word for the DSVM.
+#' @param vmdns DNS label for the VM address.
 #' @param mode Mode of virtual machine deployment. Default is "Sync".
-newLinuxDSVM <- function(context,
-                         resource.group,
-                         location,
-                         vmname,
-                         vmusername,
-                         vmsize="Standard_D3_v2",
-                         vmos,
-                         vmauthen="Key",
-                         vmpubkey,
-                         vmpassword="",
-                         vmdns=paste0(vmname, "_dns"),
-                         mode="Sync")
+deployDSVM <- function(context,
+                       resource.group,
+                       location,
+                       vmname,
+                       vmusername,
+                       vmsize="Standard_D3_v2",
+                       vmos,
+                       vmauthen="",
+                       vmpubkey="",
+                       vmpassword="",
+                       vmdns=paste0(vmname, "dns"),
+                       mode="Sync")
 {
-  # Preconditions.
+  # check if required arguments are present.
 
   if(missing(context))
     stop("Please specify a context (contains TID, CID, KEY).")
@@ -44,9 +46,50 @@ newLinuxDSVM <- function(context,
   if(missing(vmname))
     stop("Please specify a virtual machine name.")
 
-  if(missing(vmauthen)) # Never missing since has a default value of Key.
-    stop(paste("Please specify authentication method:",
-               "'Key' for public key or 'Pass' for password."))
+  if(missing(vmusername))
+    stop("Please specify a virtual machine user name.")
+
+  if(missing(vmos))
+    stop("Please specify a virtual machine OS.")
+
+  if(vmos == "Linux" && missing(vmauthen))
+    stop("Please specify an authentication method for Linux DSVM.")
+
+  if(vmos == "Windows" && missing(vmpassword))
+    stop("Please specify a password for Windows DSVM.")
+
+  if(vmauthen == "Key" && missing(vmpubkey))
+    stop("Please specify a public key.")
+
+  if(vmauthen == "Password" && missing(vmpassword))
+    stop("Please specify a password.")
+
+  # Other preconditions.
+
+  # check if AzureSMR context is valid.
+
+  if(!is.azureActiveContext(context))
+    stop("Please use a valid AzureSMR context.")
+
+  # check if resource group exists.
+
+  rg_exist <-
+    context %>%
+    azureListRG() %>%
+    filter(name == RG) %>%
+    select(name, location) %>%
+    nrow() %>%
+    equals(0) %>%
+    not()
+
+  if(!rg_exist)
+    stop("The specified resource group does not exist in the current region.")
+
+  # check if location is available.
+
+  # if(location %in% c("location_code_1", ...))
+
+  # check if vm
 
   if(!(vmsize %in% getVMSizes()$Sizes))
     stop("Unknown vmsize - see getVMSizes() for allowed options.")
@@ -55,31 +98,29 @@ newLinuxDSVM <- function(context,
   # the DSVM - normally it returns a 400 error from REST call. Check
   # the name here to ensure it is valid.
 
-  #  if (REGEXP OF lowercase AND digits to MATCH vmname)
-  #    stop("Invalid vmname - only lowercase and digits permitted.")
+  if(length(vmname) > 15)
+    stop("Name of virtual machine is too long.")
 
-  # Specify the JSON for the parameters and template of a Linux Data
-  # Science Virtual Machine.
+  if(grepl("[[:upper:]]|[[:punct:]]", vmname))
+    stop("Name of virtual machine is not valid - only lowercase and digits permitted.")
 
+  # check if password is valid.
 
-  # Template and parameter JSON files are put at inst/etc. They are loaded when deploying an Azure instance.
+  # if(!grepl("^(?=.*[[A-Za-z]])(?=.*\\d)(?=.*[[$@$!%*#?&]])[[A-Za-z\\d$@$!%*#?&]]{8,}$", vmpassword))
+  #   stop("Password not valid - minimum 8 characters with at least one digit and one special character.")
 
-  para_path <- system.file("etc", "parameter.json", package="AzureDSR")
+  # Load template and parameter JSON files for deployment
 
   if(vmos == "Windows") {
-
-    # Windows DSVM does not support public key based authentication.
-
-    if(vmauthent != "Pass") {
-      stop("Please use password based authentication, i.e., 'Pass'.")
-    }
-
-    temp_path <- system.file("etc", "windows.json", package="AzureDSR")
+    temp_path <- system.file("etc", "template_windows.json", package="AzureDSR")
+    para_path <- system.file("etc", "parameter_windows.json", package="AzureDSR")
   } else if(vmos == "Linux") {
     if(vmauthen == "Key") {
-      temp_path <- system.file("etc", "linux_key.json", package="AzureDSR")
+      temp_path <- system.file("etc", "template_linux_key.json", package="AzureDSR")
+      para_path <- system.file("etc", "parameter_linux_key.json", package="AzureDSR")
     } else if(vmauthen == "Password") {
-      temp_path <- system.file("etc", "linux.json", package="AzureDSR")
+      temp_path <- system.file("etc", "template_linux.json", package="AzureDSR")
+      para_path <- system.file("etc", "parameter_linux.json", package="AzureDSR")
     } else {
       stop("Please specific a valid authentication method, i.e., either 'Key' for public key based or 'Password' for password based, for Linux OS based DSVM")
     }
@@ -93,16 +134,17 @@ newLinuxDSVM <- function(context,
     readLines(para_path) %>%
     gsub("<LOCATION>", location, .) %>%
     gsub("<DEFAULT>", vmname, .) %>%
-    gsub("<USERNAME>", vmusername, .) %>%
+    gsub("<USER>", vmusername, .) %>%
     gsub("<VMSIZE>", vmsize, .) %>%
     gsub("<PWD>", vmpassword, .) %>%
     gsub("<PUBKEY>", vmpubkey, .) %>%
-    gsub("<DNS_LABEL>", vmdns, .)
+    paste0(collapse="")
 
   # Update the template JSON with the appropriate parameters.
 
   templ <-
     readLines(temp_path) %>%
+    gsub("<DNS_LABEL>", vmdns, .) %>%
     paste0(collapse="")
 
   dname <- paste0(vmname, "_dpl")
