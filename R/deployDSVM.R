@@ -12,12 +12,13 @@
 #' @param vmsize Size of the DSVM. The default is
 #'   "Standard_D1_v2". All available sizes can be obtained by function
 #'   `getVMSizes`.
-#' @param vmauthen Either "Key" or "Pass", meaning public-key based or
-#'   password based authentication, respectively.
+#' @param vmos Operating system of DSVM. Permitted values are "Linux" and "Windows" for Linux based and Windows based operating systems, respectively.
+#' @param vmauthen Either "Key" or "Password", meaning public-key based or
+#'   password based authentication, respectively. Note Windows DSVM by default uses password based authentication and this argument can be left unset.
 #' @param vmpubkey Public key for the DSVM. Only applicable for
-#'   public-key based authentication.
+#'   public-key based authentication of Linux based DSVM.
 #' @param vmpassword Pass word for the DSVM.
-#' @param vmdns DNS label for the VM address.
+#' @param vmdns DNS label for the VM address. The URL for accessing the deployed DSVM will be "<dns_label>.<location>.cloudapp.azure.com
 #' @param mode Mode of virtual machine deployment. Default is "Sync".
 deployDSVM <- function(context,
                        resource.group,
