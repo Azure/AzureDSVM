@@ -36,7 +36,7 @@ deployDSVM <- function(context,
                        authen="",
                        pubkey="",
                        password="",
-                       dns=paste0(name, "dns"),
+                       dns=name,
                        mode="Sync")
 {
   # check if required arguments are present.
