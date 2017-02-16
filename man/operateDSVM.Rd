@@ -4,14 +4,14 @@
 \alias{operateDSVM}
 \title{Operations on a data science virtual machine. Available operations are "Check", "Start", "Stop", and "Delete".}
 \usage{
-operateDSVM(context, resource.group, vmname, operation)
+operateDSVM(context, resource.group, name, operation = "Check")
 }
 \arguments{
 \item{context}{AzureSMR context.}
 
 \item{resource.group}{Resource group.}
 
-\item{vmname}{Name of the DSVM.}
+\item{name}{Name of the DSVM.}
 
 \item{operation}{Operations on the DSVM. Available operations are "Check", "Start", "Stop", "Delete", which check the status of, start running, stop running, and delete a DSVM, respectively.}
 }

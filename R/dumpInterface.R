@@ -1,6 +1,7 @@
 #' @title Dump out the object configuration.
 #' @param object The R interface object.
 #' @return No return. Print R interface object information.
+#' @export
 dumpObject <- function(object) {
   cat(
     sprintf("---------------------------------------------------------------------------"),

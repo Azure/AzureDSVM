@@ -5,6 +5,7 @@
 #' @param script R script with full path for execution at remote instance.
 #' @param config Configuration for remote execution. Settings include computing context, data reference, etc.
 #' @return The updated R interface object.
+#' @export
 setRInterface <- function(object,
                           remote,
                           user,

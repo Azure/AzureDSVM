@@ -4,12 +4,12 @@
 #' @param script R script with full path for execution at remote instance.
 #' @param config Configuration for remote execution. Settings include computing context, data reference, etc.
 #' @return An S3 R interface object.
+#' @export
 createRInterface <- function(remote,
                              user,
                              script,
                              config){
   ri_env <- new.env(parent=globalenv())
-  ri_env <- as.RInterface(azEnv)
 
   # initialize an R interface object.
 

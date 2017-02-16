@@ -39,6 +39,10 @@ deployDSVM <- function(context,
                        dns=name,
                        mode="Sync")
 {
+  # check if token is valid.
+
+  AzureSMR::azureCheckToken(context)
+
   # check if required arguments are present.
 
   if(missing(context))
