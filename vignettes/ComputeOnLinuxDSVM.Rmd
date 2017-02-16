@@ -59,7 +59,7 @@ PUBKEY <- readLines("~/.ssh/id_rsa.pub")
 # Load the required subscription resources: TID, CID, and KEY.
 # Also includes the ssh PUBKEY for the user.
 
-USER <- Sys.getenv("USER")
+USER <- Sys.getenv("USERNAME")
 
 source(paste0(USER, "_credentials.R"))
 
@@ -134,12 +134,12 @@ Create the actual Linux DSVM with public key based authentication method. Name, 
 ldsvm <- deployDSVM(context, 
                     resource.group=RG,
                     location=LOC,
-                    vmname="mydsvm001",
-                    vmusername=USER,
-                    vmsize="Basic_A7",
-                    vmos="Linux",
-                    vmauthen="Key",
-                    vmpubkey=PUBKEY)
+                    name="mydsvm010",
+                    username=USER,
+                    size="Standard_DS1_v2",
+                    os="Linux",
+                    authen="Key",
+                    pubkey=PUBKEY)
 
 ldsvm
 ```

@@ -5,33 +5,31 @@
 #' @param resource.group The Azure resource group where the DSVM is
 #'   created.
 #' @param location Location of the data centre to host the DSVM.
-#' @param vmname Name of the DSVM.  Lowercase characters or numbers
+#' @param name Name of the DSVM.  Lowercase characters or numbers
 #'   only. Special characters are not permitted.
-#' @param vmusername User name of the DSVM. It should be different
-#'   from `vmname`.
-#' @param vmsize Size of the DSVM. The default is
+#' @param username User name of the DSVM. It should be different
+#'   from `name`.
+#' @param size Size of the DSVM. The default is
 #'   "Standard_D1_v2". All available sizes can be obtained by function
-#'   `getVMSizes`.
-#' @param vmos Operating system of DSVM. Permitted values are "Linux" and "Windows" for Linux based and Windows based operating systems, respectively.
-#' @param vmauthen Either "Key" or "Password", meaning public-key based or
+#'   `getsizes`.
+#' @param os Operating system of DSVM. Permitted values are "Linux" and "Windows" for Linux based and Windows based operating systems, respectively.
+#' @param authen Either "Key" or "Password", meaning public-key based or
 #'   password based authentication, respectively. Note Windows DSVM by default uses password based authentication and this argument can be left unset.
-#' @param vmpubkey Public key for the DSVM. Only applicable for
+#' @param pubkey Public key for the DSVM. Only applicable for
 #'   public-key based authentication of Linux based DSVM.
-#' @param vmpassword Pass word for the DSVM.
-#' @param vmdns DNS label for the VM address. The URL for accessing the deployed DSVM will be "<dns_label>.<location>.cloudapp.azure.com
+#' @param password Pass word for the DSVM.
 #' @param mode Mode of virtual machine deployment. Default is "Sync".
 #' @export
 deployDSVM <- function(context,
                        resource.group,
                        location,
-                       vmname,
-                       vmusername,
-                       vmsize="Standard_D3_v2",
-                       vmos,
-                       vmauthen="",
-                       vmpubkey="",
-                       vmpassword="",
-                       vmdns=paste0(vmname, "dns"),
+                       name,
+                       username,
+                       size="Standard_D3_v2",
+                       os,
+                       authen="",
+                       pubkey="",
+                       password="",
                        mode="Sync")
 {
   # check if required arguments are present.
@@ -45,25 +43,25 @@ deployDSVM <- function(context,
   if(missing(location))
     stop("Please specify a data centre location.")
 
-  if(missing(vmname))
+  if(missing(name))
     stop("Please specify a virtual machine name.")
 
-  if(missing(vmusername))
+  if(missing(username))
     stop("Please specify a virtual machine user name.")
 
-  if(missing(vmos))
+  if(missing(os))
     stop("Please specify a virtual machine OS.")
 
-  if(vmos == "Linux" && missing(vmauthen))
+  if(os == "Linux" && missing(authen))
     stop("Please specify an authentication method for Linux DSVM.")
 
-  if(vmos == "Windows" && missing(vmpassword))
+  if(os == "Windows" && missing(password))
     stop("Please specify a password for Windows DSVM.")
 
-  if(vmauthen == "Key" && missing(vmpubkey))
+  if(authen == "Key" && missing(pubkey))
     stop("Please specify a public key.")
 
-  if(vmauthen == "Password" && missing(vmpassword))
+  if(authen == "Password" && missing(password))
     stop("Please specify a password.")
 
   # Other preconditions.
@@ -87,40 +85,38 @@ deployDSVM <- function(context,
   if(!rg_exist)
     stop("The specified resource group does not exist in the current region.")
 
-  # check if location is available.
+  # check if vm is in the available set.
 
-  # if(location %in% c("location_code_1", ...))
+  vm_available <- getVMSizes(context, location)
 
-  # check if vm
-
-  if(!(vmsize %in% getVMSizes()$Sizes))
-    stop("Unknown vmsize - see getVMSizes() for allowed options.")
+  if(!(size %in% unlist(select(vm_available, name))))
+    stop("Unknown size - see getVMSizes() for allowed options.")
 
   # Incorrect naming of a vm may lead to an unsuccessful deployment of
   # the DSVM - normally it returns a 400 error from REST call. Check
   # the name here to ensure it is valid.
 
-  if(length(vmname) > 15)
+  if(length(name) > 15)
     stop("Name of virtual machine is too long.")
 
-  if(grepl("[[:upper:]]|[[:punct:]]", vmname))
+  if(grepl("[[:upper:]]|[[:punct:]]", name))
     stop("Name of virtual machine is not valid - only lowercase and digits permitted.")
 
   # check if password is valid.
 
-  # if(!grepl("^(?=.*[[A-Za-z]])(?=.*\\d)(?=.*[[$@$!%*#?&]])[[A-Za-z\\d$@$!%*#?&]]{8,}$", vmpassword))
+  # if(!grepl("^(?=.*[[A-Za-z]])(?=.*\\d)(?=.*[[$@$!%*#?&]])[[A-Za-z\\d$@$!%*#?&]]{8,}$", password))
   #   stop("Password not valid - minimum 8 characters with at least one digit and one special character.")
 
   # Load template and parameter JSON files for deployment
 
-  if(vmos == "Windows") {
+  if(os == "Windows") {
     temp_path <- system.file("etc", "template_windows.json", package="AzureDSR")
     para_path <- system.file("etc", "parameter_windows.json", package="AzureDSR")
-  } else if(vmos == "Linux") {
-    if(vmauthen == "Key") {
+  } else if(os == "Linux") {
+    if(authen == "Key") {
       temp_path <- system.file("etc", "template_linux_key.json", package="AzureDSR")
       para_path <- system.file("etc", "parameter_linux_key.json", package="AzureDSR")
-    } else if(vmauthen == "Password") {
+    } else if(authen == "Password") {
       temp_path <- system.file("etc", "template_linux.json", package="AzureDSR")
       para_path <- system.file("etc", "parameter_linux.json", package="AzureDSR")
     } else {
@@ -135,21 +131,21 @@ deployDSVM <- function(context,
   param <-
     readLines(para_path) %>%
     gsub("<LOCATION>", location, .) %>%
-    gsub("<DEFAULT>", vmname, .) %>%
-    gsub("<USER>", vmusername, .) %>%
-    gsub("<VMSIZE>", vmsize, .) %>%
-    gsub("<PWD>", vmpassword, .) %>%
-    gsub("<PUBKEY>", vmpubkey, .) %>%
+    gsub("<DEFAULT>", name, .) %>%
+    gsub("<USER>", username, .) %>%
+    gsub("<VMSIZE>", size, .) %>%
+    gsub("<PWD>", password, .) %>%
+    gsub("<PUBKEY>", pubkey, .) %>%
     paste0(collapse="")
 
   # Update the template JSON with the appropriate parameters.
 
   templ <-
     readLines(temp_path) %>%
-    gsub("<DNS_LABEL>", vmdns, .) %>%
+    gsub("<DNS_LABEL>", name, .) %>%
     paste0(collapse="")
 
-  dname <- paste0(vmname, "_dpl")
+  dname <- paste0(name, "_dpl")
 
   AzureSMR::azureDeployTemplate(context,
                                 deplname=dname,
@@ -158,7 +154,7 @@ deployDSVM <- function(context,
                                 resourceGroup=resource.group,
                                 mode=mode)
 
-  fqdn <- paste0(vmname, ".", location, ".cloudapp.azure.com")
+  fqdn <- paste0(name, ".", location, ".cloudapp.azure.com")
 
   if (tolower(mode) == "sync")
     attr(fqdn, "ip") <-
