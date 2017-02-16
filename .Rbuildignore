@@ -1,2 +1,5 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^.*_credentials.R$
+^Makefile$
+^vignettes/.*.R$
