@@ -7,19 +7,6 @@
 #' @param location Location of the data centre to host the DSVM.
 #' @param name Name of the DSVM.  Lowercase characters or numbers
 #'   only. Special characters are not permitted.
-<<<<<<< HEAD
-#' @param username User name of the DSVM. It should be different
-#'   from `name`.
-#' @param size Size of the DSVM. The default is
-#'   "Standard_D1_v2". All available sizes can be obtained by function
-#'   `getsizes`.
-#' @param os Operating system of DSVM. Permitted values are "Linux" and "Windows" for Linux based and Windows based operating systems, respectively.
-#' @param authen Either "Key" or "Password", meaning public-key based or
-#'   password based authentication, respectively. Note Windows DSVM by default uses password based authentication and this argument can be left unset.
-#' @param pubkey Public key for the DSVM. Only applicable for
-#'   public-key based authentication of Linux based DSVM.
-#' @param password Pass word for the DSVM.
-=======
 #' @param username User name of the DSVM. It should be different from
 #'   `name`.
 #' @param size Size of the DSVM. The default is "Standard_D1_v2". All
@@ -36,7 +23,6 @@
 #' @param password Pass word for the DSVM.
 #' @param dns DNS label for the VM address. The URL for accessing the
 #'   deployed DSVM will be "<dns_label>.<location>.cloudapp.azure.com
->>>>>>> ae3581703ebcdee12a4b154010d7202d1b4bd6f9
 #' @param mode Mode of virtual machine deployment. Default is "Sync".
 #'
 #' @export
@@ -45,19 +31,12 @@ deployDSVM <- function(context,
                        location,
                        name,
                        username,
-<<<<<<< HEAD
-                       size="Standard_D3_v2",
-=======
                        size="Standard_D1_v2",
->>>>>>> ae3581703ebcdee12a4b154010d7202d1b4bd6f9
                        os,
                        authen="",
                        pubkey="",
                        password="",
-<<<<<<< HEAD
-=======
                        dns=name,
->>>>>>> ae3581703ebcdee12a4b154010d7202d1b4bd6f9
                        mode="Sync")
 {
   # check if required arguments are present.
@@ -113,23 +92,12 @@ deployDSVM <- function(context,
   if(!rg_exist)
     stop("The specified resource group does not exist in the current region.")
 
-<<<<<<< HEAD
-  # check if vm is in the available set.
-=======
-  # Check if location is available.
->>>>>>> ae3581703ebcdee12a4b154010d7202d1b4bd6f9
+  # check if vm size is available.
 
   vm_available <- getVMSizes(context, location)
 
-<<<<<<< HEAD
   if(!(size %in% unlist(select(vm_available, name))))
     stop("Unknown size - see getVMSizes() for allowed options.")
-=======
-  # Check if vm size exists.
-
-#  if(!(size %in% getVMSizes()$Sizes))
-#    stop("Unknown size - see getVMSizes() for allowed options.")
->>>>>>> ae3581703ebcdee12a4b154010d7202d1b4bd6f9
 
   # Incorrect naming of a vm may lead to an unsuccessful deployment of
   # the DSVM - normally it returns a 400 error from REST call. Check
@@ -181,11 +149,7 @@ deployDSVM <- function(context,
 
   templ <-
     readLines(temp_path) %>%
-<<<<<<< HEAD
-    gsub("<DNS_LABEL>", name, .) %>%
-=======
     gsub("<DNS_LABEL>", dns, .) %>%
->>>>>>> ae3581703ebcdee12a4b154010d7202d1b4bd6f9
     paste0(collapse="")
 
   dname <- paste0(name, "_dpl")
