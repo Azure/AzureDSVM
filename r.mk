@@ -5,7 +5,7 @@ RSCRIPT_OPTS = --vanilla
 	${RSCRIPT} ${RSCRIPT_OPTS} -e 'library(knitr);purl("$<", out="$@")'	
 
 %.run: %.R
-	cd $(shell dirname "$<")
+	cd $(shell dirname "$<");\
 	${RSCRIPT} ${RSCRIPT_OPTS} -e 'source("$(shell basename $<)")'	
 
 check: 
