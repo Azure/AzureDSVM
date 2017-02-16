@@ -3,21 +3,15 @@ title = "Using Azure Data Science Resources: Compute on Linux DSVM Quick Start"
 author= "Graham Williams"
 ---
 
-# TODO
-
-This is currently just a copy of LinuxDSVM. Intend to submit a script
-file build.R across to the server to build randomForest and then
-rxDForest on weatherAUS
-
 # Use Case
 
-Our use case here is for a Data Scientist creating their R programs to
-analyse a dataset on their local compute platform (e.g., a laptop with
-6GB RAM running Ubuntu with R installed). Development is done with a
-dataset size (a random sample of the full dataset perhaps) that will
-not tax the available memory and will return results quickly. When the
-experimental setup is complete the script can be sent across to an
-considerably more capable compute engine on Azure.
+A common use case is for a Data Scientist to create their R programs
+to analyse a dataset on their local compute platform (e.g., a laptop
+with 6GB RAM running Ubuntu with R installed). Development is
+performed with a subset of the full dataset (a random sample) that
+will not exceed the available memory and will return results
+quickly. When the experimental setup is complete the script can be
+sent across to an considerably more capable compute engine on Azure.
 
 A Linux Data Science Virtual Machine (DSVM) is deployed, the analysis
 completed, results collected, and the compute resources deleted. Azure
@@ -144,7 +138,8 @@ ldsvm <- deployDSVM(context,
 ldsvm
 ```
 
-`deployDSVM` also supports deployment of Windows DSVM, which can be achieved by setting the argument of `vmos` to "Windows".
+`deployDSVM` also supports deployment of Windows DSVM, which can be
+achieved by setting the argument of `vmos` to "Windows".
 
 ```{r}
 wdsvm <- deployDSVM(context,
@@ -165,7 +160,7 @@ Prove that the server exists.
 ```{r prove exists}
 
 # Send a simple system() command across to the new server to test its
-# existence. Expect a single line wiht an indication of how long the
+# existence. Expect a single line with an indication of how long the
 # server has been up and running.
 
 cmd <- paste("ssh -q",
@@ -183,7 +178,8 @@ system(cmd)
 # is probably no need to wait. Only delete if it did not pre-exist
 # this script. Deletion seems to take 10 minutes or more.
 
-if (! rg_pre_exists) azureDeleteResourceGroup(context, RG)
+if (! rg_pre_exists)
+  azureDeleteResourceGroup(context, RG)
 ```
 
 Once deleted we are consuming no more.
