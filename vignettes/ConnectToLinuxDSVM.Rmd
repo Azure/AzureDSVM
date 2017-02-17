@@ -171,14 +171,14 @@ cmd
 system(cmd)
 ```
 
-# Cleanup
+# Optional Cleanup
 
 ```{r optionally delete resource group}
 # Delete the resource group now that we have proved existence. There
 # is probably no need to wait. Only delete if it did not pre-exist
 # this script. Deletion seems to take 10 minutes or more.
 
-if (! rg_pre_exists)
+if (FALSE & ! rg_pre_exists)
   azureDeleteResourceGroup(context, RG)
 ```
 
