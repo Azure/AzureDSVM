@@ -23,5 +23,7 @@ install: build
 .PHONY: vignettes
 vignettes: $(VR)
 
+# Cleanup
+
 realclean:
 	rm -f $(VR)
