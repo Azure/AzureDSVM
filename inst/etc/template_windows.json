@@ -38,7 +38,7 @@
             "defaultValue": "my_dsvm_rg_sea-vnet",
             "type": "String"
         },
-        "storageAccounts_dsvmdisks490_name": {
+        "storageAccounts_name": {
             "defaultValue": "dsvmdisks490",
             "type": "String"
         }
@@ -70,7 +70,7 @@
                         "name": "[parameters('virtualMachines_name')]",
                         "createOption": "FromImage",
                         "vhd": {
-                            "uri": "[concat('https://projectsdisks415.blob.core.windows.net/vhds/', parameters('virtualMachines_name'),'20170215163501.vhd')]"
+                            "uri": "[concat('http://',concat(uniquestring(resourceGroup().id), parameters('storageAccounts_name')),'.blob.core.windows.net/','vhds','/','osdiskforwindowssimple', parameters('virtualMachines_name'),  '.vhd')]"
                         },
                         "caching": "ReadWrite"
                     },
@@ -231,7 +231,7 @@
                 "tier": "Standard"
             },
             "kind": "Storage",
-            "name": "[parameters('storageAccounts_dsvmdisks490_name')]",
+            "name": "[parameters('storageAccounts_name')]",
             "apiVersion": "2016-01-01",
             "location": "[parameters('location')]",
             "tags": {},
