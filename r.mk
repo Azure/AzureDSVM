@@ -1,6 +1,9 @@
 RSCRIPT      = Rscript
 RSCRIPT_OPTS = --vanilla
 
+VRMD = $(wildcard vignettes/*.Rmd)
+VR   = $(VRMD:.Rmd=.R)
+
 %.R: %.Rmd
 	${RSCRIPT} ${RSCRIPT_OPTS} -e 'library(knitr);purl("$<", out="$@")'	
 
@@ -17,3 +20,8 @@ build:
 install: build
 	R CMD INSTALL $(PKG)_$(VER).tar.gz
 
+.PHONY: vignettes
+vignettes: $(VR)
+
+realclean:
+	rm -f $(VR)
