@@ -52,15 +52,16 @@ library(rattle)      # Use weatherAUS as a "large" dataset.
 
 RG     <- "my_dsvm_rg_sea"  # Create if not already exist then kill.
 LOC    <- "southeastasia"   # Where the resource group (resources) will be hosted.
-VM     <- "mydsvm001"
+LDSVM  <- "mydsvm001"
 VM_URL <- paste(VM, LOC, "cloudapp.azure.com", sep=".")
 ```
 
 # DSVM Operation
 
-One can simply operate the created DSVM instance as desired. 
+We can operate the created DSVM instance as desired through R.
+
 ```{r dsvm operation}
-# authentication.
+# Authentication.
 
 context <- createAzureContext(tenantID=TID, clientID=CID, authKey=KEY)
 
@@ -72,15 +73,15 @@ vm_names <-
 
 # check status of a DSVM.
 
-operateDSVM(context, RG, VM, operation="Check")
+operateDSVM(context, RG, LDSVM, operation="Check")
 
 # start the DSVM if it is not running.
 
-operateDSVM(context, RG, VM, operation="Start")
+operateDSVM(context, RG, LDSVM, operation="Start")
 
 # stop the DSVM
 
-operateDSVM(context, RG, VM, operation="Stop")
+operateDSVM(context, RG, LDSVM, operation="Stop")
 ```
 
 # Run analytics.
@@ -91,15 +92,15 @@ There are many ways of interacting with a DSVM. For both Linux and Windows based
 
 ```{r set R interface}
 
-# create an R interface for handling the remote execution.
+# Create an R interface for handling the remote execution.
 
 interface <- createRInterface(remote=VM_URL, user=USER)
 
-# create a script for remote execution.
+# Create a script for remote execution.
 
 newScript(path=".", title="experiment1.R")
 
-# put analytics into the script.
+# Put analytics into the script.
 
 updateScript(interface)
 ```
