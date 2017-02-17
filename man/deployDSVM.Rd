@@ -4,9 +4,9 @@
 \alias{deployDSVM}
 \title{Deploy a new Data Science Virtual Machine (DSVM).}
 \usage{
-deployDSVM(context, resource.group, location, vmname, vmusername,
-  vmsize = "Standard_D3_v2", vmos, vmauthen = "", vmpubkey = "",
-  vmpassword = "", vmdns = paste0(vmname, "dns"), mode = "Sync")
+deployDSVM(context, resource.group, location, name, username,
+  size = "Standard_D1_v2", os, authen = "", pubkey = "", password = "",
+  dns = name, mode = "Sync")
 }
 \arguments{
 \item{context}{Authentication context of AzureSMR encapsulating the
@@ -17,27 +17,31 @@ created.}
 
 \item{location}{Location of the data centre to host the DSVM.}
 
-\item{vmname}{Name of the DSVM.  Lowercase characters or numbers
+\item{name}{Name of the DSVM.  Lowercase characters or numbers
 only. Special characters are not permitted.}
 
-\item{vmusername}{User name of the DSVM. It should be different
-from `vmname`.}
+\item{username}{User name of the DSVM. It should be different from
+`name`.}
 
-\item{vmsize}{Size of the DSVM. The default is
-"Standard_D1_v2". All available sizes can be obtained by function
-`getVMSizes`.}
+\item{size}{Size of the DSVM. The default is "Standard_D1_v2". All
+available sizes can be obtained by function `getVMSizes`.}
 
-\item{vmos}{Operating system of DSVM. Permitted values are "Linux" and "Windows" for Linux based and Windows based operating systems, respectively.}
+\item{os}{Operating system of DSVM. Permitted values are "Linux"
+and "Windows" for Linux based and Windows based operating
+systems, respectively.}
 
-\item{vmauthen}{Either "Key" or "Password", meaning public-key based or
-password based authentication, respectively. Note Windows DSVM by default uses password based authentication and this argument can be left unset.}
+\item{authen}{Either "Key" or "Password", meaning public-key based
+or password based authentication, respectively. Note Windows DSVM
+by default uses password based authentication and this argument
+can be left unset.}
 
-\item{vmpubkey}{Public key for the DSVM. Only applicable for
+\item{pubkey}{Public key for the DSVM. Only applicable for
 public-key based authentication of Linux based DSVM.}
 
-\item{vmpassword}{Pass word for the DSVM.}
+\item{password}{Pass word for the DSVM.}
 
-\item{vmdns}{DNS label for the VM address. The URL for accessing the deployed DSVM will be "<dns_label>.<location>.cloudapp.azure.com}
+\item{dns}{DNS label for the VM address. The URL for accessing the
+deployed DSVM will be "<dns_label>.<location>.cloudapp.azure.com}
 
 \item{mode}{Mode of virtual machine deployment. Default is "Sync".}
 }

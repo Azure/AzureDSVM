@@ -17,50 +17,21 @@ A Linux Data Science Virtual Machine (DSVM) is deployed, the analysis
 completed, results collected, and the compute resources deleted. Azure
 consumption costs are minimised.
 
-This specific demonstration simply creates a Linux Data Science
-Virtual Machine within a resource group, demonstrates it exists, and
-then deletes the resource group.
-
-This script is best run interactively to review its operation and
-ensure interaction with Azure completes.
+This demonstrate presents how an experimental data analytics can be thrown
+onto a Linux DSVM or a customized Linux DSVM set and executed in a desired
+high-performance computing context.
 
 # Setup
 
-We assume there is already a subscription and we have obtained the
-credentials required. See
-[AzureSMR's Authentication Guide](https://github.com/Microsoft/AzureSMR/blob/master/vignettes/Authentication.Rmd)
-for details.  We will then ensure a resource group exists and within
-that resource group create a Linux DSVM. A public ssh key is used to
-access the server.
+We assume that the first step of [ConnectToLinuxDSVM](https://github.com/Azure/AzureDSR/vignettes/ConnectToLinuxDSVM.Rmd) has been done, and there is at least one Linux DSVM existing at the created resouce group.
 
-To get started we need to load the obtained credentials as well as the
-user's ssh public key. Public keys on Linux are typically created on
-the users desktop/laptop machine and will be found within
-~/.ssh/id_rsa.pub. The content's of the user's credentials file will
-be something like:
-
+To begin with, let's check the status of the DSVM and start it if it is deallocated. This is achieved with AzureSMR, and again confidentials for authenticating the app in Active Directory should be provided.
 ```{r credentials, eval=FALSE}
 # Credentials come from app creation in Active Directory within Azure.
  
 TID <- "72f9....db47"          # Tenant ID
 CID <- "9c52....074a"          # Client ID
 KEY <- "9Efb....4nwV....ASa8=" # User key
-
-PUBKEY <- readLines("~/.ssh/id_rsa.pub")
-```
-
-```{r setup}
-# Load the required subscription resources: TID, CID, and KEY.
-# Also includes the ssh PUBKEY for the user.
-
-USER <- Sys.getenv("USER")
-
-source(paste0(USER, "_credentials.R"))
-
-# Install the packages if required.
-
-devtools::install_github("Microsoft/AzureSMR")
-devtools::install_github("Azure/AzureDSR", auth_token=GIT_TOKEN)
 ```
 
 ```{r packages}
@@ -79,107 +50,57 @@ library(rattle)      # Use weatherAUS as a "large" dataset.
 # name the resource group that we will create transiently for the
 # purposes of this script.
 
-RG  <- "my_dsvm_rg_sea"  # Create if not already exist then kill.
-LOC <- "southeastasia"   # Where the resource group (resources) will be hosted.
+# RG  <- "my_dsvm_rg_sea"  # Create if not already exist then kill.
+RG     <- "dsvm"
+LOC    <- "southeastasia"   # Where the resource group (resources) will be hosted.
+VM     <- "msvm001"
+VM_URL <- paste(VM, LOC, "cloudapp.azure.com", sep=".")
 ```
 
-```{r connect}
-# Connect to the Azure subscription and use this as the context for
-# our activities.
+# DSVM Operation
+
+One can simply operate the created DSVM instance as desired. 
+```{r dsvm operation}
+# authentication.
 
 context <- createAzureContext(tenantID=TID, clientID=CID, authKey=KEY)
 
-# Check if the resource group already exists. Take note this script
-# will not remove the resource group if it pre-existed.
+# get VM list under the resource group.
 
-context %>%
-  azureListRG() %>%
-  filter(name == RG) %>%
-  select(name, location) %T>%
-  print() %>%
-  nrow() %>%
-  equals(0) %>%
-  not() %T>%
-  print() ->
-rg_pre_exists
-```
-# Creation
+vm_names <- 
+  AzureSMR::azureListVM(context, RG, LOC) %T>%
+  print()
 
-Create the resource group within which all resources we create will be
-grouped.
+# check status of a DSVM.
 
-```{r create resource group}
-if (! rg_pre_exists)
-{
-  # Create a new resource group into which we create the VMs and
-  # related resources. Resource group name is RG. 
-  
-  # To create a new resource group, one needs to add access control of Active Directory application at subscription level.
+operateDSVM(context, RG, VM, operation="Check")
 
-  azureCreateResourceGroup(context, RG, LOC)
+# start the DSVM if it is not running.
 
-}
-```
-Create the actual Linux DSVM with public key based authentication method. Name, username, and size can also be configured.
+operateDSVM(context, RG, VM, operation="Start")
 
-```{r deploy}
-# Create the required Linux DSVM - generally 4 minutes.
+# stop the DSVM
 
-ldsvm <- deployDSVM(context, 
-                    resource.group=RG,
-                    location=LOC,
-                    vmname="mydsvm001",
-                    vmusername=USER,
-                    vmsize="Basic_A7",
-                    vmos="Linux",
-                    vmauthen="Key",
-                    vmpubkey=PUBKEY)
-
-ldsvm
+operateDSVM(context, RG, VM, operation="Stop")
 ```
 
-`deployDSVM` also supports deployment of Windows DSVM, which can be
-achieved by setting the argument of `vmos` to "Windows".
+# Run analytics.
 
-```{r}
-wdsvm <- deployDSVM(context,
-                    resource.group=RG,
-                    location=LOC,
-                    vmname="mydsvm002",
-                    vmusername=USER,
-                    vmsize="Standard_D3_v2",
-                    vmos="Windows",
-                    vmpassword=PASSWORD)
+Next step is to use the DSVM for data analytics.
 
-wdsvm
+There are many ways of interacting with a DSVM. For both Linux and Windows based DSVMs, it is convenient to remote login onto the machines with GUI (more detailed information can be found [here](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-provision-vm)). A lot of times remote execution within R session is preferred by data scientist as it can be efficiently automated by R scripts. The following chunks of codes demonstrate how to use an R interface for remote execution of R scripts under a desired computing context.  
+
+```{r set R interface}
+
+# create an R interface for handling the remote execution.
+
+interface <- createRInterface(remote=VM_URL, user=USER)
+
+# create a script for remote execution.
+
+newScript(path=".", title="experiment1.R")
+
+# put analytics into the script.
+
+updateScript(interface)
 ```
-
-
-Prove that the server exists.
-
-```{r prove exists}
-
-# Send a simple system() command across to the new server to test its
-# existence. Expect a single line with an indication of how long the
-# server has been up and running.
-
-cmd <- paste("ssh -q",
-             "-o StrictHostKeyChecking=no",
-             "-o UserKnownHostsFile=/dev/null",
-             ldsvm, "uptime")
-cmd
-system(cmd)
-```
-
-# Cleanup
-
-```{r optionally delete resource group}
-# Delete the resource group now that we have proved existence. There
-# is probably no need to wait. Only delete if it did not pre-exist
-# this script. Deletion seems to take 10 minutes or more.
-
-if (! rg_pre_exists)
-  azureDeleteResourceGroup(context, RG)
-```
-
-Once deleted we are consuming no more.

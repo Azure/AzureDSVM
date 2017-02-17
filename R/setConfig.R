@@ -7,6 +7,7 @@
 #' @param slaves Slave nodes of the machine.
 #' @param data Reference to data used in the analytics.
 #' @param context Computing context available in Microsoft R Server for running the analytics.
+#' @export
 setConfig <- function(object,
                       machine_list,
                       dns_list,

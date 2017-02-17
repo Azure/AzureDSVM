@@ -139,7 +139,7 @@ ldsvm
 ```
 
 `deployDSVM` also supports deployment of Windows DSVM, which can be
-achieved by setting the argument of `vmos` to "Windows".
+achieved by setting the argument of `os` to "Windows".
 
 ```{r}
 wdsvm <- deployDSVM(context,

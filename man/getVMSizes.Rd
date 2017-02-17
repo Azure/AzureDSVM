@@ -4,7 +4,12 @@
 \alias{getVMSizes}
 \title{Get available sizes for data science virtual machines.}
 \usage{
-getVMSizes()
+getVMSizes(context, location)
+}
+\arguments{
+\item{context}{An AzureSMR context.}
+
+\item{location}{Location of the Azure resources.}
 }
 \value{
 A data frame that contains basic information about the available DSVM sizes.

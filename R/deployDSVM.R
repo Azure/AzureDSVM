@@ -39,6 +39,10 @@ deployDSVM <- function(context,
                        dns=name,
                        mode="Sync")
 {
+  # check if token is valid.
+
+  AzureSMR::azureCheckToken(context)
+
   # check if required arguments are present.
 
   if(missing(context))
@@ -92,14 +96,12 @@ deployDSVM <- function(context,
   if(!rg_exist)
     stop("The specified resource group does not exist in the current region.")
 
-  # Check if location is available.
+  # check if vm size is available.
 
-  # if(location %in% c("location_code_1", ...))
+  vm_available <- getVMSizes(context, location)
 
-  # Check if vm size exists.
-
-#  if(!(size %in% getVMSizes()$Sizes))
-#    stop("Unknown size - see getVMSizes() for allowed options.")
+  if(!(size %in% unlist(select(vm_available, name))))
+    stop("Unknown size - see getVMSizes() for allowed options.")
 
   # Incorrect naming of a vm may lead to an unsuccessful deployment of
   # the DSVM - normally it returns a 400 error from REST call. Check

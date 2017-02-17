@@ -1,6 +1,7 @@
 #' @title Generate a new worker script which is run on the remote instance with specifications in R interface object configuration.
 #' @param path Path to the script.
 #' @param title Title of the script.
+#' @export
 newScript <- function(path=".",
                       title=paste0("worker_new_", Sys.time(), ".R")) {
   notes <-
@@ -19,7 +20,7 @@ newScript <- function(path=".",
 
   cat(notes, file=file.path(path, title))
   writeLines(
-    sprintf("Worker script %s is created at location %s.",
+    sprintf("Worker script %s is created at %s.",
             title, ifelse(path == ".", "work directory", path))
   )
 }

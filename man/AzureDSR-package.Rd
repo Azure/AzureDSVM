@@ -6,7 +6,7 @@
 \alias{AzureDSR-package}
 \title{AzureDSR}
 \description{
-The AzureDSR functions boost efficiency of data science analytics with Azure resources.
+Support data science analytics with Azure resources.
 }
 \keyword{package}
 

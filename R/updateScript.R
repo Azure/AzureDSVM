@@ -1,5 +1,6 @@
 #' @title Update a worker script with R interface object configuration.
 #' @param object R interface object.
+#' @export
 updateScript <- function(object) {
   if (!file.exists(object$script) || length(object$script) == 0)
   {
