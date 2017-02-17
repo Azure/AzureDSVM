@@ -1,0 +1,156 @@
+---
+title = "Using Azure Data Science Resources: Cluster Linux DSVM Quick Start"
+author= "Graham Williams"
+---
+
+# Use Case
+
+A cluster of Linux Data Science Virtual Machines (DSVMs) is deployed
+and a remote command is executed across each to demonstrate they
+exists. Code is included but not run to then delete the resource group
+if the resources are no longer required. Once deleted consumption will
+cease.
+
+This script is best run interactively to review its operation and to
+ensure that the interaction with Azure completes.
+
+# Setup
+
+To get started load our Azure credentials as well as the user's ssh
+public key. This information has been saved into a file with the name
+<USER>_credentials.R where <USER> is your username.
+
+```{r setup}
+# Load the required subscription resources: TID, CID, and KEY.
+# Also includes the ssh PUBKEY for the user.
+
+USER <- Sys.getenv("USER")
+
+source(paste0(USER, "_credentials.R"))
+```
+
+```{r packages}
+# Load the required packages.
+
+library(AzureSMR)    # Support for managing Azure resources.
+library(AzureDSR)    # Further support for the Data Scientist.
+library(magrittr)    
+library(dplyr)
+library(rattle)      # Use weatherAUS as a "large" dataset.
+```
+
+```{r tuning}
+# Parameters for this script: the name for the new resource group and
+# its location across the Azure cloud. The resource name is used to
+# name the resource group that we will create transiently for the
+# purposes of this script.
+
+RG    <- "my_dsvm_rg_sea"  # Will be created if not already exist then kill.
+LOC   <- "southeastasia"   # Where the resource group (resources) will be hosted.
+
+# Create names for the VMs.
+
+COUNT <- 5                 # Number of VMs to deploy.
+BASE  <- 
+  runif(4, 1, 26) %>%
+  round() %>%
+  letters[.] %>%
+  paste(collapse="")
+LDSVM <- paste0("ldsvm", BASE, sprintf("%03d", 1:COUNT)) %T>% print()
+```
+
+```{r connect}
+# Connect to the Azure subscription and use this as the context for
+# our activities.
+
+context <- createAzureContext(tenantID=TID, clientID=CID, authKey=KEY)
+
+# Check if the resource group already exists. Take note this script
+# will not remove the resource group if it pre-existed.
+
+context %>%
+  azureListRG() %>%
+  filter(name == RG) %>%
+  select(name, location) %T>%
+  print() %>%
+  nrow() %>%
+  equals(0) %>%
+  not() %T>%
+  print() ->
+rg_pre_exists
+```
+# Creation
+
+Create the resource group within which all resources we create will be
+grouped.
+
+```{r create resource group}
+if (! rg_pre_exists)
+{
+  # Create a new resource group into which we create the VMs and
+  # related resources. Resource group name is RG. 
+  
+  # Note that to create a new resource group one needs to add access
+  # control of Active Directory application at subscription level.
+
+  azureCreateResourceGroup(context, RG, LOC)
+
+}
+```
+
+Create the actual Linux DSVM cluser with public-key based
+authentication method. Name, username, and size can also be
+configured.
+
+```{r deploy}
+# Deploy the required Linux DSVM - generally 4 minutes each. All but
+# the last will be deployed asynchronously whilst the last is deployed
+# synchronously so that we wait for it and hopefully the others.
+
+for (vm in LDSVM)
+{
+  deployDSVM(context, 
+             resource.group=RG,
+             location=LOC,
+             name=vm,
+             username=USER,
+             size="Standard_DS1_v2",
+             os="Linux",
+             authen="Key",
+             pubkey=PUBKEY,
+             mode=ifelse(vm==tail(LDSVM, 1), "Sync", "ASync"))
+}
+    
+for (vm in LDSVM)
+{
+  cat(vm, "\n")
+  
+  operateDSVM(context, RG, vm, operation="Check")
+  
+  # Send a simple system() command across to the new server to test
+  # its existence. Expect a single line with an indication of how long
+  # the server has been up and running.
+  
+  cmd <- paste("ssh -q",
+               "-o StrictHostKeyChecking=no",
+               "-o UserKnownHostsFile=/dev/null\\\n   ",
+               paste0(vm, ".", LOC, ".cloudapp.azure.com"),
+               "uptime") %T>%
+    {cat(., "\n")}
+  cmd
+  system(cmd)
+  cat("\n")
+}
+```
+
+# Optional Delete
+
+```{r optionally delete resource group}
+# Delete the resource group now if required. By default we don't.
+# Deletion seems to take 10 minutes or more.
+
+if (FALSE)
+  azureDeleteResourceGroup(context, RG)
+```
+
+Once deleted we are consuming no more.
