@@ -26,7 +26,7 @@
     "virtualNetworks_name": {
 	"value": "<DEFAULT>vnet"
     },
-    "storageAccounts_dsvmdisks490_name": {
+    "storageAccounts_name": {
 	"value": "<DEFAULT>sa"
     }
 }
