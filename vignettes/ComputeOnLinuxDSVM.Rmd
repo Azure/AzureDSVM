@@ -50,10 +50,9 @@ library(rattle)      # Use weatherAUS as a "large" dataset.
 # name the resource group that we will create transiently for the
 # purposes of this script.
 
-# RG  <- "my_dsvm_rg_sea"  # Create if not already exist then kill.
-RG     <- "dsvm"
+RG     <- "my_dsvm_rg_sea"  # Create if not already exist then kill.
 LOC    <- "southeastasia"   # Where the resource group (resources) will be hosted.
-VM     <- "msvm001"
+VM     <- "mydsvm001"
 VM_URL <- paste(VM, LOC, "cloudapp.azure.com", sep=".")
 ```
 
