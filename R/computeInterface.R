@@ -6,9 +6,9 @@
 #' @return An S3 compute interface object.
 #' @export
 createComputeInterface <- function(remote,
-                             user,
-                             script,
-                             config){
+                                   user,
+                                   script,
+                                   config){
   ci_env <- new.env(parent=globalenv())
 
   # initialize an compute interface object.
@@ -71,11 +71,11 @@ setConfig <- function(object,
   return(object)
 }
 
-#' @title Dump out the object configuration.
+#' @title Dump the interface configuration.
 #' @param object The compute interface object.
 #' @return No return. Print compute interface object information.
 #' @export
-dumpObject <- function(object) {
+dumpInterface <- function(object) {
   cat(
     sprintf("---------------------------------------------------------------------------"),
     sprintf("Compute interface information"),
@@ -106,24 +106,23 @@ dumpObject <- function(object) {
 updateScript <- function(object) {
   if (!file.exists(object$script) || length(object$script) == 0)
   {
-    stop(paste("The script does not exist or is not specified!",
-               "Consider create a new one using riNewScript."))
+    stop("The script does not exist or is not specified!")
   }
 
-  codes.body <- readLines(con=object$script)
+  codes_body <- readLines(con=object$script)
 
   # Remove the header.
 
-  if (codes.body[2] == "# THIS IS A HEADER ADDED BY COMPUTE INTERFACE")
+  if (!is.na(codes_body[2]) && codes_body[2] == "# THIS IS A HEADER ADDED BY COMPUTE INTERFACE")
   {
-    head.start <- which(codes.body == "# THIS IS A HEADER ADDED BY COMPUTE INTERFACE")
-    head.end <- which(codes.body == "# END OF THE HEADER ADDED BY COMPUTE INTERFACE")
-    codes.body <- codes.body[-((head.start - 1):(head.end + 1))]
+    head.start <- which(codes_body == "# THIS IS A HEADER ADDED BY COMPUTE INTERFACE")
+    head.end <- which(codes_body == "# END OF THE HEADER ADDED BY COMPUTE INTERFACE")
+    codes_body <- codes_body[-((head.start - 1):(head.end + 1))]
   }
 
   # Add context-specific info into header.
 
-  codes.head <- paste(
+  codes_head <- paste(
     "# ---------------------------------------------------------------------------",
     "# THIS IS A HEADER ADDED BY COMPUTE INTERFACE",
     "# ---------------------------------------------------------------------------",
@@ -132,8 +131,8 @@ updateScript <- function(object) {
 
   if (object$config$CI_CONTEXT == "clusterParallel")
   {
-    codes.head <- paste(
-      codes.head,
+    codes_head <- paste(
+      codes_head,
       paste("CI_MACHINES <-", "c(", paste(shQuote(unlist(object$config$CI_MACHINES)), collapse=", "), ")"),
       paste("CI_DNS <-", "c(", paste(shQuote(unlist(object$config$CI_DNS)), collapse=", "), ")"),
       paste("CI_VMUSER <-", "c(", paste(shQuote(unlist(object$config$CI_VMUSER)), collapse=", "), ")"),
@@ -155,15 +154,15 @@ updateScript <- function(object) {
     )
   } else if (object$config$CI_CONTEXT == "Hadoop")
   {
-    codes.head <- paste(
-      codes.head,
+    codes_head <- paste(
+      codes_head,
       "This is for Hadoop.",
       "\n"
     )
   } else if (object$config$CI_CONTEXT == "Spark")
   {
-    codes.head <- paste(
-      codes.head,
+    codes_head <- paste(
+      codes_head,
       paste("CI_DNS <-", "c(", paste(shQuote(unlist(object$config$CI_DNS)), collapse=", "), ")"),
       paste("CI_VMUSER <-", "c(", paste(shQuote(unlist(object$config$CI_VMUSER)), collapse=", "), ")"),
       paste("CI_MASTER <-", "c(", paste(shQuote(unlist(object$config$CI_MASTER)), collapse=", "), ")"),
@@ -189,15 +188,15 @@ updateScript <- function(object) {
     )
   } else if (object$config$CI_CONTEXT == "Teradata")
   {
-    codes.head <- paste(
-      codes.head,
+    codes_head <- paste(
+      codes_head,
       "This is for Teradata.",
       "\n"
     )
   } else if (object$config$CI_CONTEXT == "localParallel")
   {
-    codes.head <- paste(
-      codes.head,
+    codes_head <- paste(
+      codes_head,
       paste("CI_MACHINES <-", "c(", paste(shQuote(unlist(object$config$CI_MACHINES)), collapse=", "), ")"),
       paste("CI_DNS <-", "c(", paste(shQuote(unlist(object$config$CI_DNS)), collapse=", "), ")"),
       paste("CI_VMUSER <-", "c(", paste(shQuote(unlist(object$config$CI_VMUSER)), collapse=", "), ")"),
@@ -221,6 +220,6 @@ updateScript <- function(object) {
                "\"Hadoop\", \"Spark\", or \"Teradata\"."))
   }
 
-  cat(codes.head, file=object$script)
-  cat(codes.body, file=object$script, sep="\n", append=TRUE)
+  cat(codes_head, file=object$script)
+  cat(codes_body, file=object$script, sep="\n", append=TRUE)
 }

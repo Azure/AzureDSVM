@@ -4,11 +4,22 @@
 \alias{executeScript}
 \title{Remote execution of R script in an R interface object.}
 \usage{
-executeScript(object, inputs = NULL, outputs = NULL,
-  checkLibraries = FALSE, displayPlots = FALSE, writePlots = FALSE)
+executeScript(context, resourceGroup, remote, user, script, computeContext,
+  inputs = NULL, outputs = NULL, checkLibraries = FALSE,
+  displayPlots = FALSE, writePlots = FALSE)
 }
 \arguments{
-\item{object}{R interface object.}
+\item{context}{AzureSMR context.}
+
+\item{resourceGroup}{Resource group of Azure resources for computation.}
+
+\item{remote}{Remote URL for the computation engine. For DSVM, it is either DNS (usually in the format of <dsvm name>.<location>.cloudapp.azure.com) or IP address.}
+
+\item{user}{Username for logging into the remote resource.}
+
+\item{script}{R script to be executed on remote resource.}
+
+\item{computeContext}{Computation context of Microsoft R Server under which the mechanisms of parallelization (e.g., local parallel, cluster based parallel, or Spark) is specified. Accepted computing context include "localParallel", "clusterParallel", "Hadoop", and "Spark".}
 
 \item{inputs}{JSON encoded string of R objects that are loaded into the Remote R session's workspace prior to execution. Only R objects of type: primitives, vectors and dataframes are supported via this parameter. Alternatively the putLocalObject can be used, prior to a call to this function, to move any R object from the local workspace into the remote R session.}
 
