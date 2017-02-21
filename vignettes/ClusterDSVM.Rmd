@@ -14,6 +14,20 @@ cease.
 This script is best run interactively to review its operation and to
 ensure that the interaction with Azure completes.
 
+A common use case is for a Data Scientist to create their R programs
+to analyse a dataset on their local compute platform (e.g., a laptop
+with 6GB RAM running Ubuntu with R installed). Development is
+performed with a subset of the full dataset (a random sample) that
+will not exceed the available memory and will return results
+quickly. When the experimental setup is complete the script can be
+sent across to a considerably more capable compute engine on Azure,
+possibly a cluster of servers to build models in parallel.
+
+This tutorial will deploy several Linux Data Science Virtual Machines
+(DSVMs), distribute a copmute task over those servers, colelct the
+results and generate a report, and then delete the compute
+resources.
+
 # Setup
 
 To get started load our Azure credentials as well as the user's ssh
