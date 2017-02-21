@@ -64,13 +64,14 @@ LOC   <- "southeastasia"   # Where the resource group (resources) will be hosted
 
 # Create names for the VMs.
 
-COUNT <- 5                 # Number of VMs to deploy.
+COUNT <- 2                 # Number of VMs to deploy.
 BASE  <- 
   runif(4, 1, 26) %>%
   round() %>%
   letters[.] %>%
   paste(collapse="")
 LDSVM <- paste0("ldsvm", BASE, sprintf("%03d", 1:COUNT)) %T>% print()
+LUSER <- paste0("user", BASE, sprintf("%03d", 1:COUNT)) %T>% print()
 ```
 
 ```{r connect}
@@ -116,25 +117,21 @@ Create the actual Linux DSVM cluser with public-key based
 authentication method. Name, username, and size can also be
 configured.
 
-```{r deploy}
-# Deploy the required Linux DSVM - generally 4 minutes each. All but
-# the last will be deployed asynchronously whilst the last is deployed
-# synchronously so that we wait for it and hopefully the others.
+```{r deploy a set of DSVMs}
 
-for (vm in LDSVM)
-{
-  deployDSVM(context, 
-             resource.group=RG,
-             location=LOC,
-             name=vm,
-             username=USER,
-             size="Standard_DS1_v2",
-             os="Linux",
-             authen="Key",
-             pubkey=PUBKEY,
-             mode=ifelse(vm==tail(LDSVM, 1), "Sync", "ASync"))
-}
-    
+# Deploy multiple DSVMs using deployDSVMCluster.
+
+ldsvm_set <- deployDSVMCluster(context, 
+                               resource.group=RG, 
+                               location=LOC, 
+                               count=COUNT, 
+                               name=LDSVM, 
+                               username=LUSER, 
+                               pubkey=rep(PUBKEY, COUNT), 
+                               cluster=FALSE)
+
+# May want to have a check on the deployed machines?
+
 for (vm in LDSVM)
 {
   cat(vm, "\n")
@@ -155,6 +152,25 @@ for (vm in LDSVM)
   system(cmd)
   cat("\n")
 }
+```
+
+Then we try deploying a cluster of DSVMs. The function will automatically form a DSVM cluster for us with which an R analytical job can be executed on with a "cluster parallel" computing context.
+
+```{r deploy a cluster of DSVMs}
+
+# Deploy a cluster of DSVMs.
+
+ldsvm_cluster <- deployDSVMCluster(context, 
+                                   resource.group=RG, 
+                                   location=LOC, 
+                                   count=COUNT, 
+                                   name="yyy", 
+                                   username="yyyuser", 
+                                   pubkey=PUBKEY, 
+                                   cluster=TRUE)
+
+# throw an data science analysis onto the cluster and run it. Still figuring out how to use mrsdeploy::remoteExecute for the purpose.
+
 ```
 
 # Optional Delete
