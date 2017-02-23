@@ -1,0 +1,209 @@
+---
+title = "Using Azure Data Science Resources: Deploy Linux DSVM"
+author= "Graham Williams"
+---
+
+# Use Case
+
+A Linux Data Science Virtual Machine (DSVM) is deployed and a remote
+command is executed to demonstrates it exists. Code is included but
+not run to then delete the resource group if the resources are no
+longer required. Once deleted consumption will cease.
+
+This script is best run interactively to review its operation and to
+ensure that the interaction with Azure completes. As a standalone
+script it can be run to setup a new resource group and single Linux
+DSVM.
+
+# Preparation
+
+We assume the user already has an Azure subscription and we have
+obtained the credentials required. See
+[AzureSMR's Authentication Guide](https://github.com/Microsoft/AzureSMR/blob/master/vignettes/Authentication.Rmd)
+for details.  We will then ensure a resource group exists and within
+that resource group create a Linux DSVM. A public ssh key is used to
+access the server in this script although a username and password is
+also an option. We create a Linux DSVM and a WindowsDSVM.
+
+# Setup
+
+To get started we need to load our Azure credentials as well as the
+user's ssh public key. Public keys on Linux are typically created on
+the users desktop/laptop machine and will be found within
+~/.ssh/id_rsa.pub. It will be convenient to create a credentials file
+to contain this information. The content's of the credentials file
+will be something like:
+
+```{r credentials, eval=FALSE}
+# Credentials come from app creation in Active Directory within Azure.
+ 
+TID <- "72f9....db47"          # Tenant ID
+CID <- "9c52....074a"          # Client ID
+KEY <- "9Efb....4nwV....ASa8=" # User key
+
+PUBKEY   <- readLines("~/.ssh/id_rsa.pub") # For Linux DSVM
+PASSWORD <- "AmSj&%4aR3@kn"                # For Windows DSVM
+
+```
+
+Save such information into a file with the name <USER>_credentials.R
+where <USER> is replaced with your username. Then we simply source
+that file in R.
+
+```{r setup}
+# Load the required subscription resources: TID, CID, and KEY.
+# Also includes the ssh PUBKEY for the user.
+
+USER <- Sys.getenv("USER")
+
+source(paste0(USER, "_credentials.R"))
+
+# Install the packages if required.
+
+## devtools::install_github("Microsoft/AzureSMR")
+## devtools::install_github("Azure/AzureDSR", auth_token=GIT_TOKEN)
+```
+
+```{r packages}
+# Load the required packages.
+
+library(AzureSMR)    # Support for managing Azure resources.
+library(AzureDSR)    # Further support for the Data Scientist.
+library(magrittr)    
+library(dplyr)
+```
+
+```{r tuning}
+# Parameters for this script: the name for the new resource group and
+# its location across the Azure cloud. The resource name is used to
+# name the resource group that we will create transiently for the
+# purposes of this script.
+
+RG    <- "my_dsvm_rg_sea"  # Will be created if not already exist then kill.
+LOC   <- "southeastasia"   # Where the resource group (resources) will be hosted.
+LDSVM <- "myldsvm"
+WDSVM <- "mywdsvm"
+```
+
+```{r connect}
+# Connect to the Azure subscription and use this as the context for
+# our activities.
+
+context <- createAzureContext(tenantID=TID, clientID=CID, authKey=KEY)
+
+# Check if the resource group already exists. Take note this script
+# will not remove the resource group if it pre-existed.
+
+context %>%
+  azureListRG() %>%
+  filter(name == RG) %>%
+  select(name, location) %T>%
+  print() %>%
+  nrow() %>%
+  equals(0) %>%
+  not() %T>%
+  print() ->
+rg_pre_exists
+```
+# Create a Resource Group
+
+Create the resource group within which all resources we create will be
+grouped.
+
+```{r create resource group}
+if (! rg_pre_exists)
+{
+  # Create a new resource group into which we create the VMs and
+  # related resources. Resource group name is RG. 
+  
+  # Note that to create a new resource group one needs to add access
+  # control of Active Directory application at subscription level.
+
+  azureCreateResourceGroup(context, RG, LOC)
+
+}
+```
+
+# Deploy a Linux Data Science Virtual Machine
+
+Create the actual Linux DSVM with public-key based authentication
+method. Name, username, and size can also be configured.
+
+```{r deploy}
+# Create the required Linux DSVM - generally 4 minutes.
+
+ldsvm <- deployDSVM(context, 
+                    resource.group=RG,
+                    location=LOC,
+                    name=LDSVM,
+                    username=USER,
+                    size="Standard_DS1_v2",
+                    os="Linux",
+                    authen="Key",
+                    pubkey=PUBKEY)
+
+ldsvm
+
+operateDSVM(context, RG, LDSVM, operation="Check")
+```
+
+Prove that the server exists.
+
+```{r prove exists}
+
+# Send a simple system() command across to the new server to test its
+# existence. Expect a single line with an indication of how long the
+# server has been up and running.
+
+cmd <- paste("ssh -q",
+             "-o StrictHostKeyChecking=no",
+             "-o UserKnownHostsFile=/dev/null",
+             ldsvm, "uptime")
+cmd
+system(cmd)
+
+```
+
+# Deploy a Windows Data Science Virtual Machine
+
+`deployDSVM` also supports deployment of Windows DSVM, which can be
+achieved by setting the argument of `os` to "Windows". This is
+currently (20170217) failing with: *Storage account e2o6bbsjuyjwdsvmsa
+not found. Ensure storage account is not deleted and belongs to the
+same Azure location as the VM.*
+
+```{r, eval=FALSE}
+wdsvm <- deployDSVM(context,
+                    resource.group=RG,
+                    location=LOC,
+                    name=WDSVM,
+                    username=USER,
+                    size="Standard_DS1_v2",
+                    os="Windows",
+                    password=PASSWORD)
+
+wdsvm
+```
+
+
+# Optional Stop
+
+We can stop the ...
+
+```{r}
+if (FALSE)
+  operateDSVM(context, RG, LDSVM, operation="Stop")
+```
+
+# Optional Cleanup
+
+```{r optionally delete resource group}
+# Delete the resource group now that we have proved existence. There
+# is probably no need to wait. Only delete if it did not pre-exist
+# this script. Deletion seems to take 10 minutes or more.
+
+if (FALSE & ! rg_pre_exists)
+  azureDeleteResourceGroup(context, RG)
+```
+
+Once deleted we are consuming no more.
