@@ -9,5 +9,11 @@ include r.mk
 
 include git.mk
 
-# Cleanup
+# Utilities
+
+deploy: scripts
+	(cd vignettes; Rscript DeployDSVM.R)
+
+delete: scripts
+	(cd vignettes; Rscript DeleteRG.R)
 
