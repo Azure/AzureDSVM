@@ -17,3 +17,6 @@ deploy: scripts
 delete: scripts
 	(cd vignettes; Rscript DeleteRG.R)
 
+
+ping:
+	ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null myldsvm.southeastasia.cloudapp.azure.com uptime
