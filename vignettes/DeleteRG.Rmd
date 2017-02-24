@@ -82,16 +82,8 @@ context <- createAzureContext(tenantID=TID, clientID=CID, authKey=KEY)
 # Check if the resource group already exists. Take note this script
 # will not remove the resource group if it pre-existed.
 
-context %>%
-  azureListRG() %>%
-  filter(name == RG) %>%
-  select(name, location) %T>%
-  print() %>%
-  nrow() %>%
-  equals(0) %>%
-  not() %T>%
-  print() ->
-rg_pre_exists
+rg_pre_exists <- existsRG(context, RG, LOC)
+
 ```
 
 # Delete the Resource Group
