@@ -1,5 +1,5 @@
 ---
-title = "Using Azure Data Science Resources: Connect to Linux DSVM Quick Start"
+title = "Using Azure Data Science Resources: Deploy Linux DSVM"
 author= "Graham Williams"
 ---
 
@@ -11,7 +11,9 @@ not run to then delete the resource group if the resources are no
 longer required. Once deleted consumption will cease.
 
 This script is best run interactively to review its operation and to
-ensure that the interaction with Azure completes.
+ensure that the interaction with Azure completes. As a standalone
+script it can be run to setup a new resource group and single Linux
+DSVM.
 
 # Preparation
 
@@ -69,7 +71,6 @@ library(AzureSMR)    # Support for managing Azure resources.
 library(AzureDSR)    # Further support for the Data Scientist.
 library(magrittr)    
 library(dplyr)
-library(rattle)      # Use weatherAUS as a "large" dataset.
 ```
 
 ```{r tuning}

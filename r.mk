@@ -20,8 +20,8 @@ build:
 install: build
 	R CMD INSTALL $(PKG)_$(VER).tar.gz
 
-.PHONY: vignettes
-vignettes: $(VR)
+.PHONY: scripts
+scripts: $(VR)
 
 # Cleanup
 
