@@ -26,6 +26,16 @@ high-performance computing context.
 We assume that the first step of [ConnectToLinuxDSVM](https://github.com/Azure/AzureDSR/vignettes/ConnectToLinuxDSVM.Rmd) has been done, and there is at least one Linux DSVM existing at the created resouce group.
 
 To begin with, let's check the status of the DSVM and start it if it is deallocated. This is achieved with AzureSMR, and again confidentials for authenticating the app in Active Directory should be provided.
+
+```{r setup}
+# Load the required subscription resources: TID, CID, and KEY.
+# Also includes the ssh PUBKEY for the user.
+
+USER <- Sys.getenv("USER")
+
+source(paste0(USER, "_credentials.R"))
+```
+
 ```{r credentials, eval=FALSE}
 # Credentials come from app creation in Active Directory within Azure.
  
@@ -52,8 +62,9 @@ library(rattle)      # Use weatherAUS as a "large" dataset.
 
 RG     <- "my_dsvm_rg_sea"  # Create if not already exist then kill.
 LOC    <- "southeastasia"   # Where the resource group (resources) will be hosted.
-LDSVM  <- "mydsvm001"
-VM_URL <- paste(VM, LOC, "cloudapp.azure.com", sep=".")
+# LDSVM  <- "mydsvm001"
+LDSVM  <- c("zzz001", "zzz002")
+VM_URL <- paste(LDSVM, LOC, "cloudapp.azure.com", sep=".")
 ```
 
 # DSVM Operation
@@ -71,17 +82,14 @@ vm_names <-
   AzureSMR::azureListVM(context, RG, LOC) %T>%
   print()
 
-# check status of a DSVM.
-
-operateDSVM(context, RG, LDSVM, operation="Check")
-
 # start the DSVM if it is not running.
 
 operateDSVM(context, RG, LDSVM, operation="Start")
 
-# stop the DSVM
+# check status of a DSVM.
 
-operateDSVM(context, RG, LDSVM, operation="Stop")
+operateDSVM(context, RG, LDSVM, operation="Check")
+
 ```
 
 # Run analytics.
@@ -90,17 +98,82 @@ Next step is to use the DSVM for data analytics.
 
 There are many ways of interacting with a DSVM. For both Linux and Windows based DSVMs, it is convenient to remote login onto the machines with GUI (more detailed information can be found [here](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-provision-vm)). A lot of times remote execution within R session is preferred by data scientist as it can be efficiently automated by R scripts. The following chunks of codes demonstrate how to use an R interface for remote execution of R scripts under a desired computing context.  
 
+A very simple experiment on random number generation.
 ```{r set R interface}
-
-# Create an R interface for handling the remote execution.
-
-interface <- createRInterface(remote=VM_URL, user=USER)
 
 # Create a script for remote execution.
 
-newScript(path=".", title="experiment1.R")
+codes <- "x <- seq(1, 500); y <- x * rnorm(length(x), 0, 0.1); sprintf('The results is %d', y)"
 
-# Put analytics into the script.
+writeLines(codes, "./experiment1.R")
+                 
+# local parallelism on node cores.
 
-updateScript(interface)
+t1 <- Sys.time()
+
+executeScript(context,
+              resourceGroup=RG,
+              machines=LDSVM,
+              remote=VM_URL[1],
+              user="zzzuser",
+              script="./experiment1.R",
+              master=VM_URL[1],
+              slaves=VM_URL[1],
+              computeContext="localParallel")
+
+t2 <- Sys.time()
+
+# cluster parallelism across nodes.
+
+executeScript(context,
+              resourceGroup=RG,
+              machines=LDSVM,
+              remote=VM_URL[1],
+              user="zzzuser",
+              script="./experiment1.R",
+              master=VM_URL[1],
+              slaves=VM_URL[-1],
+              computeContext="clusterParallel")
+
+t3 <- Sys.time()
+
+performance1 <- t2 - t1
+performance2 <- t3 - t2
+
+performance1
+performance2
+
+```
+
+Yet another example with parallel execution by using `rxExec` function
+
+```{r}
+
+# parallelizing k-means clustering on iris data.
+
+codes <- paste("library(scales)",
+               "df <- scale(iris[, -5])",
+               "rxExec(kmeans, x=df, centers=2)",
+               sep=";")
+
+writeLines(codes, "./experiment2.R")
+
+executeScript(context,
+              resourceGroup=RG,
+              machines=LDSVM,
+              remote=VM_URL[1],
+              user="zzzuser",
+              script="./experiment2.R",
+              master=VM_URL[1],
+              slaves=VM_URL[-1],
+              computeContext="clusterParallel")
+
+```
+
+Clean up.
+
+```{r}
+
+file.remove("./experiment1.R", "./experiment2.R")
+
 ```
