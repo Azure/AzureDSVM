@@ -5,6 +5,7 @@
 #' @param count Number of DSVM instances to be created. Note deploying multiple DSVMs may consume some time.
 #' @param name Names of the DSVMs. Lowercase characters or numbers only. Special characters are not permitted.
 #' @param username User name of the DSVM. It should be different from name of the DSVM.
+#' @param size Size of the DSVM cluster is identical.
 #' @param pubkey Public key for the DSVM. Only applicable for
 #'   public-key based authentication of Linux based DSVM.
 #' @param dns DNS label for the VM address. The URL for accessing the deployed DSVM will be "<dns_label>.<location>.cloudapp.azure.com
@@ -76,57 +77,102 @@ deployDSVMCluster <- function(context,
 
     # TODO: transmitting private key is not good practice! Seeking a better method...
 
-    HOME_DIR <- ifelse(identical(.Platform$OS.type, "windows"),
-                       normalizePath(paste0(Sys.getenv("HOME"), "/../"), winslash = "/"),
-                       Sys.getenv("HOME"))
-
-    # generate public key from private key.
-
-    shell(paste0("ssh-keygen -y -f ", HOME_DIR, ".ssh/id_rsa > ./id_rsa.pub"))
-
-    # copy private key into local directory. Note local machine may be either Linux or Windows based so it is treated differently.
-
-    ifelse(identical(.Platform$OS.type, "windows"),
-           system(paste0("xcopy /f ", shQuote(paste0(HOME_DIR, ".ssh/id_rsa"), type = "cmd"),
-                         " ", shQuote(".", type = "cmd"))),
-           system("cp ~/.ssh/id_rsa ."))
+    # do key gen in each node.
+    # propagate pub keys of each node back to local.
+    # put the pub keys in authorized_keys and distribute onto nodes.
 
     dns_name_list <- paste(names,
                            location,
                            "cloudapp.azure.com",
                            sep=".")
 
-    # Distribute the key pair to all nodes of the cluster.
+    auth_keys <- character(0)
 
-    for (vm in dns_name_list)
-    {
+    for (vm in dns_name_list) {
       # add an option to switch off host key checking - for the purpose of avoiding pop up.
 
       option <- "-q -o StrictHostKeyChecking=no"
+      pubkey_name <- str_c("pubkey", names[which(dns_name_list == vm)])
 
-      # copy the key pairs onto cluster node.
+      # generate key pairs in vm
 
-      system(sprintf("scp %s ./id_rsa %s@%s:.ssh/", option, username, vm))
-      system(sprintf("scp %s ./id_rsa.pub %s@%s:.ssh/", option, username, vm))
+      system(sprintf("ssh %s -l %s %s %s",
+                     option,
+                     username,
+                     vm,
+                     "'ssh-keygen -t rsa -N \"\" -f ~/.ssh/id_rsa'"),
+             intern=TRUE,
+             ignore.stdout=FALSE,
+             ignore.stderr=FALSE,
+             wait=FALSE,
+             show.output.on.console=FALSE)
 
-      # create a config file to switch off strick host key checking to enable node-to-node authentication without pop up.
+      # copy the public key and append it into local machine.
 
-      sh <- writeChar(c("cat .ssh/id_rsa.pub > .ssh/authorized_keys\n",
-                        paste0("echo Host *.", location, ".cloudapp.azure.com >> ~/.ssh/config\n"),
-                        paste0("echo StrictHostKeyChecking no >> ~/.ssh/config\n"),
-                        paste0("echo UserKnownHostsFile /dev/null >> ~/.ssh/config\n"),
-                        "chmod 600 ~/.ssh/config\n"), con = "./shell_script")
+      system(sprintf("scp %s %s@%s:.ssh/id_rsa.pub %s",
+                     option,
+                     username,
+                     vm,
+                     file.path(".", pubkey_name)))
 
-      # upload, change mode of, and run the config script.
+      # append the public keys into authorized_key.
 
-      system(sprintf("scp %s shell_script %s@%s:~", option, username, vm), show.output.on.console = FALSE)
-      system(sprintf("ssh %s -l %s %s 'chmod +x ~/shell_script'", option, username, vm), show.output.on.console = FALSE)
-      system(sprintf("ssh %s -l %s %s '~/shell_script'", option, username, vm), show.output.on.console = FALSE)
+      auth_keys <- paste0(auth_keys,
+                          readLines(file.path(".", pubkey_name)),
+                          "\n")
+
+      writeLines(auth_keys, file.path(".", "pub_keys"))
+
+      # clean up the temp pub key file
+
+      file.remove(pubkey_name)
     }
 
-    # Clean up - if you search "remove password" you will get 284,505 records so the following is to clean up confidential information in the working directory to prevent them from leaking anywhere out of your control.
+    # create a config file. To avoid any prompt up when nodes are communicating with each other.
 
-    file.remove("./id_rsa", "./id_rsa.pub", "./shell_script")
+    sh <- writeChar(paste0("cat .ssh/pub_keys >> .ssh/authorized_keys\n",
+                           paste0("echo Host *.", location, ".cloudapp.azure.com >> ~/.ssh/config\n"),
+                           paste0("echo StrictHostKeyChecking no >> .ssh/config\n"),
+                           paste0("echo UserKnownHostsFile /dev/null >> .ssh/config\n"),
+                           "chmod 600 .ssh/config",
+                           "\n"),
+                    con="./shell_script")
+
+    # distribute the public keys and config files to nodes.
+
+    for (vm in dns_name_list) {
+
+      # copy the pub_keys onto node.
+
+      system(sprintf("scp %s ./pub_keys %s@%s:.ssh",
+                     option,
+                     username,
+                     vm))
+
+      # copy the config onto node and run it.
+
+      system(sprintf("scp %s ./shell_script %s@%s:.ssh",
+                     option,
+                     username,
+                     vm))
+
+      system(sprintf("ssh %s -l %s %s 'chmod +x .ssh/shell_script'",
+                     option,
+                     username,
+                     vm),
+             show.output.on.console=TRUE)
+
+      system(sprintf("ssh %s -l %s %s '.ssh/shell_script'",
+                     option,
+                     username,
+                     vm),
+             show.output.on.console=TRUE)
+    }
+
+    # clean up.
+
+    file.remove("./pub_keys", "./shell_script")
+
   } else {
 
     # check whether the input arguments are valid for the multi-instance deployment-

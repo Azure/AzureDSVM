@@ -150,8 +150,8 @@ ldsvm_cluster <- deployDSVMCluster(context,
                                    resource.group=RG, 
                                    location=LOC, 
                                    count=COUNT, 
-                                   name="yyy", 
-                                   username="yyyuser", 
+                                   name="zzz", 
+                                   username="zzzuser", 
                                    pubkey=PUBKEY, 
                                    cluster=TRUE)
 

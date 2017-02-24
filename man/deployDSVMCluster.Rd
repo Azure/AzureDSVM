@@ -6,7 +6,7 @@
 \usage{
 deployDSVMCluster(context, resource.group, location, count = 1, name,
   username, size = "Standard_D1_v2", pubkey = "", dns = name,
-  cluster = FALSE, mode = "Sync")
+  cluster = FALSE)
 }
 \arguments{
 \item{context}{AzureSMR active context.}
@@ -21,13 +21,13 @@ deployDSVMCluster(context, resource.group, location, count = 1, name,
 
 \item{username}{User name of the DSVM. It should be different from name of the DSVM.}
 
+\item{size}{Size of the DSVM cluster is identical.}
+
 \item{pubkey}{Public key for the DSVM. Only applicable for
 public-key based authentication of Linux based DSVM.}
 
 \item{dns}{DNS label for the VM address. The URL for accessing the deployed DSVM will be "<dns_label>.<location>.cloudapp.azure.com}
 
 \item{cluster}{A logical value of TRUE or FALSE to indicate whether the deployed DSVMs form a cluster. If not, the deployment will assign the vectors of name, username, and public key as given in the input arguments to the DSVMs - this is usually used for creating multiple DSVMs for a group of data scientists. If it is TRUE, the deployment will use the first element (if it consists more than one elements) of the given DSVM names as base, and append serial number to the base to form a DSVM full name, and then use the SAME username and public key across the cluster - this can be used for creating a HPC engine on top of the deployed DSVMs in which parallel computing context which is availed in Microsoft R Server ScaleR package can be applied for embarassing parallelization.}
-
-\item{mode}{Mode of virtual machine deployment. Default is "Sync".}
 }
 
