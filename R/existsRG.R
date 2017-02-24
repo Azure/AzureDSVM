@@ -15,6 +15,5 @@ existsRG <- function(context, resource.group, location, verbose=TRUE)
   {if (verbose) print(.)} %>%
   nrow() %>%
   equals(0) %>%
-  not() %T>%
-  {if (verbose) print(.)}
+  not()
 }
