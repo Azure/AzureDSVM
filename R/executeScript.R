@@ -20,6 +20,30 @@ executeScript <- function(context,
                           slaves,
                           computeContext) {
 
+  # preconditions
+
+  if(missing(context) | !is.azureActiveContext(context))
+    stop("Please provide a valid AzureSMR active context.")
+  if(missing(resourceGroup))
+    stop("Please specify a resource group.")
+  if(missing(machines))
+    stop("Please give a list of virtual machines.")
+  if(missing(remote))
+    stop("Please specify a remote machine.")
+  if(missing(user))
+    stop("Please give user name for the remote login.")
+  if(missing(script))
+    stop("Please specify the script to be executed remotely with full path.")
+
+  # check master and slave only when it is cluster parallel.
+
+  if(computeContext == "clusterParallel") {
+    if(missing(master))
+      stop("Please specify a master node.")
+    if(missing(slaves))
+      stop("Please specify slaves.")
+  }
+
   # switch on the machines.
 
   for (vm in machines) {
