@@ -2,4 +2,7 @@
 ^\.Rproj\.user$
 ^.*_credentials.R$
 ^Makefile$
+^.*\.mk$
 ^vignettes/.*.R$
+^test/.*$
+^.*\.tar\.gz$

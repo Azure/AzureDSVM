@@ -165,11 +165,14 @@ deployDSVM <- function(context,
                                 resourceGroup=resource.group,
                                 mode=mode)
 
-  # fqdn <- paste0(name, ".", location, ".cloudapp.azure.com")
+  fqdn <- paste0(name, ".", location, ".cloudapp.azure.com")
+
+  # Don't check for IP by command line - must be a query we can ask
+  # for it...
   #
-  # if (tolower(mode) == "sync")
-  #   attr(fqdn, "ip") <-
-  #     system(paste("dig", fqdn, "+short"), intern=TRUE) # Get from the VM meta data?
-  #
-  # return(fqdn)
+  #if (tolower(mode) == "sync")  CHECK dig EXISTS?????
+  #  attr(fqdn, "ip") <-
+  #    system(paste("dig", fqdn, "+short"), intern=TRUE) # Get from the VM meta data?
+
+  return(fqdn)
 }

@@ -9,14 +9,17 @@ include r.mk
 
 include git.mk
 
-# Utilities
+# Utilities for Testing
 
-deploy: scripts
+vtest: vignettes
 	(cd vignettes; Rscript DeployDSVM.R)
 
-delete: scripts
-	(cd vignettes; Rscript DeleteRG.R)
+deploy: 
+	(cd test; Rscript deployDSVM.R)
 
+delete: 
+	(cd test; Rscript deleteRG.R)
 
 ping:
-	ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null myldsvm.southeastasia.cloudapp.azure.com uptime
+	ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+	testdsvm.southeastasia.cloudapp.azure.com uptime
