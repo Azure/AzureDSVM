@@ -3,11 +3,11 @@
     "contentVersion": "1.0.0.0",
     "variables": {},
     "parameters": {
-   	"location": {
+   	  "location": {
             "defaultValue": null,
             "type": "String"
      	},
-   	"virtualMachineSize": {
+   	  "virtualMachineSize": {
             "defaultValue": null,
             "type": "String"
     	},
@@ -15,38 +15,38 @@
             "defaultValue": null,
             "type": "String"
     	},
-        "virtualMachines_newdsvm_adminPassword": {
+      "virtualMachines_newdsvm_adminPassword": {
             "defaultValue": null,
             "type": "SecureString"
-        },
+      },
     	"virtualMachines_newdsvm_adminPublicKey": {
             "defaultValue": null,
             "type": "SecureString"
     	},
-        "virtualMachines_newdsvm_name": {
+      "virtualMachines_newdsvm_name": {
             "defaultValue": "newdsvm",
             "type": "String"
-        },
-        "networkInterfaces_newdsvm161_name": {
+      },
+      "networkInterfaces_newdsvm161_name": {
             "defaultValue": "newdsvm161",
             "type": "String"
-        },
-        "networkSecurityGroups_newdsvm_nsg_name": {
+      },
+      "networkSecurityGroups_newdsvm_nsg_name": {
             "defaultValue": "newdsvm-nsg",
             "type": "String"
-        },
-        "publicIPAddresses_newdsvm_ip_name": {
+      },
+      "publicIPAddresses_newdsvm_ip_name": {
             "defaultValue": "newdsvm-ip",
             "type": "String"
-        },
-        "virtualNetworks_dsvm_vnet_name": {
+      },
+      "virtualNetworks_dsvm_vnet_name": {
             "defaultValue": "dsvm-vnet",
             "type": "String"
-        },
-        "storageAccounts_dsvmdisks490_name": {
+      },
+      "storageAccounts_dsvmdisks490_name": {
             "defaultValue": "dsvmdisks490",
             "type": "String"
-        }
+      }
     },
     "resources": [
         {

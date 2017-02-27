@@ -2,34 +2,29 @@
 % Please edit documentation in R/executeScript.R
 \name{executeScript}
 \alias{executeScript}
-\title{Remote execution of R script in an R interface object.}
+\title{Remote execution of R script in an R interface new_interface.}
 \usage{
-executeScript(context, resourceGroup, remote, user, script, computeContext,
-  inputs = NULL, outputs = NULL, checkLibraries = FALSE,
-  displayPlots = FALSE, writePlots = FALSE)
+executeScript(context, resourceGroup, machines, remote, user, script, master,
+  slaves, computeContext)
 }
 \arguments{
 \item{context}{AzureSMR context.}
 
 \item{resourceGroup}{Resource group of Azure resources for computation.}
 
-\item{remote}{Remote URL for the computation engine. For DSVM, it is either DNS (usually in the format of <dsvm name>.<location>.cloudapp.azure.com) or IP address.}
+\item{machines}{Remote DSVMs that will be used for computation.}
+
+\item{remote}{IP address or URL for a computation engine. For DSVM, it is either DNS (usually in the format of <dsvm name>.<location>.cloudapp.azure.com) or its public IP address. Note if more than one machines are used for execution, the remote is used as master node by default.}
 
 \item{user}{Username for logging into the remote resource.}
 
-\item{script}{R script to be executed on remote resource.}
+\item{script}{R script to be executed on remote resource(s).}
+
+\item{master}{IP address or URL of a DSVM which will be used as the master. By default is remote.}
+
+\item{slaves}{IP addresses or URLs of slave DSVMs.}
 
 \item{computeContext}{Computation context of Microsoft R Server under which the mechanisms of parallelization (e.g., local parallel, cluster based parallel, or Spark) is specified. Accepted computing context include "localParallel", "clusterParallel", "Hadoop", and "Spark".}
-
-\item{inputs}{JSON encoded string of R objects that are loaded into the Remote R session's workspace prior to execution. Only R objects of type: primitives, vectors and dataframes are supported via this parameter. Alternatively the putLocalObject can be used, prior to a call to this function, to move any R object from the local workspace into the remote R session.}
-
-\item{outputs}{Character vector of the names of the objects to retreive. Only primitives, vectors and dataframes can be retrieved using this function. Use getRemoteObject to get any type of R object from the remote session.}
-
-\item{checkLibraries}{if `TRUE`, check whether libraries used in the R script installed on the remote machine.}
-
-\item{displayPlots}{If TRUE, plots generated during execution are displayed in the local plot window. **NOTE** This capability requires that the 'png' package is installed on the local machine.}
-
-\item{writePlots}{If TRUE, plots generated during execution are copied to the working directory of the local session.}
 }
 \value{
 Status of scription execution.
