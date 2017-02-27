@@ -57,11 +57,13 @@ that file in R.
 USER <- Sys.getenv("USER")
 
 source(paste0(USER, "_credentials.R"))
+```
 
+```{r, eval=FALSE}
 # Install the packages if required.
 
-## devtools::install_github("Microsoft/AzureSMR")
-## devtools::install_github("Azure/AzureDSR", auth_token=GIT_TOKEN)
+devtools::install_github("Microsoft/AzureSMR")
+devtools::install_github("Azure/AzureDSR", auth_token=GIT_TOKEN)
 ```
 
 ```{r packages}
@@ -113,6 +115,10 @@ if (! rg_pre_exists)
   azureCreateResourceGroup(context, RG, LOC)
 
 }
+
+# Check that it now exists.
+
+existsRG(context, RG, LOC)
 ```
 
 # Deploy a Linux Data Science Virtual Machine
@@ -132,10 +138,11 @@ ldsvm <- deployDSVM(context,
                     os="Linux",
                     authen="Key",
                     pubkey=PUBKEY)
-
 ldsvm
 
 operateDSVM(context, RG, LDSVM, operation="Check")
+
+azureListVM(context, RG)
 ```
 
 Prove that the server exists.
@@ -151,7 +158,7 @@ cmd <- paste("ssh -q",
              "-o UserKnownHostsFile=/dev/null",
              ldsvm, "uptime")
 cmd
-system(cmd)
+system(cmd, intern=TRUE)
 
 ```
 
@@ -179,11 +186,10 @@ wdsvm
 
 # Optional Stop
 
-We can stop the ...
+We can stop the server.
 
-```{r}
-if (FALSE)
-  operateDSVM(context, RG, LDSVM, operation="Stop")
+```{r, eval=FALSE}
+operateDSVM(context, RG, LDSVM, operation="Stop")
 ```
 
 # Optional Cleanup
@@ -193,7 +199,7 @@ if (FALSE)
 # is probably no need to wait. Only delete if it did not pre-exist
 # this script. Deletion seems to take 10 minutes or more.
 
-if (FALSE & ! rg_pre_exists)
+if (! rg_pre_exists)
   azureDeleteResourceGroup(context, RG)
 ```
 
