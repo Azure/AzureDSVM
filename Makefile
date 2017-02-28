@@ -8,8 +8,11 @@ include git.mk
 
 # Utilities for Testing
 
-vtest: vignettes
+vdeploy: vignettes
 	(cd vignettes; Rscript DeployDSVM.R)
+
+vcluster: vignettes
+	(cd vignettes; Rscript ClusterDSVM.R)
 
 deploy: 
 	(cd test; Rscript deployDSVM.R)
