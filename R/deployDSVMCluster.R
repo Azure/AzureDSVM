@@ -241,5 +241,6 @@ deployDSVMCluster <- function(context,
   data.frame(name     = hostnames,
              username = usernames,
              fqdn     = fqdns,
-             size     = rep(size, count))
+             size     = rep(size, count),
+             stringsAsFactors=FALSE)
 }
