@@ -1,4 +1,4 @@
-#' Deploy a cluster of Data Science Virtual Machines on Azure.
+#' Deploy a cluster of Linux Data Science Virtual Machines on Azure.
 #'
 #' Creates a cluster of Data Science Virtual Machines and enables the
 #' DSVMs to communicate across the cluster via public key based
@@ -12,11 +12,6 @@
 #'   allocated.
 #'
 #' @param location Location of the data centre to host the DSVM.
-#'
-#' @param count If provided this is the number of DSVM instances to be
-#'   created. If not provided the number of DSVMs created will be
-#'   either the number of names provided or the number of usernames
-#'   provided.
 #'
 #' @param hostnames Hostnames for the DSVMs. Lowercase characters or
 #'   numbers only. If a single hostname is supplied and count > 1 then
@@ -32,6 +27,11 @@
 #'   for public-key based authentication of Linux based DSVM. One or a
 #'   vector of public keys can be provided, depending on the count or
 #'   the number of hostnames or usernames.
+#'
+#' @param count If provided this is the number of DSVM instances to be
+#'   created. If not provided the number of DSVMs created will be
+#'   either the number of names provided or the number of usernames
+#'   provided.
 #'
 #' @param size The size of the DSVMs. Each DSVM is the same size.
 #'
@@ -73,7 +73,7 @@ deployDSVMCluster <- function(context,
                               pubkeys,
                               count,
                               size="Standard_D1_v2",
-                              dns=name)
+                              dns=hostnames)
 {
   
   # Check argument pre-conditions.
@@ -87,201 +87,159 @@ deployDSVMCluster <- function(context,
   if(missing(location))
     stop("Please specify a data centre location.")
 
-  if(missing(name))
-    stop("Please specify virtual machine name(s).")
+  if(missing(hostnames))
+    stop("Please specify virtual machine hostname(s).")
 
-  if(missing(username))
-    stop("Please specify virtual machine user name(s).")
+  if(missing(usernames))
+    stop("Please specify virtual machine username(s).")
 
-  # Other preconditions.
+  # Other preconditions and setup.
 
-  # Limit the number of DSVM deployments to a reasonable number but
+  # If no count is provided then set it to the number of hostnames or
+  # usernames supplied.
+  
+  if (missing(count))
+    count <- ifelse(length(hostnames) == 1,
+                    ifelse(length(usernames) == 1,
+                           1, length(usernames)),
+                    length(hostnames))
+
+  # If the count is greater than 1 then ensure we have the right
+  # lengths of hostnames, usernames, and public keys.
+  
+  if (count > 1)
+  {
+    if (length(hostnames) == 1)
+      hostnames <- sprintf("%s%03d", hostnames, 1:count)
+    if (length(usernames) == 1)
+      usernames <- rep(usernames, count)
+    if (length(pubkeys) == 1)
+      pubkeys <- rep(pubkeys, count)
+  }
+
+  # Check the number of DSVM deployments to be a reasonable number but
   # allow the user to override. This is only useful if interactive.
 
   if(count > 10)
   {
-    ans <- readline(paste("More than 10 DSVMs are going to be created and",
-                          "that may take a long time to finish.",
-                          # DOES IT REALLY TAKE A LONG TIME? WON'T IT
-                          # BE DONE ASYNC EXCEPT FOR LAST SO TIME
-                          # TAKEN IS TIME OF THE LAST?
+    ans <- readline(paste("More than 10 DSVMs have been requested.",
                           "Continue? (y/n)"))
-    if(ans == "n" || ans == "N")
-      return("The deployment is aborted.")
+    if(tolower(ans) == "n")
+      stop("The deployment is aborted.")
   }
 
   # Deploy the DSVMs.
 
-  #TODO BREAK INTO TWO SMALLER FUNCTIONS - ONE FOR CLUSTER AND OTHER
-  #FOR COLLECTION
-
-  
-  if(!cluster)
+  for (i in 1:count)
   {
-
-    name <- ifelse(length(name) > 1, name[1], name)
-
-    # append serial no. to name base to form a full name.
-
-    names <- paste0(name, sprintf("%03d", 1:count))
-
-    for (inc in 1:count) {
       deployDSVM(context=context,
                  resource.group=resource.group,
                  location=location,
-                 name=names[inc],
-                 username=username,
+                 name=hostnames[i],
+                 username=usernames[i],
                  size=size,
                  os="Linux",
                  authen="Key",
-                 pubkey=pubkey,
-                 dns=names[inc],
-                 mode=ifelse(inc==count, "Sync", "ASync"))
-    }
+                 pubkey=pubkeys[i],
+                 dns=hostnames[i],
+                 mode=ifelse(i == count, "Sync", "ASync"))
+  }
+  
+  # Set up public credentials for the DSVM collection to allow DSVMs
+  # to communicate with each other. This is required if one wants to
+  # execute analytics on the cluster with parallel compute context
+  # in ScaleR.
 
-    # set up public credentials for DSVM cluster, to allow DSVMs to communicate with each other. This is required if one wants to execute analytics on the cluster with parallel compute context in ScaleR.
+  # TODO: Transmitting PRIVATE key is not good practice! Seeking a
+  # better method...
 
-    # TODO: transmitting private key is not good practice! Seeking a better method...
+  # Do key gen in each node.  Propagate pub keys of each node back
+  # to local.  Put the pub keys in authorized_keys and distribute
+  # onto nodes.
 
-    # do key gen in each node.
-    # propagate pub keys of each node back to local.
-    # put the pub keys in authorized_keys and distribute onto nodes.
+  fqdns <- paste(hostnames, location, "cloudapp.azure.com", sep=".")
 
-    dns_name_list <- paste(names,
-                           location,
-                           "cloudapp.azure.com",
-                           sep=".")
+  auth_keys <- character(0)
 
-    auth_keys <- character(0)
+  for (i in 1:count)
+  {
 
-    for (vm in dns_name_list) {
-      # add an option to switch off host key checking - for the purpose of avoiding pop up.
+    # Add an option to switch off host key checking - for the purposes
+    # of avoiding pop up.
 
-      option <- "-q -o StrictHostKeyChecking=no"
-      pubkey_name <- str_c("pubkey", names[which(dns_name_list == vm)])
+    options <- "-q -o StrictHostKeyChecking=no"
+    
+    pubkey_name <- str_c("pubkey", hostnames[i])
 
-      # generate key pairs in vm
+    # Generate key pairs in the VM
 
-      system(sprintf("ssh %s -l %s %s %s",
-                     option,
-                     username,
-                     vm,
-                     "'ssh-keygen -t rsa -N \"\" -f ~/.ssh/id_rsa'"),
-             intern=TRUE,
-             ignore.stdout=FALSE,
-             ignore.stderr=FALSE,
-             wait=FALSE,
-             show.output.on.console=FALSE)
+    system(sprintf("ssh %s -l %s %s %s",
+                   options, usernames[i], fqdns[i],
+                   "'ssh-keygen -t rsa -N \"\" -f ~/.ssh/id_rsa'"),
+           intern=TRUE,
+           ignore.stdout=FALSE,
+           ignore.stderr=FALSE,
+           wait=FALSE)
 
-      # copy the public key and append it into local machine.
+    # Copy the public key and append it to the local machine.
 
-      system(sprintf("scp %s %s@%s:.ssh/id_rsa.pub %s",
-                     option,
-                     username,
-                     vm,
-                     file.path(".", pubkey_name)))
+    system(sprintf("scp %s %s@%s:.ssh/id_rsa.pub %s",
+                   options, usernames[i], fqdns[i],
+                   file.path(".", pubkey_name)))
 
-      # append the public keys into authorized_key.
+    # Append the public keys into authorized_key.
 
-      auth_keys <- paste0(auth_keys,
-                          readLines(file.path(".", pubkey_name)),
-                          "\n")
+    auth_keys <- paste0(auth_keys,
+                        readLines(file.path(".", pubkey_name)),
+                        "\n")
 
-      writeLines(auth_keys, file.path(".", "pub_keys"))
+    writeLines(auth_keys, file.path(".", "pub_keys"))
 
-      # clean up the temp pub key file
+    # Clean up the temp pub key file
 
-      file.remove(pubkey_name)
-    }
-
-    # create a config file. To avoid any prompt up when nodes are communicating with each other.
-
-    sh <- writeChar(paste0("cat .ssh/pub_keys >> .ssh/authorized_keys\n",
-                           paste0("echo Host *.", location, ".cloudapp.azure.com >> ~/.ssh/config\n"),
-                           paste0("echo StrictHostKeyChecking no >> .ssh/config\n"),
-                           paste0("echo UserKnownHostsFile /dev/null >> .ssh/config\n"),
-                           "chmod 600 .ssh/config",
-                           "\n"),
-                    con="./shell_script")
-
-    # distribute the public keys and config files to nodes.
-
-    for (vm in dns_name_list) {
-
-      # copy the pub_keys onto node.
-
-      system(sprintf("scp %s ./pub_keys %s@%s:.ssh",
-                     option,
-                     username,
-                     vm))
-
-      # copy the config onto node and run it.
-
-      system(sprintf("scp %s ./shell_script %s@%s:.ssh",
-                     option,
-                     username,
-                     vm))
-
-      system(sprintf("ssh %s -l %s %s 'chmod +x .ssh/shell_script'",
-                     option,
-                     username,
-                     vm),
-             show.output.on.console=TRUE)
-
-      system(sprintf("ssh %s -l %s %s '.ssh/shell_script'",
-                     option,
-                     username,
-                     vm),
-             show.output.on.console=TRUE)
-    }
-
-    # clean up.
-
-    file.remove("./pub_keys", "./shell_script")
-
-  } else {
-
-    # check whether the input arguments are valid for the multi-instance deployment-
-    # 1. VM names, usernames, and public key should character vectors that have the same length as the number of DSVMs.
-    # 2. The name and username vectors should not contain duplicated elements.
-
-    if(all(length(name) == count,
-           length(username) == count,
-           length(pubkey) == count) &&
-       !any(c(duplicated(name), duplicated(username)))) {
-
-         names <- name
-         dns_name_list <- paste(names,
-                                location,
-                                "cloudapp.azure.com",
-                                sep=".")
-
-         for (inc in 1:count) {
-           # TODO - COLLECT THE RETURN VALUES AND RETURN THAT
-           deployDSVM(context=context,
-                      resource.group=resource.group,
-                      location=location,
-                      name=name[inc],
-                      username=username[inc],
-                      size=size,
-                      os="Linux",
-                      authen="Key",
-                      pubkey=pubkey[inc],
-                      dns=name[inc],
-                      mode=ifelse(inc==count, "Sync", "ASync"))
-         }
-       } else {
-         stop("Please check input DSVM names, usernames, and public key. The input vectors should have the same length with count of DSVM and elements of each input vectot should be distinct from each other.")
-       }
+    file.remove(pubkey_name)
   }
 
-  # return results for reference.
+    # Create a config file. To avoid any prompt when nodes are
+    # communicating with each other.
 
-  df <- data.frame(Names = names,
-                   Usernames = rep(username, count),
-                   URL = dns_name_list,
-                   Sizes = rep(size, count))
+  sh <- writeChar(paste0("cat .ssh/pub_keys >> .ssh/authorized_keys\n",
+                         "echo Host *.", location,
+                         ".cloudapp.azure.com >> ~/.ssh/config\n",
+                         "echo StrictHostKeyChecking no >> .ssh/config\n",
+                         "echo UserKnownHostsFile /dev/null >> .ssh/config\n",
+                         "chmod 600 .ssh/config\n"),
+                  con="./shell_script")
 
-  writeLines("Summary of DSVMs deployed")
-  print(df)
+    # Distribute the public keys and config files to nodes.
+
+  for (i in 1:count)
+  {
+    # Copy the pub_keys onto node.
+
+    system(sprintf("scp %s ./pub_keys %s@%s:.ssh",
+                   options, usernames[i], fqdns[i]))
+
+    # Copy the config onto node and run it.
+
+    system(sprintf("scp %s ./shell_script %s@%s:.ssh",
+                   options, usernames[i], fqdns[i]))
+
+    system(sprintf("ssh %s -l %s %s 'chmod +x .ssh/shell_script'",
+                   options, usernames[i], fqdns[i]))
+    
+    system(sprintf("ssh %s -l %s %s '.ssh/shell_script'",
+                   options, usernames[i], fqdns[i]))
+  }
+
+  # Clean up.
+
+  file.remove("./pub_keys", "./shell_script")
+
+  # Return results for reference.
+
+  data.frame(name     = hostnames,
+             username = usernames,
+             fqdn     = fqdns,
+             size     = rep(size, count))
 }
