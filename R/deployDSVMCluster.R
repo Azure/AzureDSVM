@@ -1,28 +1,82 @@
-#' @title This function creates a cluster of Data Science Virtual Machines and enable the DSVMs to communicate across the cluster via public key based credentials for high performance computation. All DSVMs in the cluster are based on Linux OS and use public key cryptogrphy for log in.
+#' Deploy a cluster of Data Science Virtual Machines on Azure.
+#'
+#' Creates a cluster of Data Science Virtual Machines and enables the
+#' DSVMs to communicate across the cluster via public key based
+#' credentials for high performance computation. All DSVMs in the
+#' cluster are based on Linux OS and use public key cryptogrphy for
+#' log in.
+#'
 #' @param context AzureSMR active context.
-#' @param resource.group The Azure resource group where the DSVM is allocated.
+#'
+#' @param resource.group The Azure resource group where the DSVM is
+#'   allocated.
+#'
 #' @param location Location of the data centre to host the DSVM.
-#' @param count Number of DSVM instances to be created. Note deploying multiple DSVMs may consume some time.
-#' @param name Names of the DSVMs. Lowercase characters or numbers only. Special characters are not permitted.
-#' @param username User name of the DSVM. It should be different from name of the DSVM.
-#' @param size Size of the DSVM cluster is identical.
-#' @param pubkey Public key for the DSVM. Only applicable for
-#'   public-key based authentication of Linux based DSVM.
-#' @param dns DNS label for the VM address. The URL for accessing the deployed DSVM will be "<dns_label>.<location>.cloudapp.azure.com
-#' @param cluster A logical value of TRUE or FALSE to indicate whether the deployed DSVMs form a cluster. If not, the deployment will assign the vectors of name, username, and public key as given in the input arguments to the DSVMs - this is usually used for creating multiple DSVMs for a group of data scientists. If it is TRUE, the deployment will use the first element (if it consists more than one elements) of the given DSVM names as base, and append serial number to the base to form a DSVM full name, and then use the SAME username and public key across the cluster - this can be used for creating a HPC engine on top of the deployed DSVMs in which parallel computing context which is availed in Microsoft R Server ScaleR package can be applied for embarassing parallelization.
+#'
+#' @param count If provided this is the number of DSVM instances to be
+#'   created. If not provided the number of DSVMs created will be
+#'   either the number of names provided or the number of usernames
+#'   provided.
+#'
+#' @param hostnames Hostnames for the DSVMs. Lowercase characters or
+#'   numbers only. If a single hostname is supplied and count > 1 then
+#'   the hostname will be used as a prefix for a sequential count of
+#'   hostnames.
+#'
+#' @param usernames Usernames for the admin account created on the
+#'   DSVM. If a single username is supplied then that username is used
+#'   as the admin user on each host. Otherwise a username is provided
+#'   for each of the DSVMs.
+#'
+#' @param pubkeys Public keys for the DSVM. This is only applicable
+#'   for public-key based authentication of Linux based DSVM. One or a
+#'   vector of public keys can be provided, depending on the count or
+#'   the number of hostnames or usernames.
+#'
+#' @param size The size of the DSVMs. Each DSVM is the same size.
+#'
+#' @param dns DNS label for the VM address. The fully qualified domain
+#'   name for accessing the deployed DSVM will be
+#'   "<dns_label>.<location>.cloudapp.azure.com". The deafult is to
+#'   use the hostname as the dns label.
+#' 
+#' @details
+#'
+#' We identify two specific use cases but recognise there are many
+#' that are supported by this function.
+#'
+#' A cluster is intended as a High Performance Compute engine across
+#' the deployed DSVMs supporting a parallel computing context as is
+#' available with Microsoft R Server ScaleR package. A cluster is a
+#' deployment of multiple identitical DSVMs. A single admin username
+#' and public key will be used across the cluster. The individual
+#' machine names will be constructed from the provided name with
+#' sequential numbers. The data scientist will typically connect to
+#' the cluster from their local desktop/laptop running R locally with
+#' remote execution for computation. A cluster is typcially created by
+#' the data scientist when needed and the resource group deleted on
+#' completion of the activity.
+#'
+#' A collection is a deployment with different usernames and public
+#' keys for each of the DSVMS. A vector of usernames must be
+#' provided. A colleciton is often used in creating multiple DSVMs for
+#' a group of data scientists or for training. A colleciton is often
+#' longer lasting than a cluster.
+#' 
 #' @export
+#' 
 deployDSVMCluster <- function(context,
                               resource.group,
                               location,
-                              count=1,
-                              name,
-                              username,
+                              hostnames,
+                              usernames,
+                              pubkeys,
+                              count,
                               size="Standard_D1_v2",
-                              pubkey="",
-                              dns=name,
-                              cluster=FALSE) {
-
-  # do some checks for the input arguments.
+                              dns=name)
+{
+  
+  # Check argument pre-conditions.
 
   if(missing(context))
     stop("Please specify a context (contains TID, CID, KEY).")
@@ -39,19 +93,31 @@ deployDSVMCluster <- function(context,
   if(missing(username))
     stop("Please specify virtual machine user name(s).")
 
-  # other preconditions.
+  # Other preconditions.
 
-  # let's limit the number of DSVM deployments to a reasonable number.
+  # Limit the number of DSVM deployments to a reasonable number but
+  # allow the user to override. This is only useful if interactive.
 
-  if(count > 10) {
-    ans <- readline("More than 10 DSVMs are going to be created and that may take a long time to finish. Continue? (y/n)")
+  if(count > 10)
+  {
+    ans <- readline(paste("More than 10 DSVMs are going to be created and",
+                          "that may take a long time to finish.",
+                          # DOES IT REALLY TAKE A LONG TIME? WON'T IT
+                          # BE DONE ASYNC EXCEPT FOR LAST SO TIME
+                          # TAKEN IS TIME OF THE LAST?
+                          "Continue? (y/n)"))
     if(ans == "n" || ans == "N")
       return("The deployment is aborted.")
   }
 
-  # to deploy the cluster of DSVMs.
+  # Deploy the DSVMs.
 
-  if(cluster) {
+  #TODO BREAK INTO TWO SMALLER FUNCTIONS - ONE FOR CLUSTER AND OTHER
+  #FOR COLLECTION
+
+  
+  if(!cluster)
+  {
 
     name <- ifelse(length(name) > 1, name[1], name)
 
@@ -191,6 +257,7 @@ deployDSVMCluster <- function(context,
                                 sep=".")
 
          for (inc in 1:count) {
+           # TODO - COLLECT THE RETURN VALUES AND RETURN THAT
            deployDSVM(context=context,
                       resource.group=resource.group,
                       location=location,
