@@ -14,7 +14,7 @@ quickly. When the experimental setup is complete the script can be
 sent across to a considerably more capable compute engine on Azure,
 possibly a cluster of servers to build models in parallel.
 
-This tutorial deploys several Linux Data Science Virtual Machines
+This tutorial deploys a cluster of Linux Data Science Virtual Machines
 (DSVMs), distributes a trivial compute task over those servers,
 collects the results and generates a report. Code is included but not
 run to then delete the resource group if the resources are no longer
@@ -58,13 +58,13 @@ LOC <- "southeastasia"   # Where the resource group (resources) will be hosted.
 
 # Create names for the VMs.
 
-COUNT <- 2                 # Number of VMs to deploy.
+COUNT <- 5                 # Number of VMs to deploy.
 BASE  <- 
   runif(4, 1, 26) %>%
   round() %>%
   letters[.] %>%
   paste(collapse="") %T>% print()
-LDSVM <- paste0("ldsvm", BASE, sprintf("%03d", 1:COUNT)) %T>% print()
+LDSVM <- paste0(BASE, sprintf("%03d", 1:COUNT)) %T>% print()
 LUSER <- paste0("user", BASE, sprintf("%03d", 1:COUNT)) %T>% print()
 ```
 
@@ -77,10 +77,10 @@ context <- createAzureContext(tenantID=TID, clientID=CID, authKey=KEY)
 # Check if the resource group already exists. Take note this script
 # will not remove the resource group if it pre-existed.
 
-rg_pre_exists <- existsRG(context, RG, LOC)
+rg_pre_exists <- existsRG(context, RG, LOC) %T>% print()
 
 ```
-# Creation
+# Create Resource Group
 
 Create the resource group within which all resources we create will be
 grouped.
@@ -99,24 +99,21 @@ if (! rg_pre_exists)
 }
 ```
 
-Create the actual Linux DSVM cluser with public-key based
-authentication method. Name, username, and size can also be
-configured.
+# Create a Cluster
 
-```{r deploy a set of DSVMs, eval=FALSE}
+We can now deploy a cluster of DSVMs. Each DSVM will be named based on
+the *name* provided and sequentially numbered. 
 
-# Deploy multiple DSVMs using deployDSVMCluster.
+```{r deploy a cluster of DSVMs}
+# Deploy a cluster of DSVMs.
 
-ldsvm_set <- deployDSVMCluster(context, 
-                               resource.group=RG, 
-                               location=LOC, 
-                               count=COUNT, 
-                               name=LDSVM, 
-                               username=LUSER, 
-                               pubkey=rep(PUBKEY, COUNT), 
-                               cluster=FALSE)
-
-# May want to have a check on the deployed machines?
+ldsvm_cluster <- deployDSVMCluster(context, 
+                                   resource.group=RG, 
+                                   location=LOC, 
+                                   count=COUNT, 
+                                   name=BASE,
+                                   username=USER, 
+                                   pubkey=PUBKEY)
 
 for (vm in LDSVM)
 {
@@ -140,23 +137,32 @@ for (vm in LDSVM)
 }
 ```
 
-Now deploy a cluster of DSVMs. The function will automatically form a
-DSVM cluster for us with which an R analytical job can be executed on
-with a "cluster parallel" computing context.
+Use with an R analytical job executed with a "cluster parallel"
+computing context.
 
-```{r deploy a cluster of DSVMs}
-# Deploy a cluster of DSVMs.
 
-ldsvm_cluster <- deployDSVMCluster(context, 
-                                   resource.group=RG, 
-                                   location=LOC, 
-                                   count=COUNT, 
-                                   name=BASE,
-                                   username=USER, 
-                                   pubkey=PUBKEY, 
-                                   cluster=TRUE)
+We can also create a collection of Linux DSVMs each with a different
+user and with public-key based authentication method. Name, username,
+and size can also be configured. This one we don't actually do for
+now. SHOULD THERE BE A COMMON ADMIN USER IDENTIFIED (WITH COMMON
+PUBKEY) AND THEN A USER ACCOUNT ON EACH (EACH WITH THEIR OWN PUBKEY).
 
-for (vm in paste0(BASE, sprintf("%03d", 1:COUNT)))
+```{r deploy a set of DSVMs, eval=FALSE}
+
+# Deploy multiple DSVMs using deployDSVMCluster.
+
+ldsvm_set <- deployDSVMCluster(context, 
+                               resource.group=RG, 
+                               location=LOC, 
+                               count=COUNT, 
+                               name=LDSVM, 
+                               username=LUSER, 
+                               pubkey=rep(PUBKEY, COUNT), 
+                               cluster=FALSE)
+
+# Check the deployed machines?
+
+for (vm in LDSVM)
 {
   cat(vm, "\n")
   
@@ -184,8 +190,7 @@ for (vm in paste0(BASE, sprintf("%03d", 1:COUNT)))
 # Delete the resource group now if required. By default we don't.
 # Deletion seems to take 10 minutes or more.
 
-if (FALSE)
-  azureDeleteResourceGroup(context, RG)
+azureDeleteResourceGroup(context, RG)
 ```
 
 Once deleted we are consuming no more.
