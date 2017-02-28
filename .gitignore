@@ -24,10 +24,8 @@ vignettes/*.pdf
 *.utf8.md
 *.knit.md
 inst/doc
-<<<<<<< HEAD
 .Rproj.user
-=======
-
 *_credentials.R
 *~
->>>>>>> 36c4ae1afd4cb44d1aa71535da2d1c8d8adb3a7e
+man/
+NAMESPACE
