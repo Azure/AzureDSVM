@@ -5,7 +5,7 @@ RSCRIPT      = Rscript
 RSCRIPT_OPTS = --vanilla
 
 VIGNETTE_RMD = $(wildcard vignettes/*.Rmd)
-VIGNETTE_R   = $(VRMD:.Rmd=.R)
+VIGNETTE_R   = $(VIGNETTE_RMD:.Rmd=.R)
 
 R_FILES   := $(wildcard R/*.R)
 SRC_FILES := $(wildcard src/*) $(addprefix src/, $(COPY_SRC))
