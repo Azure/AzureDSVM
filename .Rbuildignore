@@ -1,8 +1,11 @@
+\.git
+\.gitignore
+Makefile
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^.*_credentials.R$
-^Makefile$
+^.*_credentials\.R$
 ^.*\.mk$
-^vignettes/.*.R$
+^vignettes/.*\.R$
 ^test/.*$
 ^.*\.tar\.gz$
+README\.md
