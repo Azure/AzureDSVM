@@ -65,7 +65,7 @@ BASE  <-
   letters[.] %>%
   paste(collapse="") %T>% print()
 LDSVM <- paste0(BASE, sprintf("%03d", 1:COUNT)) %T>% print()
-LUSER <- paste0("user", BASE, sprintf("%03d", 1:COUNT)) %T>% print()
+LUSER <- paste0("u", sprintf("%03d", 1:COUNT)) %T>% print()
 ```
 
 ```{r connect}
@@ -107,16 +107,19 @@ the *name* provided and sequentially numbered.
 ```{r deploy a cluster of DSVMs}
 # Deploy a cluster of DSVMs.
 
-ldsvm_cluster <- deployDSVMCluster(context, 
-                                   resource.group=RG, 
-                                   location=LOC, 
-                                   count=COUNT, 
-                                   name=BASE,
-                                   username=USER, 
-                                   pubkey=PUBKEY)
+cluster <- deployDSVMCluster(context, 
+                             resource.group=RG, 
+                             location=LOC, 
+                             hostnames=BASE,
+                             usernames=USER, 
+                             pubkeys=PUBKEY,
+                             count=COUNT)
 
-for (vm in LDSVM)
+for (i in 1:COUNT)
 {
+  vm <- cluster[i, "name"]
+  fqdn <- cluster[i, "fqdn"]
+  
   cat(vm, "\n")
   
   operateDSVM(context, RG, vm, operation="Check")
@@ -128,7 +131,7 @@ for (vm in LDSVM)
   cmd <- paste("ssh -q",
                "-o StrictHostKeyChecking=no",
                "-o UserKnownHostsFile=/dev/null\\\n   ",
-               paste0(vm, ".", LOC, ".cloudapp.azure.com"),
+               fqdn,
                "uptime") %T>%
     {cat(., "\n")}
   cmd
@@ -137,9 +140,7 @@ for (vm in LDSVM)
 }
 ```
 
-Use with an R analytical job executed with a "cluster parallel"
-computing context.
-
+# Create a Collection
 
 We can also create a collection of Linux DSVMs each with a different
 user and with public-key based authentication method. Name, username,
@@ -184,13 +185,15 @@ for (vm in LDSVM)
 }
 ```
 
-# Optional Delete
+# Delete the Resource Group
 
 ```{r optionally delete resource group}
-# Delete the resource group now if required. By default we don't.
-# Deletion seems to take 10 minutes or more.
+# Delete the resource group now that we have proved existence. There
+# is probably no need to wait. Only delete if it did not pre-exist
+# this script. Deletion seems to take 10 minutes or more.
 
-azureDeleteResourceGroup(context, RG)
+if (! rg_pre_exists)
+  azureDeleteResourceGroup(context, RG)
 ```
 
 Once deleted we are consuming no more.
