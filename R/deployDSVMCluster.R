@@ -128,7 +128,11 @@ deployDSVMCluster <- function(context,
       stop("The deployment is aborted.")
   }
 
-  # Deploy the DSVMs.
+  # Deploy the DSVMs. All but the last one are deployed asynchronosly
+  # and the last is deployed synchonously so that the function returns
+  # once the last has successfully deployed. TODO maybe we have a mode
+  # argument defaults to "Sync" so user could choose all to be "AScyn"
+  # if desired.
 
   for (i in 1:count)
   {
