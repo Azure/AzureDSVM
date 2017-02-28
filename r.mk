@@ -14,7 +14,11 @@ VR   = $(VRMD:.Rmd=.R)
 check: 
 	R CMD check --check-subdirs=yes .
 
-build: 
+.PHONY: doc
+doc:
+	R -e 'devtools::document()'
+
+build: doc
 	R CMD build .
 
 install: build
