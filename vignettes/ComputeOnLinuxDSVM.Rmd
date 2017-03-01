@@ -11,21 +11,14 @@ with 6GB RAM running Ubuntu with R installed). Development is
 performed with a subset of the full dataset (a random sample) that
 will not exceed the available memory and will return results
 quickly. When the experimental setup is complete the script can be
-sent across to an considerably more capable compute engine on Azure.
+sent across to a considerably more capable compute engine on Azure.
 
-A Linux Data Science Virtual Machine (DSVM) is deployed, the analysis
-completed, results collected, and the compute resources deleted. Azure
-consumption costs are minimised.
-
-This demonstrate presents how an experimental data analytics can be thrown
-onto a Linux DSVM or a customized Linux DSVM set and executed in a desired
-high-performance computing context.
+In this vignette a Linux Data Science Virtual Machine (DSVM) cluster
+is deployed, a distributed/parallel analysis is completed, results
+collected, and the compute resources deleted. Azure consumption occurs
+just for the duration. 
 
 # Setup
-
-We assume that the first step of [ConnectToLinuxDSVM](https://github.com/Azure/AzureDSR/vignettes/ConnectToLinuxDSVM.Rmd) has been done, and there is at least one Linux DSVM existing at the created resouce group.
-
-To begin with, let's check the status of the DSVM and start it if it is deallocated. This is achieved with AzureSMR, and again confidentials for authenticating the app in Active Directory should be provided.
 
 ```{r setup}
 # Load the required subscription resources: TID, CID, and KEY.
@@ -36,14 +29,6 @@ USER <- Sys.getenv("USER")
 source(paste0(USER, "_credentials.R"))
 ```
 
-```{r credentials, eval=FALSE}
-# Credentials come from app creation in Active Directory within Azure.
- 
-TID <- "72f9....db47"          # Tenant ID
-CID <- "9c52....074a"          # Client ID
-KEY <- "9Efb....4nwV....ASa8=" # User key
-```
-
 ```{r packages}
 # Load the required packages.
 
@@ -51,7 +36,6 @@ library(AzureSMR)    # Support for managing Azure resources.
 library(AzureDSR)    # Further support for the Data Scientist.
 library(magrittr)    
 library(dplyr)
-library(rattle)      # Use weatherAUS as a "large" dataset.
 ```
 
 ```{r tuning}
@@ -62,50 +46,104 @@ library(rattle)      # Use weatherAUS as a "large" dataset.
 
 RG     <- "my_dsvm_rg_sea"  # Create if not already exist then kill.
 LOC    <- "southeastasia"   # Where the resource group (resources) will be hosted.
-# LDSVM  <- "mydsvm001"
-LDSVM  <- c("zzz001", "zzz002")
-VM_URL <- paste(LDSVM, LOC, "cloudapp.azure.com", sep=".")
+
+# Create names for the VMs.
+
+COUNT <- 5 # 10                 # Number of VMs to deploy.
+BASE  <- 
+  runif(4, 1, 26) %>%
+  round() %>%
+  letters[.] %>%
+  paste(collapse="") %T>% print()
 ```
 
-# DSVM Operation
+To begin with, let's check the status of the DSVM and start it if it
+is deallocated. This is achieved with AzureSMR, and again
+confidentials for authenticating the app in Active Directory should be
+provided.
 
-We can operate the created DSVM instance as desired through R.
-
-```{r dsvm operation}
-# Authentication.
+```{r connect}
+# Connect to the Azure subscription and use this as the context for
+# all of our activities.
 
 context <- createAzureContext(tenantID=TID, clientID=CID, authKey=KEY)
 
-# get VM list under the resource group.
+# Check if the resource group already exists. Take note this script
+# will not remove the resource group if it pre-existed.
 
-vm_names <- 
-  AzureSMR::azureListVM(context, RG, LOC) %T>%
-  print()
+rg_pre_exists <- existsRG(context, RG, LOC) %T>% print()
 
-# start the DSVM if it is not running.
+if (! rg_pre_exists)
+{
+  # Create a new resource group into which we create the VMs and
+  # related resources. Resource group name is RG. 
+  
+  # Note that to create a new resource group one needs to add access
+  # control of Active Directory application at subscription level.
 
-operateDSVM(context, RG, LDSVM, operation="Start")
+  azureCreateResourceGroup(context, RG, LOC)
 
-# check status of a DSVM.
+}
+```
 
-operateDSVM(context, RG, LDSVM, operation="Check")
+# Deploy the VM Cluster
 
+```{r deploy a cluster of DSVMs}
+# Deploy a cluster of DSVMs.
+
+cluster <- deployDSVMCluster(context, 
+                             resource.group=RG, 
+                             location=LOC, 
+                             hostnames=BASE,
+                             usernames=USER, 
+                             pubkeys=PUBKEY,
+                             count=COUNT)
+
+for (i in 1:COUNT)
+{
+  vm   <- cluster[i, "hostname"]
+  fqdn <- cluster[i, "fqdn"]
+  
+  cat(vm, "\n")
+  
+  operateDSVM(context, RG, vm, operation="Check")
+
+  cmd <- paste("ssh -q",
+               "-o StrictHostKeyChecking=no",
+               "-o UserKnownHostsFile=/dev/null",
+               fqdn, "uptime")
+  cmd
+  system(cmd, intern=TRUE) %>% print()
+}
 ```
 
 # Run analytics.
 
 Next step is to use the DSVM for data analytics.
 
-There are many ways of interacting with a DSVM. For both Linux and Windows based DSVMs, it is convenient to remote login onto the machines with GUI (more detailed information can be found [here](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-provision-vm)). A lot of times remote execution within R session is preferred by data scientist as it can be efficiently automated by R scripts. The following chunks of codes demonstrate how to use an R interface for remote execution of R scripts under a desired computing context.  
+There are many ways of interacting with a DSVM. For both Linux and
+Windows based DSVMs, it is convenient to remote login onto the
+machines with GUI (more detailed information can be found
+[here](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-provision-vm)). A
+lot of times remote execution within R session is preferred by data
+scientist as it can be efficiently automated by R scripts. The
+following chunks of codes demonstrate how to use an R interface for
+remote execution of R scripts under a desired computing context.
 
 A very simple experiment on random number generation.
+
 ```{r set R interface}
 
 # Create a script for remote execution.
 
-codes <- "x <- seq(1, 500); y <- x * rnorm(length(x), 0, 0.1); sprintf('The results is %d', y)"
+code <- "
+x <- seq(1, 500)
+y <- x * rnorm(length(x), 0, 0.1)
+print(y)
+"
 
-writeLines(codes, "./experiment1.R")
+tmpf <- tempfile(paste0("AzureDSR_experiment_01_"))
+writeLines(code, tmpf)
                  
 # local parallelism on node cores.
 
@@ -113,12 +151,12 @@ t1 <- Sys.time()
 
 executeScript(context,
               resourceGroup=RG,
-              machines=LDSVM,
-              remote=VM_URL[1],
-              user="zzzuser",
-              script="./experiment1.R",
-              master=VM_URL[1],
-              slaves=VM_URL[1],
+              machines=cluster$hostname[1],
+              remote=cluster$fqdn[1],
+              user=cluster$username[1],
+              script=tmpf,
+              master=cluster$fqdn[1],
+              slaves=cluster$fqdn[1],
               computeContext="localParallel")
 
 t2 <- Sys.time()
@@ -127,12 +165,12 @@ t2 <- Sys.time()
 
 executeScript(context,
               resourceGroup=RG,
-              machines=LDSVM,
-              remote=VM_URL[1],
-              user="zzzuser",
-              script="./experiment1.R",
-              master=VM_URL[1],
-              slaves=VM_URL[-1],
+              machines=cluster$hostname,
+              remote=cluster$fqdn,
+              user=cluster$username,
+              script=tmpf,
+              master=cluster$fqdn[1],
+              slaves=cluster$fqdn[-1],
               computeContext="clusterParallel")
 
 t3 <- Sys.time()
@@ -175,5 +213,12 @@ Clean up.
 ```{r}
 
 file.remove("./experiment1.R", "./experiment2.R")
+
+# Delete the resource group now that we have proved existence. There
+# is probably no need to wait. Only delete if it did not pre-exist
+# this script. Deletion seems to take 10 minutes or more.
+
+if (! rg_pre_exists)
+  azureDeleteResourceGroup(context, RG)
 
 ```
