@@ -164,48 +164,48 @@ deployDSVMCluster <- function(context,
   fqdns <- paste(hostnames, location, "cloudapp.azure.com", sep=".")
 
   auth_keys <- character(0)
-
+  tmpkeys   <- tempfile(paste0("AzureDSR_pubkeys_", hostnames[i], "_"))
+  
   for (i in 1:count)
   {
-
-    # Add an option to switch off host key checking - for the purposes
-    # of avoiding pop up.
-
-    options <- "-q -o StrictHostKeyChecking=no"
     
-    pubkey_name <- str_c("pubkey", hostnames[i])
+    # Add an option to switch off host key checking - for the purposes
+    # of avoiding pop up. Also do not clog up the user's known_hosts
+    # file with all the servers created.
+
+    options <- "-q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+    
+    tmpkey <- tempfile(paste0("AzureDSR_pubkey_", hostnames[i], "_"))
 
     # Generate key pairs in the VM
 
-    system(sprintf("ssh %s -l %s %s %s",
+    cmd <- sprintf("ssh %s -l %s %s %s",
                    options, usernames[i], fqdns[i],
-                   "'ssh-keygen -t rsa -N \"\" -f ~/.ssh/id_rsa'"),
-           intern=TRUE,
-           ignore.stdout=FALSE,
-           ignore.stderr=FALSE,
-           wait=FALSE)
+                   "'ssh-keygen -t rsa -N \"\" -f ~/.ssh/id_rsa'")
+    system(cmd, intern=TRUE, ignore.stdout=FALSE, ignore.stderr=FALSE, wait=FALSE)
 
     # Copy the public key and append it to the local machine.
 
-    system(sprintf("scp %s %s@%s:.ssh/id_rsa.pub %s",
-                   options, usernames[i], fqdns[i],
-                   file.path(".", pubkey_name)))
+    cmd <- sprintf("scp %s %s@%s:.ssh/id_rsa.pub %s",
+                   options, usernames[i], fqdns[i], tmpkey)
+
+    system(cmd)
 
     # Append the public keys into authorized_key.
 
-    auth_keys <- paste0(auth_keys,
-                        readLines(file.path(".", pubkey_name)),
-                        "\n")
+    auth_keys <- paste0(auth_keys, readLines(tmpkey), "\n")
 
-    writeLines(auth_keys, file.path(".", "pub_keys"))
+    writeLines(auth_keys, tmpkeys)
 
     # Clean up the temp pub key file
 
-    file.remove(pubkey_name)
+    file.remove(tmpkey)
   }
 
-    # Create a config file. To avoid any prompt when nodes are
-    # communicating with each other.
+  # Create a config file. To avoid any prompt when nodes are
+  # communicating with each other.
+
+  tmpscript <- tempfile(paste0("AzureDSR_script_", hostnames[i], "_"))
 
   sh <- writeChar(paste0("cat .ssh/pub_keys >> .ssh/authorized_keys\n",
                          "echo Host *.", location,
@@ -213,21 +213,21 @@ deployDSVMCluster <- function(context,
                          "echo StrictHostKeyChecking no >> .ssh/config\n",
                          "echo UserKnownHostsFile /dev/null >> .ssh/config\n",
                          "chmod 600 .ssh/config\n"),
-                  con="./shell_script")
+                  con=tmpscript)
 
-    # Distribute the public keys and config files to nodes.
+  # Distribute the public keys and config files to nodes.
 
   for (i in 1:count)
   {
     # Copy the pub_keys onto node.
 
-    system(sprintf("scp %s ./pub_keys %s@%s:.ssh",
-                   options, usernames[i], fqdns[i]))
+    system(sprintf("scp %s %s %s@%s:.ssh/pub_keys",
+                   options, tmpkeys, usernames[i], fqdns[i]))
 
     # Copy the config onto node and run it.
 
-    system(sprintf("scp %s ./shell_script %s@%s:.ssh",
-                   options, usernames[i], fqdns[i]))
+    system(sprintf("scp %s %s %s@%s:.ssh/shell_script",
+                   options, tmpscript, usernames[i], fqdns[i]))
 
     system(sprintf("ssh %s -l %s %s 'chmod +x .ssh/shell_script'",
                    options, usernames[i], fqdns[i]))
@@ -235,14 +235,14 @@ deployDSVMCluster <- function(context,
     system(sprintf("ssh %s -l %s %s '.ssh/shell_script'",
                    options, usernames[i], fqdns[i]))
   }
-
+  
   # Clean up.
 
-  file.remove("./pub_keys", "./shell_script")
+  file.remove(tmpkeys, tmpscript)
 
   # Return results for reference.
 
-  data.frame(name     = hostnames,
+  data.frame(hostname = hostnames,
              username = usernames,
              fqdn     = fqdns,
              size     = rep(size, count),
