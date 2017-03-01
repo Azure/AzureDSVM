@@ -1,15 +1,40 @@
-#' @title Remote execution of R script in an R interface new_interface.
+#' Remote execution of R script in an R interface new_interface.
+#' 
 #' @param context AzureSMR context.
+#' 
 #' @param resourceGroup Resource group of Azure resources for computation.
+#' 
 #' @param machines Remote DSVMs that will be used for computation.
-#' @param remote IP address or URL for a computation engine. For DSVM, it is either DNS (usually in the format of <dsvm name>.<location>.cloudapp.azure.com) or its public IP address. Note if more than one machines are used for execution, the remote is used as master node by default.
+#' 
+#' @param remote IP address or FQDN for a computation engine. For
+#'   DSVM, it is either the fully qualified domain name (usually in the format of
+#'   <hostname>.<location>.cloudapp.azure.com) or its public IP
+#'   address. Note if more than one machines are used for execution,
+#'   the remote is used as master node by default.
+#' 
 #' @param user Username for logging into the remote resource.
+#' 
 #' @param script R script to be executed on remote resource(s).
-#' @param master IP address or URL of a DSVM which will be used as the master. By default is remote.
+#' 
+#' @param master IP address or URL of a DSVM which will be used as the
+#'   master. By default is remote.
+#' 
 #' @param slaves IP addresses or URLs of slave DSVMs.
-#' @param computeContext Computation context of Microsoft R Server under which the mechanisms of parallelization (e.g., local parallel, cluster based parallel, or Spark) is specified. Accepted computing context include "localParallel", "clusterParallel", "Hadoop", and "Spark".
+#' 
+#' @param computeContext Computation context of Microsoft R Server
+#'   under which the mechanisms of parallelization (e.g., local
+#'   parallel, cluster based parallel, or Spark) is
+#'   specified. Accepted computing context include "localParallel",
+#'   "clusterParallel", "Hadoop", and "Spark".
+#' 
 #' @return Status of scription execution.
+#'
+#' @details
+#'
+#' For a localParallel compute context, 
+#' 
 #' @export
+
 executeScript <- function(context,
                           resourceGroup,
                           machines,
@@ -18,36 +43,46 @@ executeScript <- function(context,
                           script,
                           master,
                           slaves,
-                          computeContext) {
+                          computeContext)
+{
 
-  # preconditions
+  # Check pre-conditions.
 
   if(missing(context) | !is.azureActiveContext(context))
     stop("Please provide a valid AzureSMR active context.")
+  
   if(missing(resourceGroup))
     stop("Please specify a resource group.")
+  
   if(missing(machines))
     stop("Please give a list of virtual machines.")
+  
   if(missing(remote))
     stop("Please specify a remote machine.")
+  
   if(missing(user))
     stop("Please give user name for the remote login.")
+  
   if(missing(script))
     stop("Please specify the script to be executed remotely with full path.")
 
-  # check master and slave only when it is cluster parallel.
+  # Check master and slave only when it is cluster parallel.
 
-  if(computeContext == "clusterParallel") {
+  if(computeContext == "clusterParallel")
+  {
     if(missing(master))
       stop("Please specify a master node.")
+    
     if(missing(slaves))
       stop("Please specify slaves.")
   }
 
-  # switch on the machines.
+  # Switch on the machines.
 
-  for (vm in machines) {
-    # starting a machine is running in synchronous mode so let's wait for a while patiently until everything is done.
+  for (vm in machines)
+  {
+    # Starting a machine is running in synchronous mode so let's wait
+    # for a while patiently until everything is done.
 
     operateDSVM(context,
                 resource.group=resourceGroup,
@@ -55,7 +90,7 @@ executeScript <- function(context,
                 operation="Start")
   }
 
-  # manage input strings in an interface new_interface.
+  # Manage input strings in an interface new_interface.
 
   new_interface <- createComputeInterface(remote, user, script)
 
