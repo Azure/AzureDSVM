@@ -54,5 +54,5 @@ clean:
 	-rm -r -f man/*
 	-rm -r -f NAMESPACE
 
-realclean:
+realclean: clean
 	rm -f $(VIGNETTE_R)
