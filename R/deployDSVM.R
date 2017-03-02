@@ -41,7 +41,8 @@
 #'
 #' If the deployment fails please visit the Azure console online and
 #' visit the resource group and click on the failed deployment link to
-#' view the failure message.
+#' view the failure message. Typical errors include DnsRecordInUse or
+#' StorageAccountAlreadyTaken.
 #' 
 #' @export
 deployDSVM <- function(context,
