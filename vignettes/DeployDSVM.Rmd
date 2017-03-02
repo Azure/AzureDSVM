@@ -132,7 +132,7 @@ method. Name, username, and size can also be configured.
 ldsvm <- deployDSVM(context, 
                     resource.group=RG,
                     location=LOC,
-                    name=LDSVM,
+                    hostname=LDSVM,
                     username=USER,
                     size="Standard_DS1_v2",
                     os="Linux",
