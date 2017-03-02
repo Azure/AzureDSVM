@@ -37,6 +37,12 @@
 #' 
 #' @param mode Mode of virtual machine deployment. Default is "Sync".
 #'
+#' @details
+#'
+#' If the deployment fails please visit the Azure console online and
+#' visit the resource group and click on the failed deployment link to
+#' view the failure message.
+#' 
 #' @export
 deployDSVM <- function(context,
                        resource.group,
