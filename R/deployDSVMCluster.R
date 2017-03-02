@@ -149,96 +149,98 @@ deployDSVMCluster <- function(context,
                  mode=ifelse(i == count, "Sync", "ASync"))
   }
 
-  IF CLUSTER single username
+  # For a cluster set up public credentials for the DSVM cluster to
+  # allow DSVMs to communicate with each other. This is required if
+  # one wants to execute analytics on the cluster with parallel
+  # compute context in ScaleR.
   
-  # Set up public credentials for the DSVM cluster to allow DSVMs to
-  # communicate with each other. This is required if one wants to
-  # execute analytics on the cluster with parallel compute context in
-  # ScaleR.
-
-  # Do key gen in each node.  Propagate pub keys of each node back
-  # to local.  Put the pub keys in authorized_keys and distribute
-  # onto nodes.
-
-  fqdns <- paste(dns.labels, location, "cloudapp.azure.com", sep=".")
-
-  auth_keys <- character(0)
-  tmpkeys   <- tempfile(paste0("AzureDSR_pubkeys_", hostnames[i], "_"))
-  
-  for (i in 1:count)
+  if (length(unique(usernames)))
   {
+  
+    # Do key gen in each node.  Propagate pub keys of each node back
+    # to local.  Put the pub keys in authorized_keys and distribute
+    # onto nodes.
+
+    fqdns <- paste(dns.labels, location, "cloudapp.azure.com", sep=".")
+
+    auth_keys <- character(0)
+    tmpkeys   <- tempfile(paste0("AzureDSR_pubkeys_", hostnames[i], "_"))
+  
+    for (i in 1:count)
+    {
     
-    # Add an option to switch off host key checking - for the purposes
-    # of avoiding pop up. Also do not clog up the user's known_hosts
-    # file with all the servers created.
+      # Add an option to switch off host key checking - for the purposes
+      # of avoiding pop up. Also do not clog up the user's known_hosts
+      # file with all the servers created.
+      
+      options <- "-q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+      
+      tmpkey <- tempfile(paste0("AzureDSR_pubkey_", hostnames[i], "_"))
+      
+      # Generate key pairs in the VM
+      
+      cmd <- sprintf("ssh %s -l %s %s %s",
+                     options, usernames[i], fqdns[i],
+                     "'ssh-keygen -t rsa -N \"\" -f ~/.ssh/id_rsa'")
+      system(cmd, intern=TRUE, ignore.stdout=FALSE, ignore.stderr=FALSE, wait=FALSE)
+      
+      # Copy the public key and append it to the local machine.
+      
+      cmd <- sprintf("scp %s %s@%s:.ssh/id_rsa.pub %s",
+                     options, usernames[i], fqdns[i], tmpkey)
+      
+      system(cmd)
+      
+      # Append the public keys into authorized_key.
+      
+      auth_keys <- paste0(auth_keys, readLines(tmpkey), "\n")
+      
+      writeLines(auth_keys, tmpkeys)
+      
+      # Clean up the temp pub key file
+      
+      file.remove(tmpkey)
+    }
 
-    options <- "-q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-    
-    tmpkey <- tempfile(paste0("AzureDSR_pubkey_", hostnames[i], "_"))
+    # Create a config file. To avoid any prompt when nodes are
+    # communicating with each other.
 
-    # Generate key pairs in the VM
+    tmpscript <- tempfile(paste0("AzureDSR_script_", hostnames[i], "_"))
 
-    cmd <- sprintf("ssh %s -l %s %s %s",
-                   options, usernames[i], fqdns[i],
-                   "'ssh-keygen -t rsa -N \"\" -f ~/.ssh/id_rsa'")
-    system(cmd, intern=TRUE, ignore.stdout=FALSE, ignore.stderr=FALSE, wait=FALSE)
+    sh <- writeChar(paste0("cat .ssh/pub_keys >> .ssh/authorized_keys\n",
+                           "echo Host *.", location,
+                           ".cloudapp.azure.com >> ~/.ssh/config\n",
+                           "echo StrictHostKeyChecking no >> .ssh/config\n",
+                           "echo UserKnownHostsFile /dev/null >> .ssh/config\n",
+                           "chmod 600 .ssh/config\n"),
+                    con=tmpscript)
 
-    # Copy the public key and append it to the local machine.
+    # Distribute the public keys and config files to nodes.
 
-    cmd <- sprintf("scp %s %s@%s:.ssh/id_rsa.pub %s",
-                   options, usernames[i], fqdns[i], tmpkey)
+    for (i in 1:count)
+    {
+      # Copy the pub_keys onto node.
+      
+      system(sprintf("scp %s %s %s@%s:.ssh/pub_keys",
+                     options, tmpkeys, usernames[i], fqdns[i]))
+      
+      # Copy the config onto node and run it.
+      
+      system(sprintf("scp %s %s %s@%s:.ssh/shell_script",
+                     options, tmpscript, usernames[i], fqdns[i]))
+      
+      system(sprintf("ssh %s -l %s %s 'chmod +x .ssh/shell_script'",
+                     options, usernames[i], fqdns[i]))
+      
+      system(sprintf("ssh %s -l %s %s '.ssh/shell_script'",
+                     options, usernames[i], fqdns[i]))
+    }
+  
+    # Clean up.
 
-    system(cmd)
-
-    # Append the public keys into authorized_key.
-
-    auth_keys <- paste0(auth_keys, readLines(tmpkey), "\n")
-
-    writeLines(auth_keys, tmpkeys)
-
-    # Clean up the temp pub key file
-
-    file.remove(tmpkey)
-  }
-
-  # Create a config file. To avoid any prompt when nodes are
-  # communicating with each other.
-
-  tmpscript <- tempfile(paste0("AzureDSR_script_", hostnames[i], "_"))
-
-  sh <- writeChar(paste0("cat .ssh/pub_keys >> .ssh/authorized_keys\n",
-                         "echo Host *.", location,
-                         ".cloudapp.azure.com >> ~/.ssh/config\n",
-                         "echo StrictHostKeyChecking no >> .ssh/config\n",
-                         "echo UserKnownHostsFile /dev/null >> .ssh/config\n",
-                         "chmod 600 .ssh/config\n"),
-                  con=tmpscript)
-
-  # Distribute the public keys and config files to nodes.
-
-  for (i in 1:count)
-  {
-    # Copy the pub_keys onto node.
-
-    system(sprintf("scp %s %s %s@%s:.ssh/pub_keys",
-                   options, tmpkeys, usernames[i], fqdns[i]))
-
-    # Copy the config onto node and run it.
-
-    system(sprintf("scp %s %s %s@%s:.ssh/shell_script",
-                   options, tmpscript, usernames[i], fqdns[i]))
-
-    system(sprintf("ssh %s -l %s %s 'chmod +x .ssh/shell_script'",
-                   options, usernames[i], fqdns[i]))
-    
-    system(sprintf("ssh %s -l %s %s '.ssh/shell_script'",
-                   options, usernames[i], fqdns[i]))
+    file.remove(tmpkeys, tmpscript)
   }
   
-  # Clean up.
-
-  file.remove(tmpkeys, tmpscript)
-
   # Return results for reference.
 
   data.frame(hostname = hostnames,
