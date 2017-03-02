@@ -35,10 +35,10 @@
 #'
 #' @param size The size of the DSVMs. Each DSVM is the same size.
 #'
-#' @param dns DNS label for the VM address. The fully qualified domain
-#'   name for accessing the deployed DSVM will be
-#'   "<dns_label>.<location>.cloudapp.azure.com". The deafult is to
-#'   use the hostname as the dns label.
+#' @param dns DNS label for the VM. By default this is the hostname
+#'   but is not required to be. The fully qualified domain name for
+#'   accessing the deployed DSVM will then be
+#'   "<dns_label>.<location>.cloudapp.azure.com".
 #' 
 #' @details
 #'
@@ -148,14 +148,13 @@ deployDSVMCluster <- function(context,
                  dns=hostnames[i],
                  mode=ifelse(i == count, "Sync", "ASync"))
   }
-  
-  # Set up public credentials for the DSVM collection to allow DSVMs
-  # to communicate with each other. This is required if one wants to
-  # execute analytics on the cluster with parallel compute context
-  # in ScaleR.
 
-  # TODO: Transmitting PRIVATE key is not good practice! Seeking a
-  # better method...
+  IF CLUSTER single username
+  
+  # Set up public credentials for the DSVM cluster to allow DSVMs to
+  # communicate with each other. This is required if one wants to
+  # execute analytics on the cluster with parallel compute context in
+  # ScaleR.
 
   # Do key gen in each node.  Propagate pub keys of each node back
   # to local.  Put the pub keys in authorized_keys and distribute
