@@ -6,7 +6,7 @@
 #'   created.
 #' @param location Location of the data centre to host the DSVM.
 #' @export
-existsRG <- function(context, resource.group, location, verbose=TRUE)
+existsRG <- function(context, resource.group, location, verbose=FALSE)
 {
   context %>%
   azureListRG() %>%
