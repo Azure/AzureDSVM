@@ -35,10 +35,10 @@
 #'
 #' @param size The size of the DSVMs. Each DSVM is the same size.
 #'
-#' @param dns DNS label for the VM. By default this is the hostname
-#'   but is not required to be. The fully qualified domain name for
-#'   accessing the deployed DSVM will then be
-#'   "<dns_label>.<location>.cloudapp.azure.com".
+#' @param dns.labels DNS labels for the VM. By default this is the
+#'   hostnames but is not required to be. The fully qualified domain
+#'   name for accessing the deployed DSVM will then be
+#'   "<dns.label_label>.<location>.cloudapp.azure.com".
 #' 
 #' @details
 #'
@@ -73,7 +73,7 @@ deployDSVMCluster <- function(context,
                               pubkeys,
                               count,
                               size="Standard_D1_v2",
-                              dns=hostnames)
+                              dns.labels=hostnames)
 {
   
   # Check argument pre-conditions.
@@ -145,7 +145,7 @@ deployDSVMCluster <- function(context,
                  os="Linux",
                  authen="Key",
                  pubkey=pubkeys[i],
-                 dns=hostnames[i],
+                 dns.label=hostnames[i],
                  mode=ifelse(i == count, "Sync", "ASync"))
   }
 
@@ -160,7 +160,7 @@ deployDSVMCluster <- function(context,
   # to local.  Put the pub keys in authorized_keys and distribute
   # onto nodes.
 
-  fqdns <- paste(hostnames, location, "cloudapp.azure.com", sep=".")
+  fqdns <- paste(dns.labels, location, "cloudapp.azure.com", sep=".")
 
   auth_keys <- character(0)
   tmpkeys   <- tempfile(paste0("AzureDSR_pubkeys_", hostnames[i], "_"))
