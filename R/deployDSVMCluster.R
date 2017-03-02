@@ -154,7 +154,7 @@ deployDSVMCluster <- function(context,
   # one wants to execute analytics on the cluster with parallel
   # compute context in ScaleR.
   
-  if (length(unique(usernames)))
+  if (length(unique(usernames)) == 1)
   {
   
     # Do key gen in each node.  Propagate pub keys of each node back
