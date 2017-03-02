@@ -53,7 +53,7 @@ Let's use the DSVM deployed in the previous tutorial chapters for this experimen
 ```{r}
 VM     <- "tsmcwin"
 START  <- "2017-01-01 00:00:00"
-END    <- "2017-01-01 00:00:00"
+END    <- "2017-01-10 00:00:00"
 GRA    <- "Daily"
 
 CURR   <- "USD"
@@ -69,6 +69,8 @@ data_consum <- dataConsumption(context,
                                timeStart=START,
                                timeEnd=END,
                                granularity=GRA)
+
+print(data_consum)
 ```
 
 After that just simply call the function to get the expense of the instance. 
@@ -83,4 +85,6 @@ consum <- expenseCalculator(context,
                             locale=LOCALE,
                             offerId=OFFER,
                             region=REG)
+
+print(consum)
 ```
