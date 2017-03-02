@@ -29,14 +29,14 @@
 deployDSVM <- function(context,
                        resource.group,
                        location,
-                       name,
+                       hostname,
                        username,
                        size="Standard_D1_v2",
                        os,
                        authen="",
                        pubkey="",
                        password="",
-                       dns=name,
+                       dns=hostname,
                        mode="Sync")
 {
   # check if token is valid.
@@ -54,8 +54,8 @@ deployDSVM <- function(context,
   if(missing(location))
     stop("Please specify a data centre location.")
 
-  if(missing(name))
-    stop("Please specify a virtual machine name.")
+  if(missing(hostname))
+    stop("Please specify a virtual machine hostname.")
 
   if(missing(username))
     stop("Please specify a virtual machine user name.")
@@ -100,17 +100,17 @@ deployDSVM <- function(context,
 
   vm_available <- getVMSizes(context, location)
 
-  if(!(size %in% unlist(select(vm_available, name))))
+  if(!(size %in% unlist(select(vm_available, hostname))))
     stop("Unknown size - see getVMSizes() for allowed options.")
 
   # Incorrect naming of a vm may lead to an unsuccessful deployment of
   # the DSVM - normally it returns a 400 error from REST call. Check
   # the name here to ensure it is valid.
 
-  if(length(name) > 15)
+  if(length(hostname) > 15)
     stop("Name of virtual machine is too long.")
 
-  if(grepl("[[:upper:]]|[[:punct:]]", name))
+  if(grepl("[[:upper:]]|[[:punct:]]", hostname))
     stop("Name of virtual machine is not valid - only lowercase and digits permitted.")
 
   # check if password is valid.
@@ -137,12 +137,12 @@ deployDSVM <- function(context,
     stop("Please specify a valid OS type, i.e., either 'Windows' or 'Linux'.")
   }
 
-  # Update the parameter JSON with the virtual machine name.
+  # Update the parameter JSON with the virtual machine hostname.
 
   param <-
     readLines(para_path) %>%
     gsub("<LOCATION>", location, .) %>%
-    gsub("<DEFAULT>", name, .) %>%
+    gsub("<DEFAULT>", hostname, .) %>%
     gsub("<USER>", username, .) %>%
     gsub("<VMSIZE>", size, .) %>%
     gsub("<PWD>", password, .) %>%
@@ -156,7 +156,7 @@ deployDSVM <- function(context,
     gsub("<DNS_LABEL>", dns, .) %>%
     paste0(collapse="")
 
-  dname <- paste0(name, "_dpl")
+  dname <- paste0(hostname, "_dpl")
 
   AzureSMR::azureDeployTemplate(context,
                                 deplname=dname,
@@ -165,7 +165,7 @@ deployDSVM <- function(context,
                                 resourceGroup=resource.group,
                                 mode=mode)
 
-  fqdn <- paste0(name, ".", location, ".cloudapp.azure.com")
+  fqdn <- paste0(dns, ".", location, ".cloudapp.azure.com")
 
   # Don't check for IP by command line - must be a query we can ask
   # for it...
