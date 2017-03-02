@@ -37,15 +37,15 @@ dataConsumption <- function(context,
 
   if (!length(granularity)) GRA <- "Daily" else GRA <- granularity
 
-  ds <- try(as.POSIXct(timeStart, format= "%Y-%m-%d %H:%M:%S"))
-  de <- try(as.POSIXct(timeEnd, format= "%Y-%m-%d %H:%M:%S"))
+  ds <- try(as.POSIXct(timeStart, format= "%Y-%m-%d %H:%M:%S", tz="UTC"))
+  de <- try(as.POSIXct(timeEnd, format= "%Y-%m-%d %H:%M:%S", tz="UTC"))
 
   if(class(ds) == "try-error" || is.na(ds) || class(de) == "try-error" || is.na(de)) stop("Input date format should be YYYY-MM-DD HH:MM:SS.")
 
   timeStart <- as.POSIXct(timeStart)
   timeEnd <- as.POSIXct(timeEnd)
 
-  if (timeStart >= timeEnd) stop("End date is earlier than start date!")
+  if (timeStart >= timeEnd) stop("End time is no later than start time!")
 
   if (GRA == "Daily") {
 
@@ -148,15 +148,18 @@ dataConsumption <- function(context,
     warning(sprintf("The number of records in the specified time period %s to %s exceeds the limit that can be returned from API call. Consumption information is truncated. Please use a small period instead.", START, END))
   }
 
-  df_use %<>% select(usageStartTime,
-                     usageEndTime,
-                     meterName,
-                     meterCategory,
-                     meterSubCategory,
-                     unit,
-                     meterId,
-                     quantity,
-                     meterRegion)
+  df_use %<>%
+    select(usageStartTime,
+           usageEndTime,
+           meterName,
+           meterCategory,
+           meterSubCategory,
+           unit,
+           meterId,
+           quantity,
+           meterRegion) %>%
+    mutate(usageStartTime=lubridate::ymd_h(usageStartTime)) %>%
+    mutate(usageEndTime=lubridate::ymd_h(usageEndTime)) %>%
 
   return(df_use)
 }
