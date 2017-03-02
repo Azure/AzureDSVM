@@ -2,27 +2,39 @@
 #'
 #' @param context Authentication context of AzureSMR encapsulating the
 #'   TID, CID, and key obtained from Azure Actrive Directory.
+#' 
 #' @param resource.group The Azure resource group where the DSVM is
 #'   created.
+#' 
 #' @param location Location of the data centre to host the DSVM.
+#' 
 #' @param name Name of the DSVM.  Lowercase characters or numbers
 #'   only. Special characters are not permitted.
+#' 
 #' @param username User name of the DSVM. It should be different from
 #'   `name`.
+#' 
 #' @param size Size of the DSVM. The default is "Standard_D1_v2". All
 #'   available sizes can be obtained by function `getVMSizes`.
+#' 
 #' @param os Operating system of DSVM. Permitted values are "Linux"
 #'   and "Windows" for Linux based and Windows based operating
 #'   systems, respectively.
+#' 
 #' @param authen Either "Key" or "Password", meaning public-key based
 #'   or password based authentication, respectively. Note Windows DSVM
 #'   by default uses password based authentication and this argument
 #'   can be left unset.
+#' 
 #' @param pubkey Public key for the DSVM. Only applicable for
 #'   public-key based authentication of Linux based DSVM.
+#' 
 #' @param password Pass word for the DSVM.
-#' @param dns DNS label for the VM address. The URL for accessing the
-#'   deployed DSVM will be "<dns_label>.<location>.cloudapp.azure.com
+#' 
+#' @param dns.label DNS label for the VM address. The URL for
+#'   accessing the deployed DSVM will be
+#'   "<dns_label>.<location>.cloudapp.azure.com
+#' 
 #' @param mode Mode of virtual machine deployment. Default is "Sync".
 #'
 #' @export
@@ -36,7 +48,7 @@ deployDSVM <- function(context,
                        authen="",
                        pubkey="",
                        password="",
-                       dns=hostname,
+                       dns.label=hostname,
                        mode="Sync")
 {
   # check if token is valid.
@@ -153,7 +165,7 @@ deployDSVM <- function(context,
 
   templ <-
     readLines(temp_path) %>%
-    gsub("<DNS_LABEL>", dns, .) %>%
+    gsub("<DNS_LABEL>", dns.label, .) %>%
     paste0(collapse="")
 
   dname <- paste0(hostname, "_dpl")
@@ -165,7 +177,7 @@ deployDSVM <- function(context,
                                 resourceGroup=resource.group,
                                 mode=mode)
 
-  fqdn <- paste0(dns, ".", location, ".cloudapp.azure.com")
+  fqdn <- paste0(dns.label, ".", location, ".cloudapp.azure.com")
 
   # Don't check for IP by command line - must be a query we can ask
   # for it...
