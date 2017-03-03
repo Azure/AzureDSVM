@@ -125,41 +125,49 @@ deployDSVM <- function(context,
 
   # Load template and parameter JSON files for deployment
 
-  if(os == "Windows") {
+  if(os == "Windows")
+  {
     temp_path <- system.file("etc", "template_windows.json", package="AzureDSR")
     para_path <- system.file("etc", "parameter_windows.json", package="AzureDSR")
-  } else if(os == "Linux") {
-    if(authen == "Key") {
+  } else if(os == "Linux")
+  {
+    if(authen == "Key")
+    {
       temp_path <- system.file("etc", "template_linux_key.json", package="AzureDSR")
       para_path <- system.file("etc", "parameter_linux_key.json", package="AzureDSR")
-    } else if(authen == "Password") {
+    } else if(authen == "Password")
+    {
       temp_path <- system.file("etc", "template_linux.json", package="AzureDSR")
       para_path <- system.file("etc", "parameter_linux.json", package="AzureDSR")
-    } else {
+    } else
+    {
       stop("Please specific a valid authentication method, i.e., either 'Key' for public key based or 'Password' for password based, for Linux OS based DSVM")
     }
-  } else {
+  } else
+  {
     stop("Please specify a valid OS type, i.e., either 'Windows' or 'Linux'.")
   }
 
   # Update the parameter JSON with the virtual machine hostname.
 
-  param <-
-    readLines(para_path) %>%
+  para_path %>%
+    readLines() %>%
     gsub("<LOCATION>", location, .) %>%
     gsub("<DEFAULT>", hostname, .) %>%
     gsub("<USER>", username, .) %>%
     gsub("<VMSIZE>", size, .) %>%
     gsub("<PWD>", password, .) %>%
     gsub("<PUBKEY>", pubkey, .) %>%
-    paste0(collapse="")
+    paste0(collapse="") ->
+  param
 
   # Update the template JSON with the appropriate parameters.
 
-  templ <-
-    readLines(temp_path) %>%
+  temp_path %>%
+    readLines() %>%
     gsub("<DNS_LABEL>", dns.label, .) %>%
-    paste0(collapse="")
+    paste0(collapse="") ->
+  templ
 
   dname <- paste0(hostname, "_dpl")
 
@@ -172,12 +180,14 @@ deployDSVM <- function(context,
 
   fqdn <- paste0(dns.label, ".", location, ".cloudapp.azure.com")
 
-  # Don't check for IP by command line - must be a query we can ask
-  # for it...
-  #
-  #if (tolower(mode) == "sync")  CHECK dig EXISTS?????
-  #  attr(fqdn, "ip") <-
-  #    system(paste("dig", fqdn, "+short"), intern=TRUE) # Get from the VM meta data?
+  # Use the command line to obtain the IP if in sync model. Should be
+  # a way to get this data from Azure. If mode is async then the
+  # machine will not be available yet and so no IP to be found from
+  # DNS.
+
+  if (Sys.which("dig") != "" && tolower(mode) == "sync")
+    attr(fqdn, "ip") <-
+      system(paste("dig", fqdn, "+short"), intern=TRUE)
 
   return(fqdn)
 }
