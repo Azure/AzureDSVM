@@ -12,7 +12,7 @@ library(dplyr)
 
 # Load the required subscription resources: TID, CID, and KEY.
 
-USER <- Sys.getenv("USER")
+USER <- Sys.info()[['user']]
 
 source(paste0(USER, "_credentials.R"))
 
