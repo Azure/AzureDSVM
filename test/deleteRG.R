@@ -7,6 +7,8 @@ source("common.R")
 
 # List the resource groups.
 
+cat("Delete each of the following test resource groups.\n\n")
+
 context %>%
   azureListRG() %>%
   extract2("name") %>%
