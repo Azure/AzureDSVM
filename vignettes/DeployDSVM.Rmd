@@ -81,10 +81,34 @@ library(dplyr)
 # name the resource group that we will create transiently for the
 # purposes of this script.
 
-RG    <- "my_dsvm_rg_sea"  # Will be created if not already exist then kill.
-LOC   <- "southeastasia"   # Where the resource group (resources) will be hosted.
-LDSVM <- "myldsvm"
-WDSVM <- "mywdsvm"
+# Create a random resource group to reduce likelihood of conflict with
+# other users.
+
+BASE <- 
+  runif(4, 1, 26) %>%
+  round() %>%
+  letters[.] %>%
+  paste(collapse="") %T>%
+  {sprintf("Base name:\t\t%s", .) %>% cat("\n")}
+
+RG <-
+  paste0("my_dsvm_", BASE,"_rg_sea") %T>%
+  {sprintf("Resource group:\t\t%s", .) %>% cat("\n")}
+
+# Choose a data centre location.
+
+LOC <-
+  "southeastasia"  %T>%
+  {sprintf("Data centre location:\t%s", .) %>% cat("\n")}
+
+# Include the random BASE in the hostname to reducely likelihood of
+# conflict.
+
+HOST <-
+  paste0("my", BASE) %T>%
+  {sprintf("Hostname:\t\t%s", .) %>% cat("\n")}
+
+cat("\n")
 ```
 
 ```{r connect}
@@ -112,13 +136,14 @@ if (! rg_pre_exists)
   # Note that to create a new resource group one needs to add access
   # control of Active Directory application at subscription level.
 
-  azureCreateResourceGroup(context, RG, LOC)
+  azureCreateResourceGroup(context, RG, LOC) %>% cat("\n\n")
 
 }
 
 # Check that it now exists.
 
-existsRG(context, RG, LOC)
+cat("Resource group", RG, "at", LOC,
+    ifelse(!existsRG(context, RG, LOC), "does not exist.\n", "exists.\n"), "\n")
 ```
 
 # Deploy a Linux Data Science Virtual Machine
@@ -132,15 +157,13 @@ method. Name, username, and size can also be configured.
 ldsvm <- deployDSVM(context, 
                     resource.group=RG,
                     location=LOC,
-                    hostname=LDSVM,
+                    hostname=HOST,
                     username=USER,
                     size="Standard_DS1_v2",
-                    os="Linux",
-                    authen="Key",
                     pubkey=PUBKEY)
 ldsvm
 
-operateDSVM(context, RG, LDSVM, operation="Check")
+operateDSVM(context, RG, HOST, operation="Check")
 
 azureListVM(context, RG)
 ```
@@ -189,7 +212,7 @@ wdsvm
 We can stop the server.
 
 ```{r, eval=FALSE}
-operateDSVM(context, RG, LDSVM, operation="Stop")
+operateDSVM(context, RG, HOST, operation="Stop")
 ```
 
 # Optional Cleanup
