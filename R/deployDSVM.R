@@ -18,13 +18,13 @@
 #'   available sizes can be obtained by function `getVMSizes`.
 #' 
 #' @param os Operating system of DSVM. Permitted values are "Linux"
-#'   and "Windows" for Linux based and Windows based operating
-#'   systems, respectively.
+#'   and "Windows". The default is to deploy a Linux Data Science
+#'   Virtual Machine.
 #' 
-#' @param authen Either "Key" or "Password", meaning public-key based
-#'   or password based authentication, respectively. Note Windows DSVM
-#'   by default uses password based authentication and this argument
-#'   can be left unset.
+#' @param authen Either "Key" for public-key based authentication
+#'   (with Linux) or "Password" for a password based authentication
+#'   (Linux or Windows). Default is to use public key authentication
+#'   for Linux and password based authentication for Windows.
 #' 
 #' @param pubkey Public key for the DSVM. Only applicable for
 #'   public-key based authentication of Linux based DSVM.
@@ -39,10 +39,11 @@
 #'
 #' @details
 #'
-#' If the deployment fails please visit the Azure console online and
-#' visit the resource group and click on the failed deployment link to
-#' view the failure message. Typical errors include DnsRecordInUse or
-#' StorageAccountAlreadyTaken.
+#' If the deployment fails visit the Azure portal
+#' https://ms.portal.azure.com and browse to the resource group and
+#' click on the failed deployment link to view the failure
+#' message. Typical errors include DnsRecordInUse or
+#' StorageAccountAlreadyTaken. If so then choose a different hostname.
 #' 
 #' @export
 deployDSVM <- function(context,
@@ -51,8 +52,8 @@ deployDSVM <- function(context,
                        hostname,
                        username,
                        size="Standard_D1_v2",
-                       os,
-                       authen="",
+                       os="Linux",
+                       authen=ifelse(os=="Linux", "Key", "Password"),
                        pubkey="",
                        password="",
                        dns.label=hostname,
@@ -79,36 +80,27 @@ deployDSVM <- function(context,
   if(missing(username))
     stop("Please specify a virtual machine user name.")
 
-  if(missing(os))
-    stop("Please specify a virtual machine OS.")
-
-  if(os == "Linux" && missing(authen))
-    stop("Please specify an authentication method for Linux DSVM.")
-
-  if(os == "Windows" && missing(password))
-    stop("Please specify a password for Windows DSVM.")
-
   if(authen == "Key" && missing(pubkey))
     stop("Please specify a public key.")
 
   if(authen == "Password" && missing(password))
     stop("Please specify a password.")
 
-  # Other preconditions.
+  ## Other preconditions.
 
-  # check if AzureSMR context is valid.
+  # Check if AzureSMR context is valid.
 
-  if(!is.azureActiveContext(context))
+  if(!AzureSMR::is.azureActiveContext(context))
     stop("Please use a valid AzureSMR context.")
 
-  # check if resource group exists.
+  # Check if resource group exists.
 
   rg_exist <- existsRG(context, RG, LOC)
 
   if(!rg_exist)
     stop("The specified resource group does not exist in the current region.")
 
-  # check if vm size is available.
+  # Check if vm size is available.
 
   vm_available <- getVMSizes(context, location)
 
@@ -120,7 +112,8 @@ deployDSVM <- function(context,
   # the name here to ensure it is valid.
 
   if(length(hostname) > 15)
-    stop("Name of virtual machine is too long.")
+    stop("Name of virtual machine is too long at ", length(hostname),
+         "characters. At most it can be 15 characters.")
 
   if(grepl("[[:upper:]]|[[:punct:]]", hostname))
     stop("Name of virtual machine is not valid - only lowercase and digits permitted.")
