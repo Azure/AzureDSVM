@@ -54,7 +54,7 @@ that file in R.
 # Load the required subscription resources: TID, CID, and KEY.
 # Also includes the ssh PUBKEY for the user.
 
-USER <- Sys.getenv("USER")
+USER <- Sys.info()[['user']]
 
 source(paste0(USER, "_credentials.R"))
 ```
