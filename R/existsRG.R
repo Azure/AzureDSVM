@@ -10,7 +10,7 @@ existsRG <- function(context, resource.group, location, verbose=FALSE)
 {
   context %>%
   azureListRG() %>%
-  filter(name == RG) %>%
+  filter(name == resource.group) %>%
   select(name, location) %T>%
   {if (verbose) print(.)} %>%
   nrow() %>%
