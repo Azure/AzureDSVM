@@ -197,7 +197,7 @@ same Azure location as the VM.*
 wdsvm <- deployDSVM(context,
                     resource.group=RG,
                     location=LOC,
-                    name=WDSVM,
+                    hostname="xxxx",
                     username=USER,
                     size="Standard_DS1_v2",
                     os="Windows",
@@ -205,7 +205,6 @@ wdsvm <- deployDSVM(context,
 
 wdsvm
 ```
-
 
 # Optional Stop
 
