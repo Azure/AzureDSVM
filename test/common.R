@@ -20,11 +20,9 @@ source(paste0(USER, "_credentials.R"))
 # its location across the Azure cloud. The resource name is used to
 # name the resource group that we will create transiently for the
 # purposes of this script.
-
-RG    <- "test_dsvm_rg_sea"  # Will be created if not already exist then kill.
-LOC   <- "southeastasia"   # Where the resource group (resources) will be hosted.
-LDSVM <- "testldsvm"
-WDSVM <- "testwdsvm"
+#BASE <- XXX
+RG    <- "my_dsvm_%s_rg_sea" %T>% print() # Created if needed then kill.
+LOC   <- "southeastasia"     %T>% print() # Data centre location.
 
 # Connect to the Azure subscription and use this as the context for
 # our activities.
