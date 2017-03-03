@@ -70,7 +70,7 @@
                         "name": "[parameters('virtualMachines_name')]",
                         "createOption": "FromImage",
                         "vhd": {
-                            "uri": "[concat('http://',concat(uniquestring(resourceGroup().id), parameters('storageAccounts_name')),'.blob.core.windows.net/','vhds','/','osdiskforwindowssimple', parameters('virtualMachines_name'),  '.vhd')]"
+                            "uri": "[concat('https', '://', parameters('storageAccounts_name'), '.blob.core.windows.net', concat('/vhds/', parameters('virtualMachines_name'),'.vhd'))]"
                         },
                         "caching": "ReadWrite"
                     },
@@ -186,7 +186,7 @@
             "resources": [],
             "dependsOn": []
         },
-	{
+	      {
             "type": "Microsoft.Network/publicIPAddresses",
             "name": "[parameters('publicIPAddresses_ip_name')]",
             "apiVersion": "2016-03-30",
@@ -224,7 +224,7 @@
             "resources": [],
             "dependsOn": []
         },
-	{
+	      {
             "type": "Microsoft.Storage/storageAccounts",
             "sku": {
                 "name": "Standard_LRS",
@@ -233,7 +233,7 @@
             "kind": "Storage",
             "name": "[parameters('storageAccounts_name')]",
             "apiVersion": "2016-01-01",
-            "location": "[parameters('location')]",
+            "location": "[resourceGroup().location]",
             "tags": {},
             "properties": {},
             "resources": [],
