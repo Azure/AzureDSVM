@@ -1,3 +1,5 @@
+cat("vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv\n")
+
 source("common.R")
 
 # Connect to the Azure subscription and use this as the context for
@@ -6,12 +8,15 @@ source("common.R")
 context <- createAzureContext(tenantID=TID, clientID=CID, authKey=KEY)
 
 # Check if the resource group already exists. Take note this script
-# will not remove the resource group if it pre-existed.
+# will not remove the resource group.
 
-rg_pre_exists <- existsRG(context, RG, LOC) %T>% print()
-
-if (! rg_pre_exists)
+if (existsRG(context, RG, LOC))
 {
+  cat("Resource group pre-exists\n\n")
+} else
+{
+  cat("Resource group does not exist.\n\n")
+  
   # Create a new resource group into which we create the VMs and
   # related resources. Resource group name is RG. 
   
@@ -19,34 +24,40 @@ if (! rg_pre_exists)
   # control of Active Directory application at subscription level.
 
   azureCreateResourceGroup(context, RG, LOC)
-
 }
 
 # Check that it now exists.
 
-existsRG(context, RG, LOC)
+{
+  if (existsRG(context, RG, LOC))
+    cat("\nResource group now exists.\n\n")
+  else
+    cat("\nResource group STILL does not exist.\n\n")
+}
 
 # Create the required Linux DSVM - generally 4 minutes.
 
 ldsvm <- deployDSVM(context, 
                     resource.group=RG,
                     location=LOC,
-                    name=LDSVM,
+                    hostname=HOST,
                     username=USER,
-                    size="Standard_DS1_v2",
-                    os="Linux",
-                    authen="Key",
                     pubkey=PUBKEY)
+
+cat("\nReported fully qualified domain name and IP.\n\n")
 ldsvm
 
-operateDSVM(context, RG, LDSVM, operation="Check")
+cat("\nCheck operational status.\n\n")
+operateDSVM(context, RG, HOST, operation="Check")
 
-azureListVM(context, RG)
+cat("\nList of VMs under this resource group.\n\n")
+azureListVM(context, RG) %>% select(-ID) %>% print()
 
 # Send a simple system() command across to the new server to test its
 # existence. Expect a single line with an indication of how long the
 # server has been up and running.
 
+cat("\nAttempt a remote secure shell connection.\n\n")
 cmd <- paste("ssh -q",
              "-o StrictHostKeyChecking=no",
              "-o UserKnownHostsFile=/dev/null",
@@ -54,3 +65,10 @@ cmd <- paste("ssh -q",
 cmd
 system(cmd, intern=TRUE)
 
+cat("\nList of test resource groups.\n\n")
+context %>%
+  azureListRG() %>%
+  filter(grepl(name, pattern="^my_")) %>%
+  select(name, location, resourceGroup)
+
+cat("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n")
