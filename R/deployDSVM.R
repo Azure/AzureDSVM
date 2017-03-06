@@ -2,39 +2,39 @@
 #'
 #' @param context Authentication context of AzureSMR encapsulating the
 #'   TID, CID, and key obtained from Azure Actrive Directory.
-#' 
+#'
 #' @param resource.group The Azure resource group where the DSVM is
 #'   created.
-#' 
+#'
 #' @param location Location of the data centre to host the DSVM.
-#' 
-#' @param name Name of the DSVM.  Lowercase characters or numbers
+#'
+#' @param hostname Name of the DSVM.  Lowercase characters or numbers
 #'   only. Special characters are not permitted.
-#' 
+#'
 #' @param username User name of the DSVM. It should be different from
 #'   `name`.
-#' 
+#'
 #' @param size Size of the DSVM. The default is "Standard_D1_v2". All
 #'   available sizes can be obtained by function `getVMSizes`.
-#' 
+#'
 #' @param os Operating system of DSVM. Permitted values are "Linux"
 #'   and "Windows". The default is to deploy a Linux Data Science
 #'   Virtual Machine.
-#' 
+#'
 #' @param authen Either "Key" for public-key based authentication
 #'   (with Linux) or "Password" for a password based authentication
 #'   (Linux or Windows). Default is to use public key authentication
 #'   for Linux and password based authentication for Windows.
-#' 
+#'
 #' @param pubkey Public key for the DSVM. Only applicable for
 #'   public-key based authentication of Linux based DSVM.
-#' 
+#'
 #' @param password Pass word for the DSVM.
-#' 
+#'
 #' @param dns.label DNS label for the VM address. The URL for
 #'   accessing the deployed DSVM will be
 #'   "<dns_label>.<location>.cloudapp.azure.com
-#' 
+#'
 #' @param mode Mode of virtual machine deployment. Default is "Sync".
 #'
 #' @details
@@ -44,7 +44,7 @@
 #' click on the failed deployment link to view the failure
 #' message. Typical errors include DnsRecordInUse or
 #' StorageAccountAlreadyTaken. If so then choose a different hostname.
-#' 
+#'
 #' @export
 deployDSVM <- function(context,
                        resource.group,
