@@ -39,7 +39,7 @@
 #'   hostnames but is not required to be. The fully qualified domain
 #'   name for accessing the deployed DSVM will then be
 #'   "<dns.label_label>.<location>.cloudapp.azure.com".
-#' 
+#'
 #' @details
 #'
 #' We identify two specific use cases but recognise there are many
@@ -62,9 +62,9 @@
 #' provided. A colleciton is often used in creating multiple DSVMs for
 #' a group of data scientists or for training. A colleciton is often
 #' longer lasting than a cluster.
-#' 
+#'
 #' @export
-#' 
+#'
 deployDSVMCluster <- function(context,
                               resource.group,
                               location,
@@ -75,7 +75,7 @@ deployDSVMCluster <- function(context,
                               size="Standard_D1_v2",
                               dns.labels=hostnames)
 {
-  
+
   # Check argument pre-conditions.
 
   if(missing(context))
@@ -97,7 +97,7 @@ deployDSVMCluster <- function(context,
 
   # If no count is provided then set it to the number of hostnames or
   # usernames supplied.
-  
+
   if (missing(count))
     count <- ifelse(length(hostnames) == 1,
                     ifelse(length(usernames) == 1,
@@ -106,7 +106,7 @@ deployDSVMCluster <- function(context,
 
   # If the count is greater than 1 then ensure we have the right
   # lengths of hostnames, usernames, and public keys.
-  
+
   if (count > 1)
   {
     if (length(hostnames) == 1)
@@ -139,7 +139,7 @@ deployDSVMCluster <- function(context,
       deployDSVM(context=context,
                  resource.group=resource.group,
                  location=location,
-                 name=hostnames[i],
+                 hostname=hostnames[i],
                  username=usernames[i],
                  size=size,
                  os="Linux",
@@ -153,10 +153,10 @@ deployDSVMCluster <- function(context,
   # allow DSVMs to communicate with each other. This is required if
   # one wants to execute analytics on the cluster with parallel
   # compute context in ScaleR.
-  
+
   if (length(unique(usernames)) == 1)
   {
-  
+
     # Do key gen in each node.  Propagate pub keys of each node back
     # to local.  Put the pub keys in authorized_keys and distribute
     # onto nodes.
@@ -165,40 +165,40 @@ deployDSVMCluster <- function(context,
 
     auth_keys <- character(0)
     tmpkeys   <- tempfile(paste0("AzureDSR_pubkeys_", hostnames[i], "_"))
-  
+
     for (i in 1:count)
     {
-    
+
       # Add an option to switch off host key checking - for the purposes
       # of avoiding pop up. Also do not clog up the user's known_hosts
       # file with all the servers created.
-      
+
       options <- "-q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-      
+
       tmpkey <- tempfile(paste0("AzureDSR_pubkey_", hostnames[i], "_"))
-      
+
       # Generate key pairs in the VM
-      
+
       cmd <- sprintf("ssh %s -l %s %s %s",
                      options, usernames[i], fqdns[i],
                      "'ssh-keygen -t rsa -N \"\" -f ~/.ssh/id_rsa'")
       system(cmd, intern=TRUE, ignore.stdout=FALSE, ignore.stderr=FALSE, wait=FALSE)
-      
+
       # Copy the public key and append it to the local machine.
-      
+
       cmd <- sprintf("scp %s %s@%s:.ssh/id_rsa.pub %s",
                      options, usernames[i], fqdns[i], tmpkey)
-      
+
       system(cmd)
-      
+
       # Append the public keys into authorized_key.
-      
+
       auth_keys <- paste0(auth_keys, readLines(tmpkey), "\n")
-      
+
       writeLines(auth_keys, tmpkeys)
-      
+
       # Clean up the temp pub key file
-      
+
       file.remove(tmpkey)
     }
 
@@ -220,27 +220,27 @@ deployDSVMCluster <- function(context,
     for (i in 1:count)
     {
       # Copy the pub_keys onto node.
-      
+
       system(sprintf("scp %s %s %s@%s:.ssh/pub_keys",
                      options, tmpkeys, usernames[i], fqdns[i]))
-      
+
       # Copy the config onto node and run it.
-      
+
       system(sprintf("scp %s %s %s@%s:.ssh/shell_script",
                      options, tmpscript, usernames[i], fqdns[i]))
-      
+
       system(sprintf("ssh %s -l %s %s 'chmod +x .ssh/shell_script'",
                      options, usernames[i], fqdns[i]))
-      
+
       system(sprintf("ssh %s -l %s %s '.ssh/shell_script'",
                      options, usernames[i], fqdns[i]))
     }
-  
+
     # Clean up.
 
     file.remove(tmpkeys, tmpscript)
   }
-  
+
   # Return results for reference.
 
   data.frame(hostname = hostnames,
