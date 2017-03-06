@@ -165,6 +165,7 @@ deployDSVMCluster <- function(context,
 
     auth_keys <- character(0)
     tmpkeys   <- tempfile(paste0("AzureDSR_pubkeys_", hostnames[i], "_"))
+    file.create(tmpkeys)
 
     for (i in 1:count)
     {
@@ -176,6 +177,7 @@ deployDSVMCluster <- function(context,
       options <- "-q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
       tmpkey <- tempfile(paste0("AzureDSR_pubkey_", hostnames[i], "_"))
+      file.create(tmpkey)
 
       # Generate key pairs in the VM
 
