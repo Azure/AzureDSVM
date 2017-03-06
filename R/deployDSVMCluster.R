@@ -164,7 +164,7 @@ deployDSVMCluster <- function(context,
     fqdns <- paste(dns.labels, location, "cloudapp.azure.com", sep=".")
 
     auth_keys <- character(0)
-    tmpkeys   <- tempfile(paste0("AzureDSR_pubkeys_", hostnames[i], "_"))
+    tmpkeys   <- paste0("./AzureDSR_pubkeys_", hostnames[i], "_")
     file.create(tmpkeys)
 
     for (i in 1:count)
@@ -210,7 +210,9 @@ deployDSVMCluster <- function(context,
     # Create a config file. To avoid any prompt when nodes are
     # communicating with each other.
 
-    tmpscript <- tempfile(paste0("AzureDSR_script_", hostnames[i], "_"))
+    # tmpscript <- tempfile(paste0("AzureDSR_script_", hostnames[i], "_"))
+    tmpscript <- paste0("./AzureDSR_script_", hostnames[i], "_")
+    file.create(tmpscript)
 
     sh <- writeChar(paste0("cat .ssh/pub_keys >> .ssh/authorized_keys\n",
                            "echo Host *.", location,
