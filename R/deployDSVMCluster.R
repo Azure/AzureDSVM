@@ -164,7 +164,8 @@ deployDSVMCluster <- function(context,
     fqdns <- paste(dns.labels, location, "cloudapp.azure.com", sep=".")
 
     auth_keys <- character(0)
-    tmpkeys   <- paste0("./AzureDSR_pubkeys_", hostnames[i], "_")
+    tmpkeys   <- tempfile(paste0("AzureDSR_pubkey_"))
+    # tmpkeys   <- paste0("./AzureDSR_pubkeys_", hostnames[i], "_")
     file.create(tmpkeys)
 
     for (i in 1:count)
@@ -176,11 +177,10 @@ deployDSVMCluster <- function(context,
 
       options <- "-q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
-      # tmpkey <- tempfile(paste0("AzureDSR_pubkey_", hostnames[i], "_"))
-      # file.create(tmpkey)
-
-      tmpkey <- paste0("./AzureDSR_pubkey_", hostnames[i], "_")
+      tmpkey <- tempfile(paste0("AzureDSR_pubkey_", hostnames[i], "_"))
       file.create(tmpkey)
+
+      # tmpkey <- paste0("./AzureDSR_pubkey_", hostnames[i], "_")
 
       # Generate key pairs in the VM
 
@@ -191,7 +191,7 @@ deployDSVMCluster <- function(context,
 
       # Copy the public key and append it to the local machine.
 
-      cmd <- sprintf("scp %s %s@%s:.ssh/id_rsa.pub %s",
+      cmd <- sprintf("pscp %s %s@%s:.ssh/id_rsa.pub %s",
                      options, usernames[i], fqdns[i], tmpkey)
 
       system(cmd)
@@ -210,8 +210,8 @@ deployDSVMCluster <- function(context,
     # Create a config file. To avoid any prompt when nodes are
     # communicating with each other.
 
-    # tmpscript <- tempfile(paste0("AzureDSR_script_", hostnames[i], "_"))
-    tmpscript <- paste0("./AzureDSR_script_", hostnames[i], "_")
+    tmpscript <- tempfile(paste0("AzureDSR_script_", hostnames[i], "_"))
+    # tmpscript <- paste0("./AzureDSR_script_", hostnames[i], "_")
     file.create(tmpscript)
 
     sh <- writeChar(paste0("cat .ssh/pub_keys >> .ssh/authorized_keys\n",
@@ -228,12 +228,12 @@ deployDSVMCluster <- function(context,
     {
       # Copy the pub_keys onto node.
 
-      system(sprintf("scp %s %s %s@%s:.ssh/pub_keys",
+      system(sprintf("pscp %s %s %s@%s:.ssh/pub_keys",
                      options, tmpkeys, usernames[i], fqdns[i]))
 
       # Copy the config onto node and run it.
 
-      system(sprintf("scp %s %s %s@%s:.ssh/shell_script",
+      system(sprintf("pscp %s %s %s@%s:.ssh/shell_script",
                      options, tmpscript, usernames[i], fqdns[i]))
 
       system(sprintf("ssh %s -l %s %s 'chmod +x .ssh/shell_script'",
