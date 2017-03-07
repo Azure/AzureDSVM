@@ -168,6 +168,17 @@ deployDSVMCluster <- function(context,
     # tmpkeys   <- paste0("./AzureDSR_pubkeys_", hostnames[i], "_")
     file.create(tmpkeys)
 
+    # scp is for Linux and pscp is for Windows.
+    sys <- Sys.info()
+    if(sys[1]) == "Windows") {
+      # NOTE this requires installation of PuTTy on Windows local machine.
+      copy <- "pscp"
+    } else if (sys[1] == "Linux") {
+      copy <- "scp"
+    } else {
+      stop("Operation system not recognized.")
+    }
+
     for (i in 1:count)
     {
 
@@ -191,8 +202,8 @@ deployDSVMCluster <- function(context,
 
       # Copy the public key and append it to the local machine.
 
-      cmd <- sprintf("pscp %s %s@%s:.ssh/id_rsa.pub %s",
-                     options, usernames[i], fqdns[i], tmpkey)
+      cmd <- sprintf("%s %s %s@%s:.ssh/id_rsa.pub %s",
+                     copy, options, usernames[i], fqdns[i], tmpkey)
 
       system(cmd)
 
@@ -228,13 +239,13 @@ deployDSVMCluster <- function(context,
     {
       # Copy the pub_keys onto node.
 
-      system(sprintf("pscp %s %s %s@%s:.ssh/pub_keys",
-                     options, tmpkeys, usernames[i], fqdns[i]))
+      system(sprintf("%s %s %s %s@%s:.ssh/pub_keys",
+                     copy, options, tmpkeys, usernames[i], fqdns[i]))
 
       # Copy the config onto node and run it.
 
-      system(sprintf("pscp %s %s %s@%s:.ssh/shell_script",
-                     options, tmpscript, usernames[i], fqdns[i]))
+      system(sprintf("%s %s %s %s@%s:.ssh/shell_script",
+                     copy, options, tmpscript, usernames[i], fqdns[i]))
 
       system(sprintf("ssh %s -l %s %s 'chmod +x .ssh/shell_script'",
                      options, usernames[i], fqdns[i]))
