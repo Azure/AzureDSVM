@@ -50,5 +50,6 @@ cat("\n")
 # Connect to the Azure subscription and use this as the context for
 # our activities.
 
-context <- createAzureContext(tenantID=TID, clientID=CID, authKey=KEY)
+context <- createAzureContext(tenantID=TID, clientID=CID, authKey=KEY) %T>% print()
 
+cat("\n")
