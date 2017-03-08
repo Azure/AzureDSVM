@@ -27,6 +27,6 @@ for (r in rgs)
 
   if (existsRG(context, r, LOC))
   {
-    azureDeleteResourceGroup(context, r)
+    azureDeleteResourceGroup(context, r) %>% print()
   }
 }
