@@ -10,7 +10,7 @@ dataConsumption <- function(context,
                             instance,
                             timeStart,
                             timeEnd,
-                            granularity
+                            granularity="Hourly"
 ) {
   # renew token if it expires.
 
@@ -30,56 +30,58 @@ dataConsumption <- function(context,
   if(missing(timeEnd))
     stop("Please specify an ending time point in YYYY-MM-DD HH:MM:SS format.")
 
-  if(missing(granularity))
-    stop("Please specify the granularity, either 'Daily' or 'Hourly', for daily-based aggregation or hourly aggregation, respectively.")
+  ds <- try(as.POSIXlt(timeStart, format= "%Y-%m-%d %H:%M:%S", tz="UTC"))
+  de <- try(as.POSIXlt(timeEnd, format= "%Y-%m-%d %H:%M:%S", tz="UTC"))
 
-  # check the validity of input parameters
+  if (class(ds) == "try-error" ||
+     is.na(ds) ||
+     class(de) == "try-error" ||
+     is.na(de))
+    stop("Input date format should be YYYY-MM-DD HH:MM:SS.")
 
-  if (!length(granularity)) GRA <- "Daily" else GRA <- granularity
+  timeStart <- ds
+  timeEnd <- de
 
-  ds <- try(as.POSIXct(timeStart, format= "%Y-%m-%d %H:%M:%S", tz="UTC"))
-  de <- try(as.POSIXct(timeEnd, format= "%Y-%m-%d %H:%M:%S", tz="UTC"))
+  if (timeStart >= timeEnd)
+    stop("End time is no later than start time!")
 
-  if(class(ds) == "try-error" || is.na(ds) || class(de) == "try-error" || is.na(de)) stop("Input date format should be YYYY-MM-DD HH:MM:SS.")
+  lubridate::minute(timeStart) <- 0
+  lubridate::second(timeStart) <- 0
+  lubridate::minute(timeEnd)   <- 0
+  lubridate::second(timeEnd)   <- 0
 
-  timeStart <- as.POSIXct(timeStart)
-  timeEnd <- as.POSIXct(timeEnd)
-
-  if (timeStart >= timeEnd) stop("End time is no later than start time!")
-
-  if (GRA == "Daily") {
+  if (granularity == "Daily") {
 
     # timeStart and timeEnd should be some day at midnight.
 
     lubridate::hour(timeStart) <- 0
-    lubridate::minute(timeStart) <- 0
-    lubridate::second(timeStart) <- 0
-
     lubridate::hour(timeEnd) <- 0
-    lubridate::minute(timeEnd) <- 0
-    lubridate::second(timeEnd) <- 0
 
-  } else if (GRA == "Hourly") {
-
-    # Resolution of timeStart and timeEnd should be hour.
-
-    lubridate::minute(timeStart) <- 0
-    lubridate::second(timeStart) <- 0
-
-    lubridate::minute(timeEnd) <- 0
-    lubridate::second(timeEnd) <- 0
-
-  } else {
-    stop("granularity should be either 'Daily' or 'Hourly'.")
   }
 
-  START <- URLencode(paste(as.Date(timeStart, tz=Sys.timezone()), "T",
+  # If the computation time is less than a hour, timeEnd will be incremented by an hour to get the total cost within an hour aggregated from timeStart. However, only the consumption on computation is considered in the returned data, and the computation consumption will then be replaced with the actual timeEnd - timeStart.
+
+  # NOTE: estimation of cost in this case is rough though, it captures the major component of total cost, which originates from running an Azure instance. Other than computation cost, there are also cost on activities such as data transfer, software library license, etc. This is not included in the approximation here until a solid method for capturing those consumption data is found. Data ingress does not generate cost, but data egress does. Usually the occurrence of data transfer is not that frequent as computation, and pricing rates for data transfer is also less than computation (e.g., price rate of "data transfer in" is ~ 40% of that of computation on an A3 virtual machine).
+
+  # TODO: inlude other types of cost for jobs that take less than an hour.
+
+  if (as.numeric(timeEnd - timeStart) == 0) {
+    writeLines("Difference between timeStart and timeEnd is less than the aggregation granularity. Cost is estimated solely on computation running time.")
+
+    # increment timeEnd by one hour.
+
+    timeEnd <- timeEnd + 3600
+  }
+
+  # reformat time variables to make them compatible with API call.
+
+  START <- URLencode(paste(as.Date(timeStart), "T",
                            sprintf("%02d", lubridate::hour(timeStart)), ":", sprintf("%02d", lubridate::minute(timeStart)), ":", sprintf("%02d", second(timeStart)), "+",
                            "00:00",
                            sep=""),
                      reserved=TRUE)
 
-  END <- URLencode(paste(as.Date(timeEnd, tz=Sys.timezone()), "T",
+  END <- URLencode(paste(as.Date(timeEnd), "T",
                            sprintf("%02d", lubridate::hour(timeEnd)), ":", sprintf("%02d", lubridate::minute(timeEnd)), ":", sprintf("%02d", second(timeEnd)), "+",
                            "00:00",
                            sep=""),
@@ -91,7 +93,7 @@ dataConsumption <- function(context,
             "2015-06-01-preview",
             START,
             END,
-            GRA,
+            granularity,
             "false"
     )
 
@@ -136,26 +138,51 @@ dataConsumption <- function(context,
     df_use <- df_use[index_resource, ]
   }
 
-  # NOTE the maximum number of records returned from API is limited to 1000.
+  # if time difference is less than one hour. Only return one row of computation consumption whose value is the time difference.
 
-  if (nrow(df_use) == 1000 && max(as.POSIXct(df_use$usageEndTime)) < as.POSIXct(END)) {
-    warning(sprintf("The number of records in the specified time period %s to %s exceeds the limit that can be returned from API call. Consumption information is truncated. Please use a small period instead.", START, END))
+  timeEnd <- timeEnd - 3600
+
+  if(as.numeric(timeEnd - timeStart) == 0) {
+
+    time_diff <- as.numeric(de - ds) / 3600
+
+    df_use %<>%
+      select(usageStartTime,
+             usageEndTime,
+             meterName,
+             meterCategory,
+             meterSubCategory,
+             unit,
+             meterId,
+             quantity,
+             meterRegion) %>%
+      filter(meterName == "Compute Hours") %>%
+      filter(row_number() == 1) %>%
+      mutate(quantity = time_diff)
+
+    return(df_use)
+
+  } else {
+
+    # NOTE the maximum number of records returned from API is limited to 1000.
+
+    if (nrow(df_use) == 1000 && max(as.POSIXct(df_use$usageEndTime)) < as.POSIXct(END)) {
+      warning(sprintf("The number of records in the specified time period %s to %s exceeds the limit that can be returned from API call. Consumption information is truncated. Please use a small period instead.", START, END))
+    }
+
+    df_use %<>%
+      select(usageStartTime,
+             usageEndTime,
+             meterName,
+             meterCategory,
+             meterSubCategory,
+             unit,
+             meterId,
+             quantity,
+             meterRegion)
+
+    df_use
   }
-
-  df_use %<>%
-    select(usageStartTime,
-           usageEndTime,
-           meterName,
-           meterCategory,
-           meterSubCategory,
-           unit,
-           meterId,
-           quantity,
-           meterRegion) %>%
-    mutate(usageStartTime=lubridate::ymd_h(usageStartTime)) %>%
-    mutate(usageEndTime=lubridate::ymd_h(usageEndTime)) %>%
-
-  return(df_use)
 }
 
 #' @title Get pricing details of resources under a subscription.
