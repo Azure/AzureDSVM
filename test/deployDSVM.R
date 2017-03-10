@@ -2,6 +2,8 @@ cat("vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv\n"
 
 source("common.R")
 
+printTestSummary()
+
 # Connect to the Azure subscription and use this as the context for
 # our activities.
 
