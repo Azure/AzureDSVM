@@ -8,7 +8,7 @@
 library(AzureSMR)    # Support for managing Azure resources.
 library(AzureDSR)    # Further support for the Data Scientist.
 library(magrittr)
-library(dplyr)
+library(dplyr, warn.conflicts=FALSE)
 
 # Load the required subscription resources: TID, CID, and KEY.
 
@@ -25,31 +25,35 @@ BASE <-
   runif(4, 1, 26) %>%
   round() %>%
   letters[.] %>%
-  paste(collapse="") %T>%
-  {sprintf("Base name:\t\t%s", .) %>% cat("\n")}
+  paste(collapse="")
 
-RG <-
-  paste0("my_dsvm_", BASE,"_rg_sea") %T>%
-  {sprintf("Resource group:\t\t%s", .) %>% cat("\n")}
+RG <- paste0("my_dsvm_", BASE,"_rg_sea")
 
 # Choose a data centre location.
 
-LOC <-
-  "southeastasia"  %T>%
-  {sprintf("Data centre location:\t%s", .) %>% cat("\n")}
+LOC <- "southeastasia"
 
 # Include the random BASE in the hostname to reducely likelihood of
 # conflict.
 
-HOST <-
-  paste0("my", BASE) %T>%
-  {sprintf("Hostname:\t\t%s", .) %>% cat("\n")}
-
-cat("\n")
+HOST <- paste0("my", BASE)
 
 # Connect to the Azure subscription and use this as the context for
 # our activities.
 
-context <- createAzureContext(tenantID=TID, clientID=CID, authKey=KEY) %T>% print()
+context <- createAzureContext(tenantID=TID, clientID=CID, authKey=KEY)
 
-cat("\n")
+printTestSummary <- function(all=TRUE)
+{
+  cat("\n")
+  if (all)
+  {
+    sprintf("Base name:\t\t%s", BASE) %>% cat("\n")
+    sprintf("Resource group:\t\t%s", RG) %>% cat("\n")
+    sprintf("Data centre location:\t%s", LOC) %>% cat("\n")
+    sprintf("Hostname:\t\t%s", HOST) %>% cat("\n")
+    cat("\n")
+  }
+  print(context)
+  cat("\n")
+}
