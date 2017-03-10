@@ -157,6 +157,11 @@ deployDSVMCluster <- function(context,
   if (length(unique(usernames)) == 1)
   {
 
+    # Set working directory to where temp files are located.
+    
+    cwd <- getwd()
+    setwd(tempdir())
+
     # Do key gen in each node.  Propagate pub keys of each node back
     # to local.  Put the pub keys in authorized_keys and distribute
     # onto nodes.
@@ -165,12 +170,8 @@ deployDSVMCluster <- function(context,
 
     auth_keys <- character(0)
     tmpkeys   <- tempfile(paste0("AzureDSR_pubkey_"))
-    # tmpkeys   <- paste0("./AzureDSR_pubkeys_", hostnames[i], "_")
-    file.create(tmpkeys)
 
-    # set working directory to where temp files are located.
-    current_wd <- getwd()
-    setwd(sub(tmpkeys, pattern=basename(tmpkeys), replacement=""))
+    file.create(tmpkeys)
 
     copy <- "scp"
     options <- "-q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
@@ -183,7 +184,7 @@ deployDSVMCluster <- function(context,
       # file with all the servers created.
 
       tmpkey <- tempfile(paste0("AzureDSR_pubkey_", hostnames[i], "_"))
-      # tmpkey <- paste0("./AzureDSR_pubkey_", hostnames[i], "_")
+
       file.create(tmpkey)
 
       # Generate key pairs in the VM
@@ -215,8 +216,8 @@ deployDSVMCluster <- function(context,
     # Create a config file. To avoid any prompt when nodes are
     # communicating with each other.
 
-    # tmpscript <- tempfile(paste0("AzureDSR_script_", hostnames[i], "_"))
     tmpscript <- paste0("./AzureDSR_script_", hostnames[i], "_")
+
     file.create(tmpscript)
 
     sh <- writeChar(paste0("cat .ssh/pub_keys >> .ssh/authorized_keys\n",
@@ -257,7 +258,7 @@ deployDSVMCluster <- function(context,
 
   # revert to working directory.
 
-  setwd(current_wd)
+  setwd(cwd)
 
   # Return results for reference.
 
