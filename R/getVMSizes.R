@@ -38,5 +38,5 @@ getVMSizes <- function(context, location)
 
   if(! status_code(r) %in% c(200, 201, 202)) AzureSMR:::stopWithAzureError(r)
 
-  df <- jsonlite::fromJSON(rl)$value
+  jsonlite::fromJSON(rl)$value
 }
