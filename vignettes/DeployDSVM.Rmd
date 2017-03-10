@@ -159,7 +159,6 @@ ldsvm <- deployDSVM(context,
                     location=LOC,
                     hostname=HOST,
                     username=USER,
-                    size="Standard_DS1_v2",
                     pubkey=PUBKEY)
 ldsvm
 
@@ -199,7 +198,6 @@ wdsvm <- deployDSVM(context,
                     location=LOC,
                     hostname="xxxx",
                     username=USER,
-                    size="Standard_DS1_v2",
                     os="Windows",
                     password=PASSWORD)
 
