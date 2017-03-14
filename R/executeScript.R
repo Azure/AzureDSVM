@@ -79,10 +79,16 @@ executeScript <- function(context,
 
   # Switch on the machines.
 
-  operateDSVM(context,
-              resource.group=resourceGroup,
-              name=machines,
-              operation="Start")
+  for (vm in machines)
+  {
+    # Starting a machine is running in synchronous mode so let's wait
+    # for a while patiently until everything is done.
+
+    operateDSVM(context,
+                resource.group=resourceGroup,
+                name=vm,
+                operation="Start")
+  }
 
   # Manage input strings in an interface new_interface.
 
@@ -153,4 +159,41 @@ executeScript <- function(context,
                  new_interface$user,
                  new_interface$remote,
                  remote_script))
+}
+
+#' @title Upload or download files.
+#' @param from Source location (path) of file.
+#' @param to Target location (path) of file.
+#' @param file File name - a character string.
+#' @note File transfer is implemented by `scp` with public key based authentication.
+#' @export
+fileTransfer <- function(from=".",
+                         to=".",
+                         user,
+                         file) {
+  if(missing(file)) stop("Please specify a file to transfer.")
+
+  option <- "-q -o StrictHostKeyChecking=no"
+
+  if(stringr::str_detect(from, ":")) {
+    cmd <- sprintf("scp %s %s %s",
+                   option,
+                   file.path(paste0(user, "@", from), file),
+                   to)
+  } else {
+    cmd <- sprintf("scp %s %s %s",
+                   option,
+                   file.path(from, file),
+                   paste0(user, "@", to))
+  }
+
+  exe <- system(cmd,
+                intern=TRUE,
+                show.output.on.console=TRUE)
+  if (is.null(attributes(exe)))
+  {
+    writeLines(sprintf("File %s has been successfully transferred.", file))
+  } else {
+    writeLines("Something must be wrong....... See warning message.")
+  }
 }
