@@ -53,19 +53,29 @@ library(dplyr)
 # name the resource group that we will create transiently for the
 # purposes of this script.
 
-RG  <- "my_dsvm_rg_sea"  # Will be created if not already exist then kill.
-LOC <- "southeastasia"   # Where the resource group (resources) will be hosted.
+# Create a random resource group to reduce likelihood of conflict with
+# other users.
 
-# Create names for the VMs.
-
-COUNT <- 5                 # Number of VMs to deploy.
-BASE  <- 
+BASE <- 
   runif(4, 1, 26) %>%
   round() %>%
   letters[.] %>%
-  paste(collapse="") %T>% print()
-LDSVM <- paste0(BASE, sprintf("%03d", 1:COUNT)) %T>% print()
-LUSER <- paste0("u", sprintf("%03d", 1:COUNT)) %T>% print()
+  paste(collapse="") %T>%
+  {sprintf("Base name:\t\t%s", .) %>% cat("\n")}
+
+RG <-
+  paste0("my_dsvm_", BASE,"_rg_sea") %T>%
+  {sprintf("Resource group:\t\t%s", .) %>% cat("\n")}
+
+# Choose a data centre location.
+
+LOC <-
+  "southeastasia"  %T>%
+  {sprintf("Data centre location:\t%s", .) %>% cat("\n")}
+
+cat("\n")
+
+COUNT <- 5                 # Number of VMs to deploy.
 ```
 
 ```{r connect}
@@ -77,7 +87,7 @@ context <- createAzureContext(tenantID=TID, clientID=CID, authKey=KEY)
 # Check if the resource group already exists. Take note this script
 # will not remove the resource group if it pre-existed.
 
-rg_pre_exists <- existsRG(context, RG, LOC) %T>% print()
+rg_pre_exists <- existsRG(context, RG, LOC)
 
 ```
 # Create Resource Group
@@ -94,9 +104,14 @@ if (! rg_pre_exists)
   # Note that to create a new resource group one needs to add access
   # control of Active Directory application at subscription level.
 
-  azureCreateResourceGroup(context, RG, LOC)
+  azureCreateResourceGroup(context, RG, LOC) %>% cat("\n\n")
 
 }
+
+# Check that it now exists.
+
+cat("Resource group", RG, "at", LOC,
+    ifelse(!existsRG(context, RG, LOC), "does not exist.\n", "exists.\n"), "\n")
 ```
 
 # Create a Cluster
@@ -156,7 +171,7 @@ ldsvm_set <- deployDSVMCluster(context,
                                resource.group=RG, 
                                location=LOC, 
                                count=COUNT, 
-                               name=LDSVM, 
+                               hostname=LDSVM, 
                                username=LUSER, 
                                pubkey=rep(PUBKEY, COUNT), 
                                cluster=FALSE)
