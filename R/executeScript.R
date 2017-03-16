@@ -1,38 +1,38 @@
 #' Remote execution of R script in an R interface new_interface.
-#' 
+#'
 #' @param context AzureSMR context.
-#' 
+#'
 #' @param resourceGroup Resource group of Azure resources for computation.
-#' 
+#'
 #' @param machines Remote DSVMs that will be used for computation.
-#' 
+#'
 #' @param remote IP address or FQDN for a computation engine. For
 #'   DSVM, it is either the fully qualified domain name (usually in the format of
 #'   <hostname>.<location>.cloudapp.azure.com) or its public IP
 #'   address. Note if more than one machines are used for execution,
 #'   the remote is used as master node by default.
-#' 
+#'
 #' @param user Username for logging into the remote resource.
-#' 
+#'
 #' @param script R script to be executed on remote resource(s).
-#' 
+#'
 #' @param master IP address or URL of a DSVM which will be used as the
 #'   master. By default is remote.
-#' 
+#'
 #' @param slaves IP addresses or URLs of slave DSVMs.
-#' 
+#'
 #' @param computeContext Computation context of Microsoft R Server
 #'   under which the mechanisms of parallelization (e.g., local
 #'   parallel, cluster based parallel, or Spark) is
 #'   specified. Accepted computing context include "localParallel",
 #'   "clusterParallel", "Hadoop", and "Spark".
-#' 
+#'
 #' @return Status of scription execution.
 #'
 #' @details
 #'
-#' For a localParallel compute context, 
-#' 
+#' For a localParallel compute context,
+#'
 #' @export
 
 executeScript <- function(context,
@@ -50,19 +50,19 @@ executeScript <- function(context,
 
   if(missing(context) | !is.azureActiveContext(context))
     stop("Please provide a valid AzureSMR active context.")
-  
+
   if(missing(resourceGroup))
     stop("Please specify a resource group.")
-  
+
   if(missing(machines))
     stop("Please give a list of virtual machines.")
-  
+
   if(missing(remote))
     stop("Please specify a remote machine.")
-  
+
   if(missing(user))
     stop("Please give user name for the remote login.")
-  
+
   if(missing(script))
     stop("Please specify the script to be executed remotely with full path.")
 
@@ -72,7 +72,7 @@ executeScript <- function(context,
   {
     if(missing(master))
       stop("Please specify a master node.")
-    
+
     if(missing(slaves))
       stop("Please specify slaves.")
   }
@@ -159,4 +159,41 @@ executeScript <- function(context,
                  new_interface$user,
                  new_interface$remote,
                  remote_script))
+}
+
+#' @title Upload or download files.
+#' @param from Source location (path) of file.
+#' @param to Target location (path) of file.
+#' @param file File name - a character string.
+#' @note File transfer is implemented by `scp` with public key based authentication.
+#' @export
+fileTransfer <- function(from=".",
+                         to=".",
+                         user,
+                         file) {
+  if(missing(file)) stop("Please specify a file to transfer.")
+
+  option <- "-q -o StrictHostKeyChecking=no"
+
+  if(stringr::str_detect(from, ":")) {
+    cmd <- sprintf("scp %s %s %s",
+                   option,
+                   file.path(paste0(user, "@", from), file),
+                   to)
+  } else {
+    cmd <- sprintf("scp %s %s %s",
+                   option,
+                   file.path(from, file),
+                   paste0(user, "@", to))
+  }
+
+  exe <- system(cmd,
+                intern=TRUE,
+                show.output.on.console=TRUE)
+  if (is.null(attributes(exe)))
+  {
+    writeLines(sprintf("File %s has been successfully transferred.", file))
+  } else {
+    writeLines("Something must be wrong....... See warning message.")
+  }
 }

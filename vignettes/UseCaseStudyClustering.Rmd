@@ -1,0 +1,323 @@
+---
+title = "Use case study - clustering analysis" 
+author= "Graham Williams"
+---
+
+This is a demonstration of using `AzureDSR` for running experimentation with DSVM(s) deployed on demand, and getting the cost summarization for running such analytic jobs. 
+
+# Introduction
+
+```{r}
+library(AzureDSR)
+library(AzureSMR)
+library(dplyr)
+library(stringr)
+library(stringi)
+library(magrittr)
+library(readr)
+library(rattle)
+library(ggplot2)
+```
+
+# Azure resource invokation
+
+Initial set up for resource management.
+
+```{r}
+
+# get confidential information from an R script.
+
+source("../../misc/confidential.R")
+
+RG  <- "new_dsvm3"  # Will be created if not already exist then kill.
+LOC <- "southeastasia"   # Where the resource group (resources) will be hosted.
+
+# Create names for the VMs.
+
+COUNT <- 7  # Number of VMs to deploy.
+BASE  <- 
+  runif(4, 1, 26) %>%
+  round() %>%
+  letters[.] %>%
+  paste(collapse="") %T>% print()
+USER <- Sys.info()[['user']]
+LDSVM <- paste0(BASE, sprintf("%03d", 1:COUNT)) %T>% print()
+LUSER <- paste0("u", sprintf("%03d", 1:COUNT)) %T>% print()
+
+```
+
+Deploy a cluster of DSVMs if there is no existing, otherwise start the machines.
+
+```{r}
+
+# --------------------------------------------------------------------------
+# Azure data science resource management
+# --------------------------------------------------------------------------
+
+# Connect to the Azure subscription and use this as the context for
+# all of our activities.
+
+context <- createAzureContext(tenantID=TID, clientID=CID, authKey=KEY)
+
+# Check if the resource group already exists. Take note this script
+# will not remove the resource group if it pre-existed.
+
+rg_pre_exists <- existsRG(context, RG, LOC) %T>% print()
+
+# Create Resource Group
+
+if (! rg_pre_exists)
+{
+  # Create a new resource group into which we create the VMs and
+  # related resources. Resource group name is RG. 
+  
+  # Note that to create a new resource group one needs to add access
+  # control of Active Directory application at subscription level.
+  
+  azureCreateResourceGroup(context, RG, LOC)
+  
+}
+
+vm <- AzureSMR::azureListVM(context, RG)
+
+if (!is.null(vm)) {
+  
+  AzureDSR::operateDSVM(context, RG, vm$name, operation="Check")
+  
+  # start machines if they exist in the resource group.
+  
+  AzureDSR::operateDSVM(context, RG, vm$name, operation="Start")
+  
+} else {
+  
+  # Create a Cluster
+  
+  cluster <- deployDSVMCluster(context, 
+                               resource.group=RG, 
+                               size="Standard_D12_v2",
+                               location=LOC, 
+                               hostnames=BASE,
+                               usernames=USER, 
+                               pubkeys=PUBKEY,
+                               count=COUNT)
+  
+  for (i in 1:COUNT)
+  {
+    vm <- cluster[i, "name"]
+    fqdn <- cluster[i, "fqdn"]
+    
+    cat(vm, "\n")
+    
+    operateDSVM(context, RG, vm, operation="Check")
+    
+    # Send a simple system() command across to the new server to test
+    # its existence. Expect a single line with an indication of how long
+    # the server has been up and running.
+    
+    cmd <- paste("ssh -q",
+                 "-o StrictHostKeyChecking=no",
+                 "-o UserKnownHostsFile=/dev/null\\\n   ",
+                 fqdn,
+                 "uptime") %T>%
+                 {cat(., "\n")}
+    cmd
+    system(cmd)
+    cat("\n")
+  }
+  
+}
+```
+
+The demo analytics show how to parallelize clustering analysis by using kmeans algorithm for clustering unlabelled data. The data is credit transaction that can be obtained from [kaggle website](https://www.kaggle.com/dalpozz/creditcardfraud). The original data are labelled so in the clustering analysis the label is removed. 
+
+Codes for the clustering analysis is shown as below. The analysis basically normalize the credit transaction data, and then perform 10 repeated clustering analysis (with 2 clusters) by using k-means algorithm. The repetition is parallelized with the specified computing context which is available in `RevoScaleR` package. Note the computing context information will be automatically added by `executeScript` function given a specified computing context.
+
+```{r eval=FALSE}
+# This is to run parallel work across nodes for clustering analysis.
+
+# get data from remote blob.
+
+DATA_URL <- "https://zhledata.blob.core.windows.net/mldata/credit.xdf"
+
+download.file(DATA_URL,
+              destfile="./data.xdf",
+              mode="wb")
+
+# download data to all nodes if it is cluster parallel.
+
+if (rxGetComputeContext()@description == "dopar") {
+  clusterCall(cl,
+              download.file,
+              url=DATA_URL,
+              destfile="./data.xdf",
+              mode="wb")
+}
+
+# make a function to do clustering of given data set.
+
+clusterAnalysis <- function(data, numClusters) {
+  
+  xdf <- RxXdfData(data)
+  
+  # create formula.
+  
+  names <- rxGetVarNames(data=xdf)
+  names <- names[!(names %in% c("Class", "Time"))] # the original data set is labelled so remove the label.
+  formula <- as.formula(paste0("~", paste(names, collapse="+")))
+  
+  # to scale data.
+  
+  df <- rxImport(xdf, 
+                 varsToDrop=c("Time", "Class"))
+  df <- as.data.frame(scale(df))
+
+  clusters <- rxKmeans(formula, 
+                       df, 
+                       numClusters=numClusters)
+  
+  clusters$cluster
+}
+
+# do kmeans clustering with rxExec parallelization.
+
+results <- rxExec(FUN=clusterAnalysis,
+                  data="data.xdf",
+                  numClusters=rxElemArg(c(2:5)))
+
+save(results, file="./results.RData")
+```
+
+The script can then be saved and later on path to the script is used as reference. For example, in this demo, the script is saved with name "worker_cluster.R"
+
+The following code is to run the clustering analysis on a specified computing environment. This is achieved by setting computing context. For comparison purpose, two contexts, "localParallel" and "clusterParallel" are used in the demo.
+
+```{r}
+# specify machine names, master, and slaves.
+
+machines <- unlist(vm$name)
+dns_list <- paste0(machines, ".", LOC, ".cloudapp.azure.com")
+master <- dns_list[1]
+slaves <- dns_list[-1]
+```
+
+```{r}
+# parallel the analytics with local parallel computing context.
+
+time_1 <- Sys.time()
+
+AzureDSR::executeScript(context=context, 
+                        resourceGroup=RG, 
+                        machines=machines, 
+                        remote=master, 
+                        user=USER, 
+                        script="./worker_cluster.R", 
+                        master=master, 
+                        slaves=slaves, 
+                        computeContext="localParallel")
+
+time_2 <- Sys.time()
+
+# get results from remote
+
+AzureDSR::fileTransfer(from=paste0(master, ":~"), 
+                       to=".", 
+                       user=USER, 
+                       file="results.RData")
+
+load("./results.RData") 
+results_local <- 
+  results %T>%
+  print()
+```
+
+```{r}
+# parallel the analytics across cluster.
+
+time_3 <- Sys.time()
+
+AzureDSR::executeScript(context=context, 
+                        resourceGroup=RG, 
+                        machines=machines, 
+                        remote=master, 
+                        user=USER, 
+                        script="./worker_cluster.R", 
+                        master=master, 
+                        slaves=slaves, 
+                        computeContext="clusterParallel")
+
+time_4 <- Sys.time()
+
+# get results from remote
+
+AzureDSR::fileTransfer(from=paste0(master, ":~"), 
+                       to=".", 
+                       user=USER, 
+                       file="results.RData")
+
+load("./results.RData") 
+results_cluster <- results
+```
+
+Do some visualization with data.
+
+```{r}
+DATA_URL <- "https://zhledata.blob.core.windows.net/mldata/credit.xdf"
+
+credit_data <- rxImport(inData=DATA_URL,
+                        missingValueString="M",
+                        stringsAsFactors=FALSE,
+                        overwrite=TRUE)
+
+# select one clustering result from results_local.
+
+cluster_local <- 
+  results_local[[1]] %>%
+  factor()
+
+# visualize first two dimensions as jitter plot.
+
+ggplot(data=credit_data, aes(x=V1, y=V2, color=cluster_local)) +
+  geom_jitter() +
+  stat_ellipse(geom="polygon", alpha=0.5, aes(fill=cluster_local)) 
+```
+
+Once finishing the analysis, switch off DSVMs.
+
+```{r}
+# stop machines after the analysis.
+
+AzureDSR::operateDSVM(context, RG, vm$name, operation="Stop")
+```
+
+The cost of running the above analytics can be obtained with `expenseCalculation` function, but one thing worthing noting is that there is usually delay between execution of jobs and record of data consumption. The delay varies across regions of data centers, so it is recommended to save starting and ending time points of analytical jobs for reference so that later on `expenseCalculator` can be safely called for retrieving results.
+
+```{r}
+# calculate expense on computations. 
+#
+
+cost <- 0
+
+if (length(vm$name) == 1) {
+  cost <- AzureDSR::expenseCalculator(context=context,
+                                      instance=as.character(vm$name[1]), 
+                                      timeStart=time_1,
+                                      timeEnd=time_2,
+                                      granularity="Hourly",
+                                      currency="USD",
+                                      locale="en-SG",
+                                      offerId="MS-AZR-0015P",
+                                      region="SG")
+} else {
+  for (name in as.character(vm$name)) {
+    cost <- cost + AzureDSR::expenseCalculator(context=context,
+                                               instance=name, 
+                                               timeStart=time_1,
+                                               timeEnd=time_2,
+                                               granularity="Hourly",
+                                               currency="USD",
+                                               locale="en-SG",
+                                               offerId="MS-AZR-0015P",
+                                               region="SG")
+  }
+}
+```
