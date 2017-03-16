@@ -4,7 +4,10 @@
 .PHONY: help
 help:
 	@echo -e "Manage AzureDSR package\n\
-	======================================\n\
+	=======================\n\
+	Package\n\
+	\tinstall     \tBuild and install to local machine\n\
+	\n\
 	Vignettes\n\
 	\tvdeploy     \tRun DeployDSVM vignette (single Linux DSVM, cleanup).\n\
 	\tvcluster    \tRun ClusterDSVM vignette (cluster Linux DSVMs, cleanup).\n\
@@ -13,6 +16,12 @@ help:
 	\tresources   \tList all resources in each resource group.\n\
 	\tdeploy      \tDeploy single Linux DSVM with new resource group.\n\
 	\tdelete      \tDelete resource groups beginning with my_.\n\
+	\n\
+	Version Control\n\
+	\tstatus      \t.\n\
+	\tpull        \t.\n\
+	\tpush        \t.\n\
+	\tdiff        \t.\n\
 	"
 
 ########################################################################
