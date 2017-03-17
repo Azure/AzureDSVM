@@ -294,7 +294,7 @@ download.file(CI_DATA,
 if (rxGetComputeContext()@description == "dopar") {
   clusterCall(cl,
               download.file,
-              url=DATA_URL,
+              url=CI_DATA,
               destfile="./data.xdf",
               mode="wb")
 }
