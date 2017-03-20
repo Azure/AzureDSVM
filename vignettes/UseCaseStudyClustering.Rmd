@@ -23,27 +23,53 @@ library(ggplot2)
 
 Initial set up for resource management.
 
+```{r credentials, eval=FALSE}
+# Credentials come from app creation in Active Directory within Azure.
+ 
+TID <- "72f9....db47"          # Tenant ID
+CID <- "9c52....074a"          # Client ID
+KEY <- "9Efb....4nwV....ASa8=" # User key
+
+PUBKEY   <- readLines("~/.ssh/id_rsa.pub") # For Linux DSVM
+PASSWORD <- "AmSj&%4aR3@kn"                # For Windows DSVM
+
+```
+
+```{r setup}
+# Load the required subscription resources: TID, CID, and KEY.
+# Also includes the ssh PUBKEY for the user.
+
+USER <- Sys.info()[['user']]
+
+source(paste0(USER, "_credentials.R"))
+```
+
 ```{r}
-
-# get confidential information from an R script.
-
-source("../../misc/confidential.R")
-
-RG  <- "new_dsvm3"  # Will be created if not already exist then kill.
-LOC <- "southeastasia"   # Where the resource group (resources) will be hosted.
-
-# Create names for the VMs.
-
-COUNT <- 7  # Number of VMs to deploy.
-BASE  <- 
+BASE <- 
   runif(4, 1, 26) %>%
   round() %>%
   letters[.] %>%
-  paste(collapse="") %T>% print()
-USER <- Sys.info()[['user']]
-LDSVM <- paste0(BASE, sprintf("%03d", 1:COUNT)) %T>% print()
-LUSER <- paste0("u", sprintf("%03d", 1:COUNT)) %T>% print()
+  paste(collapse="") %T>%
+  {sprintf("Base name:\t\t%s", .) %>% cat("\n")}
 
+RG <-
+  paste0("my_dsvm_", BASE,"_rg_sea") %T>%
+  {sprintf("Resource group:\t\t%s", .) %>% cat("\n")}
+
+# Choose a data centre location.
+
+LOC <-
+  "southeastasia"  %T>%
+  {sprintf("Data centre location:\t%s", .) %>% cat("\n")}
+
+# Include the random BASE in the hostname to reducely likelihood of
+# conflict.
+
+HOST <-
+  paste0("my", BASE) %T>%
+  {sprintf("Hostname:\t\t%s", .) %>% cat("\n")}
+
+cat("\n")
 ```
 
 Deploy a cluster of DSVMs if there is no existing, otherwise start the machines.
@@ -187,7 +213,7 @@ results <- rxExec(FUN=clusterAnalysis,
 save(results, file="./results.RData")
 ```
 
-The script can then be saved and later on path to the script is used as reference. For example, in this demo, the script is saved with name "worker_cluster.R"
+The script can then be saved and later on path to the script is used as reference. For example, in this demo, the script is saved with name "worker_cluster.R" which is located in the "/test" directory.
 
 The following code is to run the clustering analysis on a specified computing environment. This is achieved by setting computing context. For comparison purpose, two contexts, "localParallel" and "clusterParallel" are used in the demo.
 
@@ -210,7 +236,7 @@ AzureDSR::executeScript(context=context,
                         machines=machines, 
                         remote=master, 
                         user=USER, 
-                        script="./worker_cluster.R", 
+                        script="./test/worker_cluster.R", 
                         master=master, 
                         slaves=slaves, 
                         computeContext="localParallel")
@@ -240,7 +266,7 @@ AzureDSR::executeScript(context=context,
                         machines=machines, 
                         remote=master, 
                         user=USER, 
-                        script="./worker_cluster.R", 
+                        script="./test/worker_cluster.R", 
                         master=master, 
                         slaves=slaves, 
                         computeContext="clusterParallel")
@@ -261,7 +287,7 @@ results_cluster <- results
 Do some visualization with data.
 
 ```{r}
-DATA_URL <- "https://zhledata.blob.core.windows.net/mldata/credit.xdf"
+DATA_URL <- "https://zhledata.blob.core.windows.net/mldata/creditcard.xdf"
 
 credit_data <- rxImport(inData=DATA_URL,
                         missingValueString="M",
