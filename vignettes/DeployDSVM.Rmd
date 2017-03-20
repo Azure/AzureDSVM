@@ -42,7 +42,7 @@ CID <- "9c52....074a"          # Client ID
 KEY <- "9Efb....4nwV....ASa8=" # User key
 
 PUBKEY   <- readLines("~/.ssh/id_rsa.pub") # For Linux DSVM
-PASSWORD <- "AmSj&%4aR3@kn"                # For Windows DSVM
+PASSWORD <- "Public%4aR3@kn"               # For Windows DSVM
 
 ```
 
