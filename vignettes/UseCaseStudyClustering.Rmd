@@ -1,9 +1,11 @@
 ---
 title = "Use case study - clustering analysis" 
-author= "Graham Williams"
+author= "Le Zhang and Graham Williams"
 ---
 
-This is a demonstration of using `AzureDSR` for running experimentation with DSVM(s) deployed on demand, and getting the cost summarization for running such analytic jobs. 
+This is a demonstration of using `AzureDSR` for running
+experimentation with DSVM(s) deployed on demand, and getting the cost
+summarization for running such analytic jobs.
 
 # Introduction
 
@@ -23,12 +25,18 @@ library(ggplot2)
 
 Initial set up for resource management.
 
+<<<<<<< HEAD
 ```{r credentials, eval=FALSE}
 # Credentials come from app creation in Active Directory within Azure.
  
 TID <- "72f9....db47"          # Tenant ID
 CID <- "9c52....074a"          # Client ID
 KEY <- "9Efb....4nwV....ASa8=" # User key
+=======
+TODO: UPDATE TO MORE GENERIC CODE AS IN DeployeDSVM.Rmd
+
+```{r}
+>>>>>>> f37f89e44614e3096ab5391d031efe3d37e1fe36
 
 PUBKEY   <- readLines("~/.ssh/id_rsa.pub") # For Linux DSVM
 PASSWORD <- "AmSj&%4aR3@kn"                # For Windows DSVM
@@ -41,11 +49,16 @@ PASSWORD <- "AmSj&%4aR3@kn"                # For Windows DSVM
 
 USER <- Sys.info()[['user']]
 
+<<<<<<< HEAD
 source(paste0(USER, "_credentials.R"))
 ```
 
 ```{r}
 BASE <- 
+=======
+COUNT <- 4  # Number of VMs to deploy.
+BASE  <- 
+>>>>>>> f37f89e44614e3096ab5391d031efe3d37e1fe36
   runif(4, 1, 26) %>%
   round() %>%
   letters[.] %>%
@@ -120,7 +133,7 @@ if (!is.null(vm)) {
   
   cluster <- deployDSVMCluster(context, 
                                resource.group=RG, 
-                               size="Standard_D12_v2",
+                               size="Standard_D1_v2",
                                location=LOC, 
                                hostnames=BASE,
                                usernames=USER, 
@@ -154,9 +167,22 @@ if (!is.null(vm)) {
 }
 ```
 
-The demo analytics show how to parallelize clustering analysis by using kmeans algorithm for clustering unlabelled data. The data is credit transaction that can be obtained from [kaggle website](https://www.kaggle.com/dalpozz/creditcardfraud). The original data are labelled so in the clustering analysis the label is removed. 
+The demo analytics show how to parallelize clustering analysis by
+using kmeans algorithm for clustering unlabelled data. The data is
+credit transaction that can be obtained from
+[kaggle website](https://www.kaggle.com/dalpozz/creditcardfraud). The
+original data are labelled so in the clustering analysis the label is
+removed.
 
-Codes for the clustering analysis is shown as below. The analysis basically normalize the credit transaction data, and then perform 10 repeated clustering analysis (with 2 clusters) by using k-means algorithm. The repetition is parallelized with the specified computing context which is available in `RevoScaleR` package. Note the computing context information will be automatically added by `executeScript` function given a specified computing context.
+Codes for the clustering analysis is shown as below. The analysis
+basically normalize the credit transaction data, and then perform 10
+repeated clustering analysis (with 2 clusters) by using k-means
+algorithm. The repetition is parallelized with the specified computing
+context which is available in `RevoScaleR` package. Note the computing
+context information will be automatically added by `executeScript`
+function given a specified computing context.
+
+TODO: BREAK OUT INTO A SEPARATE SCRIPT IN THE test FOLDER ON GITHUB.
 
 ```{r eval=FALSE}
 # This is to run parallel work across nodes for clustering analysis.
@@ -213,9 +239,18 @@ results <- rxExec(FUN=clusterAnalysis,
 save(results, file="./results.RData")
 ```
 
+<<<<<<< HEAD
 The script can then be saved and later on path to the script is used as reference. For example, in this demo, the script is saved with name "worker_cluster.R" which is located in the "/test" directory.
+=======
+The script can then be saved and later on path to the script is used
+as reference. For example, in this demo, the script is saved with name
+"worker_cluster.R"
+>>>>>>> f37f89e44614e3096ab5391d031efe3d37e1fe36
 
-The following code is to run the clustering analysis on a specified computing environment. This is achieved by setting computing context. For comparison purpose, two contexts, "localParallel" and "clusterParallel" are used in the demo.
+The following code is to run the clustering analysis on a specified
+computing environment. This is achieved by setting computing
+context. For comparison purpose, two contexts, "localParallel" and
+"clusterParallel" are used in the demo.
 
 ```{r}
 # specify machine names, master, and slaves.
@@ -315,7 +350,13 @@ Once finishing the analysis, switch off DSVMs.
 AzureDSR::operateDSVM(context, RG, vm$name, operation="Stop")
 ```
 
-The cost of running the above analytics can be obtained with `expenseCalculation` function, but one thing worthing noting is that there is usually delay between execution of jobs and record of data consumption. The delay varies across regions of data centers, so it is recommended to save starting and ending time points of analytical jobs for reference so that later on `expenseCalculator` can be safely called for retrieving results.
+The cost of running the above analytics can be obtained with
+`expenseCalculation` function, but one thing worthing noting is that
+there is usually delay between execution of jobs and record of data
+consumption. The delay varies across regions of data centers, so it is
+recommended to save starting and ending time points of analytical jobs
+for reference so that later on `expenseCalculator` can be safely
+called for retrieving results.
 
 ```{r}
 # calculate expense on computations. 
