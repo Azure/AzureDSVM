@@ -34,25 +34,41 @@ PASSWORD <- "AmSj&%4aR3@kn"                # For Windows DSVM
 
 ```
 
-Save such information into a file with the name <USER>_credentials.R
-where <USER> is replaced with your username. Then we simply source
-that file in R.
-
 ```{r setup}
 # Load the required subscription resources: TID, CID, and KEY.
 # Also includes the ssh PUBKEY for the user.
 
-USER <- Sys.getenv("USER")
+USER <- Sys.info()[['user']]
 
 source(paste0(USER, "_credentials.R"))
 ```
 
-```{r tuning}
+```{r}
+BASE <- 
+  runif(4, 1, 26) %>%
+  round() %>%
+  letters[.] %>%
+  paste(collapse="") %T>%
+  {sprintf("Base name:\t\t%s", .) %>% cat("\n")}
 
-RG    <- "my_dsvm_rg_sea"  # Will be created if not already exist then kill.
-LOC   <- "southeastasia"   # Where the resource group (resources) will be hosted.
-LDSVM <- "myldsvm"
-LDSVMS <- paste0(LDSVM, as.character(seq(1, 5, 1))) # let's deploy a 5 node cluster.
+RG <-
+  paste0("my_dsvm_", BASE,"_rg_sea") %T>%
+  {sprintf("Resource group:\t\t%s", .) %>% cat("\n")}
+
+# Choose a data centre location.
+
+LOC <-
+  "southeastasia"  %T>%
+  {sprintf("Data centre location:\t%s", .) %>% cat("\n")}
+
+# Include the random BASE in the hostname to reducely likelihood of
+# conflict.
+
+HOST <-
+  paste0("my", BASE) %T>%
+  {sprintf("Hostname:\t\t%s", .) %>% cat("\n")}
+
+cat("\n")
 ```
 
 Check existence of resource group and create one if there is no.
@@ -127,23 +143,6 @@ Without loss of generality, each of the analytics is formalized to follow a typi
 1. **Feature Engineering**. Note as there is no prior domain knowledge, data used for analytics are assumed to have been aggregated and cleansened properly. General feature engineering techniques are applied on the data. To name a few, 
 2. **Algorithm Selection**. Selection of an appropriate algorithm to create model for data science task.
 3. **Parameter Tuning**. Tune machine learning algorithms to meet the optimization goal of trained model.
-
-```{r}
-url_hr <- "https://community.watsonanalytics.com/wp-content/uploads/2015/03/WA_Fn-UseC_-HR-Employee-Attrition.xlsx"
-
-download.file(url=url_hr, 
-              destfile="./data.xlsx", 
-              mode="wb")
-
-df <- read.xlsx("./data.xlsx", 
-                sheetIndex=1,
-                header=TRUE,
-                colClasses=NA)
-
-head(df)
-
-glimpse(df)
-```
 
 While in a real-world use case scenario, there might be necessity for iterating on all of the three steps (sometimes the problem is even more complicated as the work flow is not unidirectional). For simplicity reason, the demonstration solely shows an experimental analytical job on model selection, while those variables related to other two parts are kept fixed.
 
@@ -276,14 +275,9 @@ Following are codes that run analytics defined above. The whole analytic will be
 # Step 0 - let's do some test. Set up the experiment.
 # -----------------------------------------------------------------------
 
-# choose a data set in the benchmark by index.
+# download data.
 
-data_index <- 3 
-print(data_config[data_index, ])
-
-# read data.
-
-CI_DATA <- data_config$url[data_index]
+CI_DATA <- "https://zhledata.blob.core.windows.net/mldata/creditcard.xdf"
 
 download.file(CI_DATA,
               destfile="./data.xdf",
@@ -371,6 +365,8 @@ save(results, file="./results.RData")
 
 As usual, the above analytics can be saved into a single worker script. The worker script can be executed on a remote Linux DSVM or DSVM cluster with AzureDSR function `executeScript` like what has been done in the previous tutorials. 
 
+The worker script for binary classification is located in "/test" directory, with name "worker_classficiation.R".
+
 ```{r execution}
 
 # remote execution on a single DSVM.
@@ -382,7 +378,7 @@ executeScript(context,
               machines=LDSVM,
               remote=VM_URL,
               user=USER,
-              script="./workerScript1.R",
+              script="./worker_classification.R",
               master=VM_URL,
               slaves=VM_URL,
               computeContext="localParallel")
@@ -396,7 +392,7 @@ executeScript(context,
               machines=LDSVMS,
               remote=VMS_URL[1],
               user=USER,
-              script="./workerScript2.R",
+              script="./worker_classification.R",
               master=VMS_URL[1],
               slaves=VMS_URL[-1],
               computeContext="clusterParallel")
