@@ -1,24 +1,24 @@
-Package: AzureDSR
+Package: AzureDSVM
 Type: Package
-Title: Create and Manage Azure Based Data Science Resources for Convenient
+Title: Create and Manage Azure Data Science Virtual Machine(s) for Convenient
     Execution of Scalable and Elastic Analytics.
 Version: 0.1.0
 Authors@R: c(
     person(family="Microsoft Coporation", role="cph"),
     person("Graham", "Williams", role=c("aut", "cre"), email="grwilli@microsoft.com"),
     person("Le", "Zhang", role=c("aut"), email="zhle@microsoft.com"))
-Description: The AzureDSR is a package that aims at providing handy methods,
+Description: The AzureDSVM is a package that aims at providing handy methods,
     with the help of underlying AzureSMR package, for doing data science jobs on
-    Azure cloud efficiently and economically. Basically it can be used with the
+    Azure Data Science Virtual Machine (DSVM) efficiently and economically. Basically it can be used with the
     following benefits. Easy operations such as create, start, and stop of Azure
-    data science instances. Remote execution of data analytical jobs on cloud with
+    DSVMs. Remote execution of data analytical jobs on cloud with
     specified computing context. Monitor of data consumption and calculation of
-    Azure resouce usage.
+    Azure DSVM usage.
 Depends:
     R (>= 3.3.1)
 Copyright: Microsoft
-URL: https://github.com/Azure/AzureDSR
-BugReports: https://github.com/Azure/AzureDSR/issues
+URL: https://github.com/Azure/AzureDSVM
+BugReports: https://github.com/Azure/AzureDSVM/issues
 License: MIT License
 LazyData: TRUE
 Imports:
