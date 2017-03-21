@@ -12,7 +12,9 @@ vignette: >
 
 ## General Introduction
 
-`AzureDSVM` offers functions that can be conveniently used by R data scientists for operating and using Azure Data Science Virtual Machine (DSVM) elastically and economically, within local R session. The package is useful to programmtically manage DSVMs for a solo or collaborative data science projects so that R-user data scientists do not have to bother interactiving with GUI portal or learning unfamiliar scripting languages for meeting the same desire. 
+Azure Data Science Virtual Machine (DSVM) is a powerful data science development environment with pre-installed tools and packages that empower data scientists for convenient data wrangling, model building, and service deployment. 
+
+The R package of `AzureDSVM` aims at offering functions that can be conveniently used by R data scientists for operating and using Azure Data Science Virtual Machine (DSVM) elastically and economically, **within local R session**. 
 
 ## Features
 
@@ -57,7 +59,7 @@ Help pages can be loaded by
 
 Tutorials on how to use `AzureDSVM` package are provided in `/vignettes`.
 
-* [Get started]
+* [Get started](https://github.com/Azure/AzureDSVM/blob/master/vignettes/00Introduction.Rmd)
 * [Deployment of a single DSVM](https://github.com/Azure/AzureDSVM/blob/master/vignettes/10Deploy.Rmd)
 * [Deployment of multiple DSVMs](https://github.com/Azure/AzureDSVM/blob/master/vignettes/20Multi.Rmd)
 * [Do computation on a single DSVM or a cluster of DSVMs](https://github.com/Azure/AzureDSVM/blob/master/vignettes/30Compute.Rmd)
