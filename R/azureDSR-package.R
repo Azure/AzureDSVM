@@ -1,9 +1,9 @@
-#' AzureDSR
+#' AzureDSVM
 #'
 #' Support data science analytics with Azure resources.
 #'
-#' @name AzureDSR-package
-#' @aliases AzureDSR
+#' @name AzureDSVM-package
+#' @aliases AzureDSVM
 #' @docType package
 #' @keywords package
 #'
