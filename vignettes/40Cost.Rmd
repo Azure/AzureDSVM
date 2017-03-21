@@ -1,68 +1,56 @@
 ---
-title = "Get data consumption for computation on Azure DSVMs"
+title = "Using Azure Data Science Virtual Machine: Data consumption and cost calculation"
 author= "Graham Williams"
 ---
 
 # Use Case
 
-Many times data scientists care not merely the computation but also economy efficiency of running analytical jobs on cloud. It is therefore useful to have a monitor tool to obtain data consumption and total expense for using Azure DSVMs. This vignette will show how to achieve this with AzureDSR `consumptionCalculator` function.
+Many times data scientists care not merely the computation but also economy efficiency of running analytical jobs on cloud. It is therefore useful to have a monitoring tool to obtain data consumption and total expense for using Azure DSVMs. This vignette will show how to achieve this with AzureDSR `consumptionCalculator` function.
 
 # Setup
 
-We assume that the first step of [ConnectToLinuxDSVM](https://github.com/Azure/AzureDSR/vignettes/ConnectToLinuxDSVM.Rmd) has been done, and there is at least one Linux DSVM existing at the created resouce group.
+In this tutorial, we assume that there is at least one DSVM deployed in a resource group, and this DSVM has been used for certain period of time. 
 
-To begin with, let's check the status of the DSVM and start it if it is deallocated. This is achieved with AzureSMR, and again confidentials for authenticating the app in Active Directory should be provided.
+Similar to the previous sections, credentials for authentication are required.
 
 ```{r setup}
 # Load the required subscription resources: TID, CID, and KEY.
 # Also includes the ssh PUBKEY for the user.
 
-USER <- Sys.getenv("USER")
+USER <- Sys.info()[['user']]
 
 source(paste0(USER, "_credentials.R"))
-```
-
-```{r credentials, eval=FALSE}
-# Credentials come from app creation in Active Directory within Azure.
- 
-TID <- "72f9....db47"          # Tenant ID
-CID <- "9c52....074a"          # Client ID
-KEY <- "9Efb....4nwV....ASa8=" # User key
 ```
 
 ```{r packages}
 # Load the required packages.
 
 library(AzureSMR)    # Support for managing Azure resources.
-library(AzureDSR)    # Further support for the Data Scientist.
+library(AzureDSVM)    # Further support for the Data Scientist.
 library(magrittr)    
 library(dplyr)
-library(rattle)      # Use weatherAUS as a "large" dataset.
 ```
 
 # Data consumption
 
-Let's use the DSVM deployed in the previous tutorial chapters for this experiment. The basic information for getting the expense include
+Availability of resource consumption information is significate to cloud users as this will make it convenient to plan the use of cloud resources wisely. The function of `dataConsumption` in `AzureDSVM` is helpful in obtaining data consumption of a DSVM instance during a certain period of time.
 
-* Time period in which cost of the VM is evaluated. It is specified two separated parameters which are starting time and ending time. There are two data aggregation methods, "daily" based and "hourly" based, which calculate data consumption based on day and hour, respectively, as names suggest.
-* Currency in which the cost is measured. For example, "USD".
-* Locale where the expense is evaluated.
-* Region where the instance located.
-* Offer ID. Can be checked [here](https://azure.microsoft.com/en-us/support/legal/offer-details/).
+The basic information for getting data consumption include
+
+* Name of a DSVM instance.
+* Time period during which data consumption of a VM is evaluated. The time period is specified by two separated arguments, starting time and ending time. There are two data aggregation methods, "daily" based and "hourly" based, which calculate data consumption based on day and hour, respectively, as names suggest. Note the function also allows user to give an interval which is less than the finest aggregation granularity. This is useful as a lot of times it is interesting to data scientists that how much an analytical job that takes 30 minutes to finish costs. However, in this case, the cost returned by the function is merely based upon computation hours while other possible costs such as data ingress is neglected.
+
+Following are the information needed to obtain data consumption of a DSVM named "dsvm". Let's assume the DSVM is one that has been deployed from the previous sections, and it has run for a while.
 
 ```{r}
-VM     <- "msvm001"
-START  <- "2017-01-06 00:00:00"
-END    <- "2017-01-10 00:00:00"
+VM     <- "dsvm_name"
+START  <- "starting_time_point" # in the format of YYYY-MM-DD HH:MM:SS.
+END    <- "ending_time_point"   # in the format of YYYY-MM-DD HH:MM:SS
 GRA    <- "Daily"
-
-CURR   <- "USD"
-LOCALE <- "en-SG"
-REG    <- "SG"
-OFFER  <- "MS-AZR-0015P"
 ```
 
-Get data consumption of the virtual machine.
+Get data consumption of the DSVM.
+
 ```{r}
 
 # authentication with Azure account.
@@ -80,9 +68,22 @@ data_consum <- dataConsumption(context,
 print(data_consum)
 ```
 
-After that just simply call the function to get the expense of the instance. 
+The data consumption is often used to calculate the expense spent on the DSVM for doing analytical tasks. Retrieval of expense can be done with `expenseCalculator` function. The calculation is based on price rates of DSVM components, which are multiplied by data consumption during a given time period.
+
+Basic information for expense calculation include
+
+* Currency in which the cost is measured. e.g., "USD".
+* Locale where the expense is evaluated. e.g., "en-SG"
+* Region where the instance located. e.g., "SG". 
+* Offer ID. Can be checked [here](https://azure.microsoft.com/en-us/support/legal/offer-details/).
 
 ```{r}
+
+CURR   <- "your_currency"
+LOCALE <- "locale_of_the_azure_subscription"
+REG    <- "region_of_the_azure_subscription"
+OFFER  <- "a_valid_offer_id"
+
 consum <- expenseCalculator(context,
                             instance=VM,
                             timeStart=START,

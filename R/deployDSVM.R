@@ -127,18 +127,18 @@ deployDSVM <- function(context,
 
   if(os == "Windows")
   {
-    temp_path <- system.file("etc", "template_windows.json", package="AzureDSR")
-    para_path <- system.file("etc", "parameter_windows.json", package="AzureDSR")
+    temp_path <- system.file("etc", "template_windows.json", package="AzureDSVM")
+    para_path <- system.file("etc", "parameter_windows.json", package="AzureDSVM")
   } else if(os == "Linux")
   {
     if(authen == "Key")
     {
-      temp_path <- system.file("etc", "template_linux_key.json", package="AzureDSR")
-      para_path <- system.file("etc", "parameter_linux_key.json", package="AzureDSR")
+      temp_path <- system.file("etc", "template_linux_key.json", package="AzureDSVM")
+      para_path <- system.file("etc", "parameter_linux_key.json", package="AzureDSVM")
     } else if(authen == "Password")
     {
-      temp_path <- system.file("etc", "template_linux.json", package="AzureDSR")
-      para_path <- system.file("etc", "parameter_linux.json", package="AzureDSR")
+      temp_path <- system.file("etc", "template_linux.json", package="AzureDSVM")
+      para_path <- system.file("etc", "parameter_linux.json", package="AzureDSVM")
     } else
     {
       stop("Please specific a valid authentication method, i.e., either 'Key' for public key based or 'Password' for password based, for Linux OS based DSVM")

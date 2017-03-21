@@ -1,12 +1,12 @@
 ---
-title = "Using Azure Data Science Resources: Deploy Linux DSVM"
+title = "Using Azure Data Science Virtual Machine: Deployment of a single DSVM"
 author= "Graham Williams"
 ---
 
 # Use Case
 
-A Linux Data Science Virtual Machine (DSVM) is deployed and a remote
-command is executed to demonstrates it exists. Code is included but
+In this tutorial, both a Linux and a Windows Data Science Virtual Machine (DSVM) are deployed. 
+Code is included but
 not run to then delete the resource group if the resources are no
 longer required. Once deleted consumption will cease.
 
@@ -18,12 +18,11 @@ DSVM.
 # Preparation
 
 We assume the user already has an Azure subscription and we have
-obtained the credentials required. See
-[AzureSMR's Authentication Guide](https://github.com/Microsoft/AzureSMR/blob/master/vignettes/Authentication.Rmd)
-for details.  We will then ensure a resource group exists and within
-that resource group create a Linux DSVM. A public ssh key is used to
+obtained the credentials required. See instructions in the [previous vignette](https://github.com/Azure/AzureDSVM/blob/master/vignettes/00Introduction.Rmd) 
+for details. We will then ensure a resource group exists and within
+that resource group create DSVMs. A public ssh key is used to
 access the server in this script although a username and password is
-also an option. We create a Linux DSVM and a WindowsDSVM.
+also an option. We create a Linux DSVM and a Windows DSVM.
 
 # Setup
 
@@ -63,14 +62,14 @@ source(paste0(USER, "_credentials.R"))
 # Install the packages if required.
 
 devtools::install_github("Microsoft/AzureSMR")
-devtools::install_github("Azure/AzureDSR", auth_token=GIT_TOKEN)
+devtools::install_github("Azure/AzureDSVM", auth_token=GIT_TOKEN) # auth_token is only required when repo is private.
 ```
 
 ```{r packages}
 # Load the required packages.
 
 library(AzureSMR)    # Support for managing Azure resources.
-library(AzureDSR)    # Further support for the Data Scientist.
+library(AzureDSVM)   # Further support for the Data Scientist.
 library(magrittr)    
 library(dplyr)
 ```
@@ -151,6 +150,14 @@ cat("Resource group", RG, "at", LOC,
 Create the actual Linux DSVM with public-key based authentication
 method. Name, username, and size can also be configured.
 
+Note one can check available VM sizes within the region by using `getVMSizes()`. Different sizes will cost differently, and the detailed information can be checked on [Azure website](https://docs.microsoft.com/en-us/azure/virtual-machines/virtual-machines-windows-sizes). The default VM size for deployment is "Standard_DS2_v2", which is featured by enhanced computation performance.
+
+```{r}
+getVMSizes(context, "southeastasia")
+```
+
+The following code deploys a Linux DSVM, and it will take approximately 4 minutes.
+
 ```{r deploy}
 # Create the required Linux DSVM - generally 4 minutes.
 
@@ -167,7 +174,7 @@ operateDSVM(context, RG, HOST, operation="Check")
 azureListVM(context, RG)
 ```
 
-Prove that the server exists.
+Prove that the deployed DSVM exists.
 
 ```{r prove exists}
 
@@ -187,10 +194,7 @@ system(cmd, intern=TRUE)
 # Deploy a Windows Data Science Virtual Machine
 
 `deployDSVM` also supports deployment of Windows DSVM, which can be
-achieved by setting the argument of `os` to "Windows". This is
-currently (20170217) failing with: *Storage account e2o6bbsjuyjwdsvmsa
-not found. Ensure storage account is not deleted and belongs to the
-same Azure location as the VM.*
+achieved by setting the argument of `os` to "Windows". The deployment will take approximately 10 minutes. One can use Remote Desktop to verify the success of deployment and use the virtual machine in a remote desktop environment.
 
 ```{r, eval=FALSE}
 wdsvm <- deployDSVM(context,
@@ -206,7 +210,7 @@ wdsvm
 
 # Optional Stop
 
-We can stop the server.
+It is always a good practice to stop DSVMs after using them, to avoid any unnecessary cost.
 
 ```{r, eval=FALSE}
 operateDSVM(context, RG, HOST, operation="Stop")

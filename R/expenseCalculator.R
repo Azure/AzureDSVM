@@ -1,7 +1,7 @@
 #' @title Get data consumption of an Azure subscription for a time period. Aggregation method can be either daily based or hourly based.
 #' @note Formats of start time point and end time point follow ISO 8601 standard. Say if one would like to calculate data consumption between Feb 21, 2017 to Feb 25, 2017, the inputs should be "2017-02-21 00:00:00" and "2017-02-25 00:00:00", for start time point and end time point, respectively. For hourly based calculation, note there should be no minute and second included.
 #' @param context AzureSMR context object.
-#' @param instance Instance of Azure instance that one would like to check expense. No matter whether resource group is given or not, if a instance of instance is given, data consumption of that instance is returned.
+#' @param instance Instance of Azure instance name that one would like to check expense. For example, it can be the name of a virtual machine.
 #' @param timeStart Start time.
 #' @param timeEnd End time.
 #' @param granularity Aggregation granularity. Can be either "Daily" or "Hourly".

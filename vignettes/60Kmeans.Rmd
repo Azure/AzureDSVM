@@ -1,16 +1,22 @@
 ---
-title = "Use case study - clustering analysis" 
+title = "Using Azure Data Science Virtual Machine: a use case - kmeans clustering" 
 author= "Le Zhang and Graham Williams"
 ---
 
-This is a demonstration of using `AzureDSR` for running
-experimentation with DSVM(s) deployed on demand, and getting the cost
-summarization for running such analytic jobs.
+# Use Case
 
-# Introduction
+In this tutorial, we will put things learnt from previous sections together, to show how one can use `AzureDSVM` to solve a clustering problem by using kmeans algorithm.
+
+It is common for data scientists to perform clustering or segmentation of data sets. This is particularly useful when there is abundant amount of observations but no prior knowledge (e.g., label) available in the data sets. Clustering analysis is a type of unsupervised machine learning problem. One of the most popular algorithms to cluster unlabelled data sets into segments is kmeans. Basically it iteratively find centers of clusters, and within each of the cluster, the sum of squares of distances from data points to the center are minimized. Performance of kmeans clustering algorithm is heavily dependent on initial positions of centroids, so it is usually run several times and the model with minimized error is selected as the optimal one. 
+
+The demo in this tutorial shows how to perform kmeans clustering on remote DSVMs. Considering scalability of the solution, data used in the demo is saved in xdf format, with which one can use Microsoft RevoScaleR functions to enable external memory computation.
+
+# Setup
+
+Similar to the previous sections, credentials for authentication are required to fire up the DSVMs.
 
 ```{r}
-library(AzureDSR)
+library(AzureDSVM)
 library(AzureSMR)
 library(dplyr)
 library(stringr)
@@ -21,21 +27,6 @@ library(rattle)
 library(ggplot2)
 ```
 
-# Azure resource invokation
-
-Initial set up for resource management. The required information can
-be provided in a separate file for each user, named with their user
-name and the "_credentials.R". That file would contain something like
-the following lines of R code.
-
-```{r credentials, eval=FALSE}
-TID <- "72f9....db47"          # Tenant ID
-CID <- "9c52....074a"          # Client ID
-KEY <- "9Efb....4nwV....ASa8=" # User key
-
-PUBKEY   <- readLines("~/.ssh/id_rsa.pub") # For ssh public key.
-```
-
 ```{r setup}
 # Load the required subscription resources: TID, CID, and KEY.
 # Also includes the ssh PUBKEY for the user.
@@ -44,16 +35,6 @@ USER <- Sys.info()[['user']]
 
 source(paste0(USER, "_credentials.R"))
 ```
-
-We specify the number of VMs to deploy, choosing just a small number
-for demonstration purposes.
-
-Also identify the VM size. Notice our default choice of the size of
-the VMs is chosen as a compromise between price and performance. Users
-can choose based on their own requirements.
-
-A random name is also generated for the VMs and the resource group that
-will house the VMs.
 
 ```{r}
 COUNT <- 4  # Number of VMs to deploy.
@@ -125,11 +106,11 @@ vm <- AzureSMR::azureListVM(context, RG)
 if (!is.null(vm))
 {
   
-  AzureDSR::operateDSVM(context, RG, vm$name, operation="Check")
+  AzureDSVM::operateDSVM(context, RG, vm$name, operation="Check")
   
   # start machines if they exist in the resource group.
   
-  AzureDSR::operateDSVM(context, RG, vm$name, operation="Start")
+  AzureDSVM::operateDSVM(context, RG, vm$name, operation="Start")
   
 } else
 {
@@ -173,12 +154,10 @@ if (!is.null(vm))
 }
 ```
 
-The demo analytics demonstrates a parallel cluster analysis using the
-kmeans algorithm for clustering unlabelled data. The data consists of
-credit transactions as available from
-[kaggle website](https://www.kaggle.com/dalpozz/creditcardfraud) or
+The data used in this demonstration records a number of credit card transactions, some of which are fradulent. 
+The original data is available on [kaggle website](https://www.kaggle.com/dalpozz/creditcardfraud) or
 directly from
-[togaware]{https://access.togaware.com/creditcard.csv}. The original
+[togaware]{https://access.togaware.com/creditcard.xdf} in XDF format. The original
 data are labelled and so in our clustering analysis the label is
 removed.
 
@@ -191,8 +170,6 @@ computing context which is available in `RevoScaleR` package. Note the
 computing context information will be automatically added by the
 `executeScript` function given a specified computing context.
 
-TODO DOWNLOAD SCRIPT TO EACH VM
-
 The script can then be saved and later on path to the script is used
 as reference. For example, in this demo, the script is saved with name
 "worker_cluster.R" which is located in the "/test" directory.
@@ -200,7 +177,14 @@ as reference. For example, in this demo, the script is saved with name
 The following code is to run the clustering analysis on a specified
 computing environment. This is achieved by setting computing
 context. For comparison purpose, two contexts, "localParallel" and
-"clusterParallel" are used in the demo.
+"clusterParallel" are used in the demo. In the former context script is run in parallel by using the available cores while in the latter it is run across available computing nodes of a cluster.
+
+The following is the configuration of computing cluster which is needed for specifying a "clusterParallel" computing context. 
+
+* `machines` names of DSVMs used for parallelisation.
+* `dns_list` DNS of DSVMs. 
+* `master` DNS of the DSVM where the worker script will be uploaded to for execution.
+* `slaves` DNS of DSVMs where execution of worker script will be distributed to.
 
 ```{r}
 # specify machine names, master, and slaves.
@@ -211,12 +195,14 @@ master <- dns_list[1]
 slaves <- dns_list[-1]
 ```
 
+The following script run the analytics of the worker script in a "local parallel" computing context, and obtain results from remote master node to local R session.
+
 ```{r}
 # parallel the analytics with local parallel computing context.
 
 time_1 <- Sys.time()
 
-AzureDSR::executeScript(context=context, 
+AzureDSVM::executeScript(context=context, 
                         resourceGroup=RG, 
                         machines=machines, 
                         remote=master, 
@@ -230,7 +216,7 @@ time_2 <- Sys.time()
 
 # get results from remote
 
-AzureDSR::fileTransfer(from=paste0(master, ":~"), 
+AzureDSVM::fileTransfer(from=paste0(master, ":~"), 
                        to=".", 
                        user=USER, 
                        file="results.RData")
@@ -241,12 +227,14 @@ results_local <-
   print()
 ```
 
+For comparison purpose, the same analysis is run in the "cluster parallel" context again. 
+
 ```{r}
 # parallel the analytics across cluster.
 
 time_3 <- Sys.time()
 
-AzureDSR::executeScript(context=context, 
+AzureDSVM::executeScript(context=context, 
                         resourceGroup=RG, 
                         machines=machines, 
                         remote=master, 
@@ -260,7 +248,7 @@ time_4 <- Sys.time()
 
 # get results from remote
 
-AzureDSR::fileTransfer(from=paste0(master, ":~"), 
+AzureDSVM::fileTransfer(from=paste0(master, ":~"), 
                        to=".", 
                        user=USER, 
                        file="results.RData")
@@ -297,7 +285,7 @@ Once finishing the analysis, switch off DSVMs.
 ```{r}
 # stop machines after the analysis.
 
-AzureDSR::operateDSVM(context, RG, vm$name, operation="Stop")
+AzureDSVM::operateDSVM(context, RG, vm$name, operation="Stop")
 ```
 
 The cost of running the above analytics can be obtained with
@@ -315,26 +303,26 @@ called for retrieving results.
 cost <- 0
 
 if (length(vm$name) == 1) {
-  cost <- AzureDSR::expenseCalculator(context=context,
+  cost <- AzureDSVM::expenseCalculator(context=context,
                                       instance=as.character(vm$name[1]), 
                                       timeStart=time_1,
                                       timeEnd=time_2,
                                       granularity="Hourly",
-                                      currency="USD",
-                                      locale="en-SG",
-                                      offerId="MS-AZR-0015P",
-                                      region="SG")
+                                      currency="currency",
+                                      locale="your_locale",
+                                      offerId="your_offer_id",
+                                      region="your_location")
 } else {
   for (name in as.character(vm$name)) {
-    cost <- cost + AzureDSR::expenseCalculator(context=context,
+    cost <- cost + AzureDSVM::expenseCalculator(context=context,
                                                instance=name, 
                                                timeStart=time_1,
                                                timeEnd=time_2,
                                                granularity="Hourly",
-                                               currency="USD",
-                                               locale="en-SG",
-                                               offerId="MS-AZR-0015P",
-                                               region="SG")
+                                               currency="currency",
+                                               locale="your_locale",
+                                               offerId="your_offer_id",
+                                               region="your_location")
   }
 }
 ```

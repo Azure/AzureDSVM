@@ -1,5 +1,5 @@
 ---
-title: "AzureDSVM Introduction"
+title: "Using Azure Data Science Virtual Machine: Introduction"
 author: "ADS Asia Pacific, Microsoft"
 date: "`r Sys.Date()`"
 # output: rmarkdown::html_vignette

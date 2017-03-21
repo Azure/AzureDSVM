@@ -1,5 +1,5 @@
 ---
-title = "Using Azure Data Science Resources: Compute on Linux DSVM Quick Start"
+title = "Using Azure Data Science Virtual Machine: Compute on Linux DSVM Quick Start"
 author= "Graham Williams"
 ---
 
@@ -24,7 +24,7 @@ just for the duration.
 # Load the required subscription resources: TID, CID, and KEY.
 # Also includes the ssh PUBKEY for the user.
 
-USER <- Sys.getenv("USER")
+USER <- Sys.info()[['user']]
 
 source(paste0(USER, "_credentials.R"))
 ```
@@ -33,7 +33,7 @@ source(paste0(USER, "_credentials.R"))
 # Load the required packages.
 
 library(AzureSMR)    # Support for managing Azure resources.
-library(AzureDSR)    # Further support for the Data Scientist.
+library(AzureDSVM)    # Further support for the Data Scientist.
 library(magrittr)    
 library(dplyr)
 ```
@@ -44,17 +44,34 @@ library(dplyr)
 # name the resource group that we will create transiently for the
 # purposes of this script.
 
-RG     <- "my_dsvm_rg_sea"  # Create if not already exist then kill.
-LOC    <- "southeastasia"   # Where the resource group (resources) will be hosted.
+# Create a random resource group to reduce likelihood of conflict with
+# other users.
 
-# Create names for the VMs.
-
-COUNT <- 5 # 10                 # Number of VMs to deploy.
-BASE  <- 
+BASE <- 
   runif(4, 1, 26) %>%
   round() %>%
   letters[.] %>%
-  paste(collapse="") %T>% print()
+  paste(collapse="") %T>%
+  {sprintf("Base name:\t\t%s", .) %>% cat("\n")}
+
+RG <-
+  paste0("my_dsvm_", BASE,"_rg_sea") %T>%
+  {sprintf("Resource group:\t\t%s", .) %>% cat("\n")}
+
+# Choose a data centre location.
+
+LOC <-
+  "southeastasia"  %T>%
+  {sprintf("Data centre location:\t%s", .) %>% cat("\n")}
+
+# Include the random BASE in the hostname to reducely likelihood of
+# conflict.
+
+HOST <-
+  paste0("my", BASE) %T>%
+  {sprintf("Hostname:\t\t%s", .) %>% cat("\n")}
+
+cat("\n")
 ```
 
 To begin with, let's check the status of the DSVM and start it if it
@@ -130,7 +147,7 @@ scientist as it can be efficiently automated by R scripts. The
 following chunks of codes demonstrate how to use an R interface for
 remote execution of R scripts under a desired computing context.
 
-A very simple experiment on random number generation.
+A very simple experiment on random number generation. The function `executeScript` handles the remote execution (Note the current version only supports remote execution of script on a Linux DSVM). Computing context can be specified for the execution. In the case of "clusterParallel", a cluster of DSVMs are used.
 
 ```{r set R interface}
 
@@ -142,8 +159,9 @@ y <- x * rnorm(length(x), 0, 0.1)
 print(y)
 "
 
-tmpf <- tempfile(paste0("AzureDSR_experiment_01_"))
-writeLines(code, tmpf)
+tmpf1 <- tempfile(paste0("AzureDSVM_experiment_01_"))
+file.create(tmpf1)
+writeLines(code, tmpf1)
                  
 # local parallelism on node cores.
 
@@ -154,7 +172,7 @@ executeScript(context,
               machines=cluster$hostname[1],
               remote=cluster$fqdn[1],
               user=cluster$username[1],
-              script=tmpf,
+              script=tmpf1,
               master=cluster$fqdn[1],
               slaves=cluster$fqdn[1],
               computeContext="localParallel")
@@ -168,7 +186,7 @@ executeScript(context,
               machines=cluster$hostname,
               remote=cluster$fqdn,
               user=cluster$username,
-              script=tmpf,
+              script=tmpf1,
               master=cluster$fqdn[1],
               slaves=cluster$fqdn[-1],
               computeContext="clusterParallel")
@@ -183,7 +201,7 @@ performance2
 
 ```
 
-Yet another example with parallel execution by using `rxExec` function
+Yet another example with parallel execution by using `rxExec` function from Microsoft RevoScaleR package. 
 
 ```{r}
 
@@ -194,7 +212,12 @@ codes <- paste("library(scales)",
                "rxExec(kmeans, x=df, centers=2)",
                sep=";")
 
-writeLines(codes, "./experiment2.R")
+
+tmpf2 <- tempfile(paste0("AzureDSVM_experiment_02_"))
+file.create(tmpf2)
+writeLines(codes, tmpf2)
+
+t4 <- Sys.time()
 
 executeScript(context,
               resourceGroup=RG,
@@ -206,13 +229,18 @@ executeScript(context,
               slaves=VM_URL[-1],
               computeContext="clusterParallel")
 
+t5 <- Sys.time()
+
+performance3 <- t5 - t4
+
+performance3
 ```
 
 Clean up.
 
 ```{r}
 
-file.remove("./experiment1.R", "./experiment2.R")
+file.remove(tmpf1, tmpf2)
 
 # Delete the resource group now that we have proved existence. There
 # is probably no need to wait. Only delete if it did not pre-exist
