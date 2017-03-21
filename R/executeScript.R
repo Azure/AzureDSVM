@@ -115,10 +115,18 @@ executeScript <- function(context,
 
   option <- "-q -o StrictHostKeyChecking=no"
   remote_script <- paste0("script_", paste0(sample(letters, 5), collapse=""), ".R")
+  
+  # to avoid issues with drive letter in Windows system.
+  
+  script_name <- basename(new_interface$script)
+  script_path <- sub(x=new_interface$script, pattern=script_name, replacement="")
+  curr_wd <- getwd()
+  setwd(script_path)
 
   exe <- system(sprintf("scp %s %s %s@%s:~/%s",
                         option,
-                        new_interface$script,
+                        # new_interface$script,
+                        file.path(".", script_name),
                         new_interface$user,
                         new_interface$remote,
                         remote_script),
@@ -130,6 +138,8 @@ executeScript <- function(context,
   } else {
     writeLines("Something must be wrong....... See warning message.")
   }
+  
+  setwd(curr_wd)
 
   # Execute the script.
 
