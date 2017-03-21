@@ -40,10 +40,10 @@ include git.mk
 .PHONY: vdeploy vcluster
 
 vdeploy: vignettes
-	(cd vignettes; Rscript DeployDSVM.R)
+	(cd vignettes; Rscript 10Deploy.R)
 
-vcluster: vignettes
-	(cd vignettes; Rscript ClusterDSVM.R)
+vkmeans: vignettes
+	(cd vignettes; Rscript 20Kmeans.R)
 
 .PHONY: resources deploy delete ping
 
