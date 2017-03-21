@@ -42,7 +42,9 @@ The basic information for getting data consumption include
 
 Following are the information needed to obtain data consumption of a DSVM named "dsvm". Let's assume the DSVM is one that has been deployed from the previous sections, and it has run for a while.
 
-```{r}
+```{r, eval=FALSE}
+# not-run
+
 VM     <- "dsvm_name"
 START  <- "starting_time_point" # in the format of YYYY-MM-DD HH:MM:SS.
 END    <- "ending_time_point"   # in the format of YYYY-MM-DD HH:MM:SS
@@ -52,11 +54,12 @@ GRA    <- "Daily"
 Get data consumption of the DSVM.
 
 ```{r}
-
 # authentication with Azure account.
 
 context <- createAzureContext(tenantID=TID, clientID=CID, authKey=KEY)
+```
 
+```{r}
 # get data consumption of instance.
 
 data_consum <- dataConsumption(context,
@@ -77,13 +80,18 @@ Basic information for expense calculation include
 * Region where the instance located. e.g., "SG". 
 * Offer ID. Can be checked [here](https://azure.microsoft.com/en-us/support/legal/offer-details/).
 
-```{r}
+```{r, eval=FALSE}
+# not-run
 
 CURR   <- "your_currency"
 LOCALE <- "locale_of_the_azure_subscription"
 REG    <- "region_of_the_azure_subscription"
 OFFER  <- "a_valid_offer_id"
+```
 
+Again assuming the information is pre-stored into the "credential" script.
+
+```{r}
 consum <- expenseCalculator(context,
                             instance=VM,
                             timeStart=START,
