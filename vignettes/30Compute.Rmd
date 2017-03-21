@@ -106,7 +106,9 @@ if (! rg_pre_exists)
 # Deploy the VM Cluster
 
 ```{r deploy a cluster of DSVMs}
-# Deploy a cluster of DSVMs.
+# Deploy a cluster of 3 DSVMs.
+
+COUNT <- 3
 
 cluster <- deployDSVMCluster(context, 
                              resource.group=RG, 
@@ -221,12 +223,12 @@ t4 <- Sys.time()
 
 executeScript(context,
               resourceGroup=RG,
-              machines=LDSVM,
-              remote=VM_URL[1],
-              user="zzzuser",
-              script="./experiment2.R",
-              master=VM_URL[1],
-              slaves=VM_URL[-1],
+              machines=cluster$hostname,
+              remote=cluster$fqdn,
+              user=cluster$username,
+              script=tmpf2,
+              master=cluster$fqdn[1],
+              slaves=cluster$fqdn[-1],
               computeContext="clusterParallel")
 
 t5 <- Sys.time()
