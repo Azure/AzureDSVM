@@ -51,8 +51,8 @@ Let's use the DSVM deployed in the previous tutorial chapters for this experimen
 * Offer ID. Can be checked [here](https://azure.microsoft.com/en-us/support/legal/offer-details/).
 
 ```{r}
-VM     <- "tsmcwin"
-START  <- "2017-01-01 00:00:00"
+VM     <- "msvm001"
+START  <- "2017-01-06 00:00:00"
 END    <- "2017-01-10 00:00:00"
 GRA    <- "Daily"
 
@@ -64,6 +64,13 @@ OFFER  <- "MS-AZR-0015P"
 
 Get data consumption of the virtual machine.
 ```{r}
+
+# authentication with Azure account.
+
+context <- createAzureContext(tenantID=TID, clientID=CID, authKey=KEY)
+
+# get data consumption of instance.
+
 data_consum <- dataConsumption(context,
                                instance=VM,
                                timeStart=START,
