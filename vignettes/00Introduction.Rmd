@@ -1,0 +1,66 @@
+---
+title: "AzureDSVM Introduction"
+author: "ADS Asia Pacific, Microsoft"
+date: "`r Sys.Date()`"
+# output: rmarkdown::html_vignette
+output: github_document
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## General Introduction
+
+`AzureDSVM` offers functions that can be conveniently used by R data scientists for operating and using Azure Data Science Virtual Machine (DSVM) elastically and economically, within local R session. The package is useful to programmtically manage DSVMs for a solo or collaborative data science projects so that R-user data scientists do not have to bother interactiving with GUI portal or learning unfamiliar scripting languages for meeting the same desire. 
+
+## Features
+
+* Elasiticity
+
+    1. Deployment of a DSVM with customized information such as machine name, machine size, operating system, authentication method, etc.
+    2. Enjoy all benefits of a Windows/Linux DSVM. E.g., all tools for data science work such as R/Python/Julia programming languages, SQL Server, Visual Studio with RTVS, etc., remote working environment via RStudio Server or Jupyter Notebook interface, and machine learning & artificial intelligence packages such as Microsoft CNTK, MXNet, and XGBoost.
+    3. Execution of R analytics on DSVM(s) with Microsoft R Server parallel computing context.
+
+* Scalability 
+
+    1. Deployment of a collection of heterogeneous DSVMs.
+    2. Scale up DSVM and form them into a cluster.
+    
+* Usability
+
+    1. Deploy, start, stop, and delete DSVM(s) on demand.
+    2. Monitor data consumption and estimate expense of using DSVM(s).
+
+## Preliminaries
+
+1. `AzureDSVM` requires users to have access to Azure resources, so an Azure subscription is needed. Creation of an Azure account can be found [here](https://azure.microsoft.com/en-us/free/?b=17.09b).  
+
+2. `AzureDSVM` is built in R (>= 3.3.1), with dependencies on packages of `AzureSMR `(>= 0.2.2), `stringr` (>= 1.1.0), `stringi` (>= 1.1.2), `magrittr` (>= 1.5), `dplyr` (>= 0.5.0).
+
+3. Before using the functions in `AzureDSVM`, one needs to obtain authentication confidentials for managing Azure resources. Steps of achieving this are given [here](https://github.com/Microsoft/AzureSMR/blob/master/vignettes/Authentication.Rmd).  
+
+## How-to
+
+### Installation
+
+`AzureDSVM` is available on [Gihub repository](https://github.com/Azure/AzureDSVM). To install, 
+
+    > if(!require("devtools")) install.packages("devtools")
+    > devtools::install_github("Azure/AzureDSVM")
+
+Help pages can be loaded by
+
+    > library(help=AzureDSVM)
+
+### Tutorials
+
+Tutorials on how to use `AzureDSVM` package are provided in `/vignettes`.
+
+* [Get started]
+* [Deployment of a single DSVM](https://github.com/Azure/AzureDSVM/blob/master/vignettes/10Deploy.Rmd)
+* [Deployment of multiple DSVMs](https://github.com/Azure/AzureDSVM/blob/master/vignettes/20Multi.Rmd)
+* [Do computation on a single DSVM or a cluster of DSVMs](https://github.com/Azure/AzureDSVM/blob/master/vignettes/30Compute.Rmd)
+* [Monitor data consumption and expense spent on using DSVM(s)](https://github.com/Azure/AzureDSVM/blob/master/vignettes/40Cost.Rmd)
+* [Putting all together - use case of kmeans clustering](https://github.com/Azure/AzureDSVM/blob/master/vignettes/60Kmeans.Rmd)
+* [Putting all together - use case of binary classification](https://github.com/Azure/AzureDSVM/blob/master/vignettes/80ModelSelect.Rmd)
