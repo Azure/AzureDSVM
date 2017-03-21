@@ -23,24 +23,17 @@ library(ggplot2)
 
 # Azure resource invokation
 
-Initial set up for resource management.
+Initial set up for resource management. The required information can
+be provided in a separate file for each user, named with their user
+name and the "_credentials.R". That file would contain something like
+the following lines of R code.
 
-<<<<<<< HEAD
 ```{r credentials, eval=FALSE}
-# Credentials come from app creation in Active Directory within Azure.
- 
 TID <- "72f9....db47"          # Tenant ID
 CID <- "9c52....074a"          # Client ID
 KEY <- "9Efb....4nwV....ASa8=" # User key
-=======
-TODO: UPDATE TO MORE GENERIC CODE AS IN DeployeDSVM.Rmd
 
-```{r}
->>>>>>> f37f89e44614e3096ab5391d031efe3d37e1fe36
-
-PUBKEY   <- readLines("~/.ssh/id_rsa.pub") # For Linux DSVM
-PASSWORD <- "AmSj&%4aR3@kn"                # For Windows DSVM
-
+PUBKEY   <- readLines("~/.ssh/id_rsa.pub") # For ssh public key.
 ```
 
 ```{r setup}
@@ -49,16 +42,25 @@ PASSWORD <- "AmSj&%4aR3@kn"                # For Windows DSVM
 
 USER <- Sys.info()[['user']]
 
-<<<<<<< HEAD
 source(paste0(USER, "_credentials.R"))
 ```
 
+We specify the number of VMs to deploy, choosing just a small number
+for demonstration purposes.
+
+Also identify the VM size. Notice our default choice of the size of
+the VMs is chosen as a compromise between price and performance. Users
+can choose based on their own requirements.
+
+A random name is also generated for the VMs and the resource group that
+will house the VMs.
+
 ```{r}
-BASE <- 
-=======
 COUNT <- 4  # Number of VMs to deploy.
+
+SIZE <- "Standard_DS2_v2"
+
 BASE  <- 
->>>>>>> f37f89e44614e3096ab5391d031efe3d37e1fe36
   runif(4, 1, 26) %>%
   round() %>%
   letters[.] %>%
@@ -85,7 +87,8 @@ HOST <-
 cat("\n")
 ```
 
-Deploy a cluster of DSVMs if there is no existing, otherwise start the machines.
+Deploy a cluster of DSVMs if there is no existing, otherwise start the
+machines. 
 
 ```{r}
 
@@ -119,7 +122,8 @@ if (! rg_pre_exists)
 
 vm <- AzureSMR::azureListVM(context, RG)
 
-if (!is.null(vm)) {
+if (!is.null(vm))
+{
   
   AzureDSR::operateDSVM(context, RG, vm$name, operation="Check")
   
@@ -127,22 +131,25 @@ if (!is.null(vm)) {
   
   AzureDSR::operateDSVM(context, RG, vm$name, operation="Start")
   
-} else {
+} else
+{
   
-  # Create a Cluster
+  # Create a cluster of Linux Data Science Virtual Machines.
   
   cluster <- deployDSVMCluster(context, 
                                resource.group=RG, 
-                               size="Standard_D1_v2",
+                               size=SIZE,
                                location=LOC, 
                                hostnames=BASE,
                                usernames=USER, 
                                pubkeys=PUBKEY,
                                count=COUNT)
+
+  # Confirm that each VM exists.
   
   for (i in 1:COUNT)
   {
-    vm <- cluster[i, "name"]
+    vm <- cluster[i, "hostname"]
     fqdn <- cluster[i, "fqdn"]
     
     cat(vm, "\n")
@@ -163,89 +170,32 @@ if (!is.null(vm)) {
     system(cmd)
     cat("\n")
   }
-  
 }
 ```
 
-The demo analytics show how to parallelize clustering analysis by
-using kmeans algorithm for clustering unlabelled data. The data is
-credit transaction that can be obtained from
-[kaggle website](https://www.kaggle.com/dalpozz/creditcardfraud). The
-original data are labelled so in the clustering analysis the label is
+The demo analytics demonstrates a parallel cluster analysis using the
+kmeans algorithm for clustering unlabelled data. The data consists of
+credit transactions as available from
+[kaggle website](https://www.kaggle.com/dalpozz/creditcardfraud) or
+directly from
+[togaware]{https://access.togaware.com/creditcard.csv}. The original
+data are labelled and so in our clustering analysis the label is
 removed.
 
-Codes for the clustering analysis is shown as below. The analysis
-basically normalize the credit transaction data, and then perform 10
-repeated clustering analysis (with 2 clusters) by using k-means
-algorithm. The repetition is parallelized with the specified computing
-context which is available in `RevoScaleR` package. Note the computing
-context information will be automatically added by `executeScript`
-function given a specified computing context.
+The R code for clustering is available from github as
+[worker_cluster.R]{...test/worker_cluster.R}. The analysis basically
+normalises the credit transaction data and then performs 10 repeated
+clustering analyses (targeting 2 clusters) for each using the k-means
+algorithm. The repetition is completed in parallel with the specified
+computing context which is available in `RevoScaleR` package. Note the
+computing context information will be automatically added by the
+`executeScript` function given a specified computing context.
 
-TODO: BREAK OUT INTO A SEPARATE SCRIPT IN THE test FOLDER ON GITHUB.
+TODO DOWNLOAD SCRIPT TO EACH VM
 
-```{r eval=FALSE}
-# This is to run parallel work across nodes for clustering analysis.
-
-# get data from remote blob.
-
-DATA_URL <- "https://zhledata.blob.core.windows.net/mldata/credit.xdf"
-
-download.file(DATA_URL,
-              destfile="./data.xdf",
-              mode="wb")
-
-# download data to all nodes if it is cluster parallel.
-
-if (rxGetComputeContext()@description == "dopar") {
-  clusterCall(cl,
-              download.file,
-              url=DATA_URL,
-              destfile="./data.xdf",
-              mode="wb")
-}
-
-# make a function to do clustering of given data set.
-
-clusterAnalysis <- function(data, numClusters) {
-  
-  xdf <- RxXdfData(data)
-  
-  # create formula.
-  
-  names <- rxGetVarNames(data=xdf)
-  names <- names[!(names %in% c("Class", "Time"))] # the original data set is labelled so remove the label.
-  formula <- as.formula(paste0("~", paste(names, collapse="+")))
-  
-  # to scale data.
-  
-  df <- rxImport(xdf, 
-                 varsToDrop=c("Time", "Class"))
-  df <- as.data.frame(scale(df))
-
-  clusters <- rxKmeans(formula, 
-                       df, 
-                       numClusters=numClusters)
-  
-  clusters$cluster
-}
-
-# do kmeans clustering with rxExec parallelization.
-
-results <- rxExec(FUN=clusterAnalysis,
-                  data="data.xdf",
-                  numClusters=rxElemArg(c(2:5)))
-
-save(results, file="./results.RData")
-```
-
-<<<<<<< HEAD
-The script can then be saved and later on path to the script is used as reference. For example, in this demo, the script is saved with name "worker_cluster.R" which is located in the "/test" directory.
-=======
 The script can then be saved and later on path to the script is used
 as reference. For example, in this demo, the script is saved with name
-"worker_cluster.R"
->>>>>>> f37f89e44614e3096ab5391d031efe3d37e1fe36
+"worker_cluster.R" which is located in the "/test" directory.
 
 The following code is to run the clustering analysis on a specified
 computing environment. This is achieved by setting computing
