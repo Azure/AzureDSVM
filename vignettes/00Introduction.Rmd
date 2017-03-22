@@ -22,12 +22,12 @@ The R package of `AzureDSVM` aims at offering functions that can be conveniently
 
     1. Deployment of a DSVM with customized information such as machine name, machine size, operating system, authentication method, etc.
     2. Enjoy all benefits of a Windows/Linux DSVM. E.g., all tools for data science work such as R/Python/Julia programming languages, SQL Server, Visual Studio with RTVS, etc., remote working environment via RStudio Server or Jupyter Notebook interface, and machine learning & artificial intelligence packages such as Microsoft CNTK, MXNet, and XGBoost.
-    3. Execution of R analytics on DSVM(s) with Microsoft R Server parallel computing context.
+    3. Execution of R analytics on DSVM(s) with Microsoft R Server computing context.
 
 * Scalability 
 
-    1. Deployment of a collection of heterogeneous DSVMs.
-    2. Scale up DSVM and form them into a cluster.
+    1. Deployment of a collection of heterogeneous DSVMs, which can be used by a group of data scientists.
+    2. Scale up DSVM and form them into a cluster for parallel computation (powered by Microsoft R Server backend). 
     
 * Usability
 
