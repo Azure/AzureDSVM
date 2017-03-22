@@ -2,7 +2,7 @@
 
 The AzureDSVM (Azure Data Science Virtual Machine) is an R Package for Data Scientists
 working with the Azure compute platform as a complement to the
-underlying AzureSMR for controlling Azure Data Science Virtual Machines.
+underlying AzureSMR for controlling [Azure Data Science Virtual Machines](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-provision-vm).
 
 To install the package from github:
 
