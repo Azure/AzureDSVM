@@ -11,7 +11,7 @@ R_FILES   := $(wildcard R/*.R)
 SRC_FILES := $(wildcard src/*) $(addprefix src/, $(COPY_SRC))
 PKG_FILES := DESCRIPTION NAMESPACE $(R_FILES) $(SRC_FILES)
 
-.PHONY: list doc vignettes tarball check install build clean realclean
+.PHONY: info doc vignettes tarball check install build clean realclean
 
 %.R: %.Rmd
 	${RSCRIPT} ${RSCRIPT_OPTS} -e 'library(knitr);purl("$<", out="$@")'	
@@ -23,7 +23,7 @@ PKG_FILES := DESCRIPTION NAMESPACE $(R_FILES) $(SRC_FILES)
 $(PKG_NAME)_$(PKG_VERSION).tar.gz: $(PKG_FILES)
 	R CMD build .
 
-list:
+info:
 	@echo -e "PKG_NAME:    $(PKG_NAME)"
 	@echo -e "PKG_VERSION: $(PKG_VERSION)"
 	@echo -e "R_FILES:     $(R_FILES)"
