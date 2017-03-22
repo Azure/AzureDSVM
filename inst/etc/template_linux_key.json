@@ -214,6 +214,19 @@
                             "priority": 1040,
                             "direction": "Inbound"
                         }
+                    },
+                    {
+                        "name": "allowROp",
+                        "properties": {
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "12800",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 1050,
+                            "direction": "Inbound"
+                        }
                     }
                 ]
             },
