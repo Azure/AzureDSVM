@@ -47,8 +47,8 @@ vkmeans: vignettes
 
 .PHONY: resources deploy delete ping
 
-resources:
-	(cd test; Rscript resources.R)
+list:
+	(cd test; Rscript listRG.R)
 
 deploy: 
 	(cd test; Rscript deployDSVM.R)
