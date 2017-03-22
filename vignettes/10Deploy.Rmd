@@ -1,28 +1,33 @@
 ---
 title = "Using Azure Data Science Virtual Machine: Deployment of a single DSVM"
-author= "Graham Williams"
+author= "Graham Williams and Le Zhang"
 ---
 
 # Use Case
 
-In this tutorial, both a Linux and a Windows Data Science Virtual Machine (DSVM) are deployed. 
-Code is included but
-not run to then delete the resource group if the resources are no
-longer required. Once deleted consumption will cease.
+In this tutorial, a Linux is deployed and sample code to deploy a
+Windows Data Science Virtual Machine (DSVM) is provided.  Code is
+included but not run to then delete the resource group if the resource
+group was created within this vignette. Once deleted consumption
+(cost) will cease.
 
 This script is best run interactively to review its operation and to
-ensure that the interaction with Azure completes. As a standalone
-script it can be run to setup a new resource group and single Linux
-DSVM.
+ensure that the interaction with Azure completes.
+
+As a standalone script we can run this script to setup a new resource
+group and single Linux DSVM.
 
 # Preparation
 
 We assume the user already has an Azure subscription and we have
-obtained the credentials required. See instructions in the [previous vignette](https://github.com/Azure/AzureDSVM/blob/master/vignettes/00Introduction.Rmd) 
+obtained the credentials required. See the
+[Introduction](https://github.com/Azure/AzureDSVM/blob/master/vignettes/00Introduction.Rmd)
 for details. We will then ensure a resource group exists and within
-that resource group create DSVMs. A public ssh key is used to
-access the server in this script although a username and password is
-also an option. We create a Linux DSVM and a Windows DSVM.
+that resource group deploy a Linux DSVM. A secure shell (ssh) public
+key matching the current user's private key is used to access the
+server in this script although a username and password is also an
+option. We deploy a Linux DSVM and include sample code to deploy a
+Windows DSVM.
 
 # Setup
 
@@ -31,7 +36,9 @@ user's ssh public key. Public keys on Linux are typically created on
 the users desktop/laptop machine and will be found within
 ~/.ssh/id_rsa.pub. It will be convenient to create a credentials file
 to contain this information. The content's of the credentials file
-will be something like:
+will be something like the foloowing and we assume the user creates
+such a file in the current working directory, naming the file
+<USER>_credentials.R, replace <USER> with the user's username.
 
 ```{r credentials, eval=FALSE}
 # Credentials come from app creation in Active Directory within Azure.
@@ -45,9 +52,7 @@ PASSWORD <- "Public%4aR3@kn"               # For Windows DSVM
 
 ```
 
-Save such information into a file with the name <USER>_credentials.R
-where <USER> is replaced with your username. Then we simply source
-that file in R.
+We can simply source that file in R.
 
 ```{r setup}
 # Load the required subscription resources: TID, CID, and KEY.
@@ -58,12 +63,18 @@ USER <- Sys.info()[['user']]
 source(paste0(USER, "_credentials.R"))
 ```
 
+If the required pacakges are not yet installed the following will do
+so. You may need to install them into your own local library rather
+than the system library if you are not a system user.
+
 ```{r, eval=FALSE}
 # Install the packages if required.
 
 devtools::install_github("Microsoft/AzureSMR")
-devtools::install_github("Azure/AzureDSVM", auth_token=GIT_TOKEN) # auth_token is only required when repo is private.
+devtools::install_github("Azure/AzureDSVM", auth_token=GIT_TOKEN)
 ```
+
+We can then load the required pacakges from the libraries.
 
 ```{r packages}
 # Load the required packages.
@@ -83,29 +94,31 @@ library(dplyr)
 # Create a random resource group to reduce likelihood of conflict with
 # other users.
 
-BASE <- 
-  runif(4, 1, 26) %>%
+runif(4, 1, 26) %>%
   round() %>%
   letters[.] %>%
   paste(collapse="") %T>%
-  {sprintf("Base name:\t\t%s", .) %>% cat("\n")}
+  {sprintf("Base name:\t\t%s", .) %>% cat("\n")} ->
+BASE
 
-RG <-
-  paste0("my_dsvm_", BASE,"_rg_sea") %T>%
-  {sprintf("Resource group:\t\t%s", .) %>% cat("\n")}
+BASE %>%
+  paste0("my_dsvm_", .,"_rg_sea") %T>%
+  {sprintf("Resource group:\t\t%s", .) %>% cat("\n")} ->
+RG
 
 # Choose a data centre location.
 
-LOC <-
-  "southeastasia"  %T>%
-  {sprintf("Data centre location:\t%s", .) %>% cat("\n")}
+"southeastasia"  %T>%
+  {sprintf("Data centre location:\t%s", .) %>% cat("\n")} ->
+LOC
 
 # Include the random BASE in the hostname to reducely likelihood of
 # conflict.
 
-HOST <-
-  paste0("my", BASE) %T>%
-  {sprintf("Hostname:\t\t%s", .) %>% cat("\n")}
+BASE %>%
+  paste0("my", .) %T>%
+  {sprintf("Hostname:\t\t%s", .) %>% cat("\n")} ->
+HOST
 
 cat("\n")
 ```
@@ -121,6 +134,7 @@ context <- createAzureContext(tenantID=TID, clientID=CID, authKey=KEY)
 
 rg_pre_exists <- existsRG(context, RG, LOC)
 ```
+
 # Create a Resource Group
 
 Create the resource group within which all resources we create will be
@@ -150,10 +164,24 @@ cat("Resource group", RG, "at", LOC,
 Create the actual Linux DSVM with public-key based authentication
 method. Name, username, and size can also be configured.
 
-Note one can check available VM sizes within the region by using `getVMSizes()`. Different sizes will cost differently, and the detailed information can be checked on [Azure website](https://docs.microsoft.com/en-us/azure/virtual-machines/virtual-machines-windows-sizes). The default VM size for deployment is "Standard_DS2_v2", which is featured by enhanced computation performance.
+Note one can check available VM sizes within the region by using
+`getVMSizes()`. Different sizes will cost differently, and the
+detailed information can be checked on
+[Azure website](https://docs.microsoft.com/en-us/azure/virtual-machines/virtual-machines-windows-sizes). The
+default VM size for deployment is chosen for by enhanced computation
+performance. See the documentation for deployDSVM() for the actual
+default.
 
 ```{r}
-getVMSizes(context, "southeastasia")
+getVMSizes(context, "southeastasia") %>%
+  rename(Name=name,
+         Cores=numberOfCores,
+         Disk=resourceDiskSizeInMB,
+         RAM=memoryInMB,
+         Disks=maxDataDiskCount) %>%
+  select(Name, Cores, Disk, RAM, Disks) %>%
+  mutate(Disk=scales::comma(Disk/1024),
+         RAM=scales::comma(round(RAM/1024)))
 ```
 
 The following code deploys a Linux DSVM, and it will take approximately 4 minutes.
@@ -194,7 +222,10 @@ system(cmd, intern=TRUE)
 # Deploy a Windows Data Science Virtual Machine
 
 `deployDSVM` also supports deployment of Windows DSVM, which can be
-achieved by setting the argument of `os` to "Windows". The deployment will take approximately 10 minutes. One can use Remote Desktop to verify the success of deployment and use the virtual machine in a remote desktop environment.
+achieved by setting the argument of `os` to "Windows". The deployment
+will take approximately 10 minutes. One can use Remote Desktop to
+verify the success of deployment and use the virtual machine in a
+remote desktop environment.
 
 ```{r, eval=FALSE}
 wdsvm <- deployDSVM(context,
@@ -218,7 +249,7 @@ operateDSVM(context, RG, HOST, operation="Stop")
 
 # Optional Cleanup
 
-```{r optionally delete resource group}
+```{r optionally_delete_resource_group, eval=FALSE}
 # Delete the resource group now that we have proved existence. There
 # is probably no need to wait. Only delete if it did not pre-exist
 # this script. Deletion seems to take 10 minutes or more.

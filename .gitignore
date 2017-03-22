@@ -27,5 +27,3 @@ inst/doc
 .Rproj.user
 *_credentials.R
 *~
-man/
-NAMESPACE
