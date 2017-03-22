@@ -24,10 +24,10 @@ $(PKG_NAME)_$(PKG_VERSION).tar.gz: $(PKG_FILES)
 	R CMD build .
 
 info:
-	@echo -e "PKG_NAME:    $(PKG_NAME)"
-	@echo -e "PKG_VERSION: $(PKG_VERSION)"
-	@echo -e "R_FILES:     $(R_FILES)"
-	@echo -e "SRC_FILES:   $(SRC_FILES)"
+	@echo -e "PKG_NAME    \t$(PKG_NAME)"
+	@echo -e "PKG_VERSION \t$(PKG_VERSION)"
+	@echo -e "R_FILES     \t"$(shell echo $(R_FILES) | sed 's| |\\\\n\\\\t\\\\t|g')
+	@echo -e "SRC_FILES   \t$(SRC_FILES)"
 
 doc:
 	R -e 'devtools::document()'
