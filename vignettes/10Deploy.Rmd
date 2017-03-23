@@ -173,15 +173,7 @@ performance. See the documentation for deployDSVM() for the actual
 default.
 
 ```{r}
-getVMSizes(context, "southeastasia") %>%
-  rename(Name=name,
-         Cores=numberOfCores,
-         Disk=resourceDiskSizeInMB,
-         RAM=memoryInMB,
-         Disks=maxDataDiskCount) %>%
-  select(Name, Cores, Disk, RAM, Disks) %>%
-  mutate(Disk=scales::comma(Disk/1024),
-         RAM=scales::comma(round(RAM/1024)))
+getVMSizes(context, "southeastasia") 
 ```
 
 The following code deploys a Linux DSVM, and it will take approximately 4 minutes.
