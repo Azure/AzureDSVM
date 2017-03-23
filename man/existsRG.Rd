@@ -8,10 +8,12 @@ existsRG(context, resource.group, location, verbose = FALSE)
 }
 \arguments{
 \item{context}{Authentication context of AzureSMR encapsulating the
-TID, CID, and key obtained from Azure Actrive Directory.}
+
+  TID, CID, and key obtained from Azure Actrive Directory.}
 
 \item{resource.group}{The Azure resource group where the DSVM is
-created.}
+
+  created.}
 
 \item{location}{Location of the data centre to host the DSVM.}
 }

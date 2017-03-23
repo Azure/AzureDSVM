@@ -12,7 +12,7 @@ getVMSizes(context, location)
 \item{location}{Location of the Azure resources.}
 }
 \value{
-A data frame that contains basic information
+A data frame that contains basic information such as number of cores, disk size, RAM size, etc.,
 about the available DSVM sizes.
 }
 \description{

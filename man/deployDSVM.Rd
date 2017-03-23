@@ -5,7 +5,7 @@
 \title{Deploy a new Data Science Virtual Machine (DSVM).}
 \usage{
 deployDSVM(context, resource.group, location, hostname, username,
-  size = "Standard_DS2_v2", os = "Linux", authen = ifelse(os == "Linux",
+  size = "Standard_D1_v2", os = "Linux", authen = ifelse(os == "Linux",
   "Key", "Password"), pubkey = "", password = "", dns.label = hostname,
   mode = "Sync")
 }
@@ -48,7 +48,7 @@ accessing the deployed DSVM will be
 \item{mode}{Mode of virtual machine deployment. Default is "Sync".}
 }
 \details{
-If the deployment fails visit the Azure portal
+Usually an error message will be returned if the deployment is unsuccessful. If the deployment fails without explicit error message returned visit the Azure portal
 https://ms.portal.azure.com and browse to the resource group and
 click on the failed deployment link to view the failure
 message. Typical errors include DnsRecordInUse or

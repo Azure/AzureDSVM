@@ -24,4 +24,7 @@ setConfig(object, machine_list, dns_list, machine_user, master, slaves, data,
 
 \item{context}{Computing context available in Microsoft R Server for running the analytics.}
 }
+\value{
+The compute interface object in which the informate needed for remote executioni is contained.
+}
 

@@ -9,7 +9,7 @@ dataConsumption(context, instance, timeStart, timeEnd, granularity = "Hourly")
 \arguments{
 \item{context}{AzureSMR context object.}
 
-\item{instance}{Instance of Azure instance name that one would like to check expense. For example, it can be the name of a virtual machine.}
+\item{instance}{Instance of Azure DSVM name that one would like to check expense.}
 
 \item{timeStart}{Start time.}
 
@@ -18,6 +18,6 @@ dataConsumption(context, instance, timeStart, timeEnd, granularity = "Hourly")
 \item{granularity}{Aggregation granularity. Can be either "Daily" or "Hourly".}
 }
 \note{
-Formats of start time point and end time point follow ISO 8601 standard. Say if one would like to calculate data consumption between Feb 21, 2017 to Feb 25, 2017, the inputs should be "2017-02-21 00:00:00" and "2017-02-25 00:00:00", for start time point and end time point, respectively. For hourly based calculation, note there should be no minute and second included.
+Formats of start time point and end time point follow ISO 8601 standard. Say if one would like to calculate data consumption between Feb 21, 2017 to Feb 25, 2017, with an aggregation granularity of "daily based", the inputs should be "2017-02-21 00:00:00" and "2017-02-25 00:00:00", for start time point and end time point, respectively. If the aggregation granularity is hourly based, the inputs can be "2017-02-21 01:00:00" and "2017-02-21 02:00:00", for start and end time point, respectively. In the case of "hourly based" granularity, if the time difference between start and end time point is less than an hour, data consumption will be calculated hourly based with end time postponed. For example, if the start time point and end time point are "2017-02-21 00:00:00" and "2017-02-21 00:45:00", the actual returned results are are data consumption in the interval of "2017-02-21 00:00:00" and "2017-02-21 01:00:00". Time zone of all time inputs are synchronized to UTC.
 }
 

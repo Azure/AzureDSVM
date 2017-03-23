@@ -6,7 +6,7 @@
 \alias{AzureDSVM-package}
 \title{AzureDSVM}
 \description{
-Support data science analytics with Azure resources.
+Support data science analytics with Azure Data Science Virtual Machine.
 }
 \keyword{package}
 

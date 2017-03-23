@@ -29,4 +29,7 @@ expenseCalculator(context, instance, timeStart, timeEnd, granularity, currency,
 \value{
 Total cost measured in the given currency of the specified Azure instance in the period.
 }
+\note{
+Note if difference between \code{timeStart} and \code{timeEnd} is less than the finest granularity, e.g., "Hourly" (we notice this is a usual case when one needs to be aware of the charges of a job that takes less than an hour), the expense will be estimated based solely on computation hour. That is, the total expense is the multiplication of computation hour and pricing rate of the DSVM instance.
+}
 

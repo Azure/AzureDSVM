@@ -9,4 +9,7 @@ updateScript(object)
 \arguments{
 \item{object}{compute interface object.}
 }
+\details{
+The update script basically updates the computing context specific information into the worker script that is going to be executed on a remote instance. It saves the work of data scientists to rewrite initial set-ups for different computing contexts.
+}
 
