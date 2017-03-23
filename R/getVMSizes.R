@@ -38,5 +38,16 @@ getVMSizes <- function(context, location)
 
   if(! status_code(r) %in% c(200, 201, 202)) AzureSMR:::stopWithAzureError(r)
 
-  jsonlite::fromJSON(rl)$value
+  df_size <- 
+    jsonlite::fromJSON(rl)$value %>%
+    rename(Name=name,
+           Cores=numberOfCores,
+           Disk=resourceDiskSizeInMB,
+           RAM=memoryInMB,
+           Disks=maxDataDiskCount) %>%
+    select(Name, Cores, Disk, RAM, Disks) %>%
+    mutate(Disk=scales::comma(Disk/1024),
+           RAM=scales::comma(round(RAM/1024)))
+  
+  df_size
 }
