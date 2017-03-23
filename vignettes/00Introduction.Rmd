@@ -1,13 +1,8 @@
 ---
-title: "Using Azure Data Science Virtual Machine: Introduction"
-author: "ADS Asia Pacific, Microsoft"
-date: "`r Sys.Date()`"
-# output: rmarkdown::html_vignette
-output: github_document
-vignette: >
-  %\VignetteIndexEntry{Vignette Title}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+title: 'Using Azure Data Science Virtual Machine: Introduction'
+author: "Le Zhang and Graham Williams"
+date: '`r Sys.Date()`'
+output: pdf_document
 ---
 
 ## General Introduction
