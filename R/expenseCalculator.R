@@ -1,10 +1,17 @@
 #' @title Get data consumption of an Azure subscription for a time period. Aggregation method can be either daily based or hourly based.
-#' @note Formats of start time point and end time point follow ISO 8601 standard. Say if one would like to calculate data consumption between Feb 21, 2017 to Feb 25, 2017, the inputs should be "2017-02-21 00:00:00" and "2017-02-25 00:00:00", for start time point and end time point, respectively. Note if the aggregation granularity is hourly based, and the time difference between starting and ending point is less than an hour, data consumption will be that in the past one hour.
+#' 
+#' @note Formats of start time point and end time point follow ISO 8601 standard. Say if one would like to calculate data consumption between Feb 21, 2017 to Feb 25, 2017, with an aggregation granularity of "daily based", the inputs should be "2017-02-21 00:00:00" and "2017-02-25 00:00:00", for start time point and end time point, respectively. If the aggregation granularity is hourly based, the inputs can be "2017-02-21 01:00:00" and "2017-02-21 02:00:00", for start and end time point, respectively. In the case of "hourly based" granularity, if the time difference between start and end time point is less than an hour, data consumption will be calculated hourly based with end time postponed. For example, if the start time point and end time point are "2017-02-21 00:00:00" and "2017-02-21 00:45:00", the actual returned results are are data consumption in the interval of "2017-02-21 00:00:00" and "2017-02-21 01:00:00". Time zone of all time inputs are synchronized to UTC.
+#' 
 #' @param context AzureSMR context object.
+#' 
 #' @param instance Instance of Azure DSVM name that one would like to check expense. 
+#' 
 #' @param timeStart Start time.
+#' 
 #' @param timeEnd End time.
+#' 
 #' @param granularity Aggregation granularity. Can be either "Daily" or "Hourly".
+#' 
 #' @export
 dataConsumption <- function(context,
                             instance,
@@ -186,11 +193,17 @@ dataConsumption <- function(context,
 }
 
 #' @title Get pricing details of resources under a subscription.
+#' 
 #' @param context - Azure Context Object.
+#' 
 #' @param currency Currency in which price rating is measured.
+#' 
 #' @param locale Locality information of subscription.
+#' 
 #' @param offerId Offer ID of the subscription. Detailed information can be found at https://azure.microsoft.com/en-us/support/legal/offer-details/
+#' 
 #' @param region region information about the subscription.
+#' 
 #' @export
 pricingRates <- function(context,
                          currency,
@@ -247,16 +260,29 @@ pricingRates <- function(context,
 }
 
 #' @title Calculate cost of using a specific instance of Azure for certain period.
+#' 
 #' @param context AzureSMR context.
+#' 
 #' @param instance Instance of Azure instance that one would like to check expense. No matter whether resource group is given or not, if a instance of instance is given, data consumption of that instance is returned.
+#' 
 #' @param timeStart Start time.
+#' 
 #' @param timeEnd End time.
+#' 
 #' @param granularity Aggregation granularity. Can be either "Daily" or "Hourly".
+#' 
 #' @param currency Currency in which price rating is measured.
+#' 
 #' @param locale Locality information of subscription.
+#' 
 #' @param offerId Offer ID of the subscription. Detailed information can be found at https://azure.microsoft.com/en-us/support/legal/offer-details/
+#' 
 #' @param region region information about the subscription.
+#' 
 #' @return Total cost measured in the given currency of the specified Azure instance in the period.
+#' 
+#' @note Note if difference between \code{timeStart} and \code{timeEnd} is less than the finest granularity, e.g., "Hourly" (we notice this is a usual case when one needs to be aware of the charges of a job that takes less than an hour), the expense will be estimated based solely on computation hour. That is, the total expense is the multiplication of computation hour and pricing rate of the DSVM instance.
+#' 
 #' @export
 expenseCalculator <- function(context,
                               instance,

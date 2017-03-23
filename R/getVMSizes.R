@@ -4,7 +4,7 @@
 #' 
 #' @param location Location of the Azure resources.
 #' 
-#' @return A data frame that contains basic information
+#' @return A data frame that contains basic information such as number of cores, disk size, RAM size, etc.,
 #' about the available DSVM sizes.
 #' 
 #' @export
@@ -48,6 +48,12 @@ getVMSizes <- function(context, location)
     select(Name, Cores, Disk, RAM, Disks) %>%
     mutate(Disk=scales::comma(Disk/1024),
            RAM=scales::comma(round(RAM/1024)))
+  
+  names(df_size) <- c("VM Size",
+                      "Number of cores",
+                      "Disk size (GB)",
+                      "RAM size (GB)",
+                      "Max number of disks")
   
   df_size
 }

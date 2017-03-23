@@ -23,15 +23,17 @@
 #'
 #' @param computeContext Computation context of Microsoft R Server
 #'   under which the mechanisms of parallelization (e.g., local
-#'   parallel, cluster based parallel, or Spark) is
-#'   specified. Accepted computing context include "localParallel",
-#'   "clusterParallel", "Hadoop", and "Spark".
+#'   parallel, cluster based parallel, etc.) is
+#'   specified. Accepted computing context include "localSequential", "localParallel", and
+#'   "clusterParallel".
 #'
 #' @return Status of scription execution.
 #'
 #' @details
 #'
-#' For a localParallel compute context,
+#' For a "localSequential" compute context, there is no parallelism and the analytics run in a sequential manner. In the "localParallel" compute context, the analytics will be run across available cores of a computing node. The number of available cores can be checked with Microsoft RevoScaleR function \code{rxGetOption}. The "clusterParallel" compute context enables parallel computation across coputing nodes of a cluster.
+#' 
+#' @references Details about distributed computing with Microsoft RevoScaleR package can be found at https://msdn.microsoft.com/en-us/microsoft-r/scaler-distributed-computing.
 #'
 #' @export
 

@@ -39,7 +39,7 @@
 #'
 #' @details
 #'
-#' If the deployment fails visit the Azure portal
+#' Usually an error message will be returned if the deployment is unsuccessful. If the deployment fails without explicit error message returned visit the Azure portal
 #' https://ms.portal.azure.com and browse to the resource group and
 #' click on the failed deployment link to view the failure
 #' message. Typical errors include DnsRecordInUse or
