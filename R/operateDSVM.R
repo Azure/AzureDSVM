@@ -41,21 +41,23 @@ operateDSVM <- function(context,
     if (operation == "Check") {
       print(status)
     } else if (operation == "Start") {
-      if(status == "Provisioning succeeded, VM running")
-        return("The DSVM has already been started.")
-
-      AzureSMR::azureStartVM(azureActiveContext=context,
-                             resourceGroup=resource.group,
-                             vmName=name,
-                             verbose=FALSE)
+      if(status == "Provisioning succeeded, VM running") {
+        message("The DSVM has already been started.")
+      } else {
+        AzureSMR::azureStartVM(azureActiveContext=context,
+                               resourceGroup=resource.group,
+                               vmName=name,
+                               verbose=FALSE)
+      }
     } else if (operation == "Stop") {
-      if(status == "Provisioning succeeded, VM deallocated")
-        return("The DSVM has already been stopped.")
-
-      AzureSMR::azureStopVM(azureActiveContext=context,
-                            resourceGroup=resource.group,
-                            vmName=name,
-                            verbose=FALSE)
+      if(status == "Provisioning succeeded, VM deallocated") {
+        message("The DSVM has already been stopped.")
+      } else {
+        AzureSMR::azureStopVM(azureActiveContext=context,
+                              resourceGroup=resource.group,
+                              vmName=name,
+                              verbose=FALSE)
+      }
     } else {
       AzureSMR::azureDeleteVM(azureActiveContext=context,
                               resourceGroup=resource.group,
