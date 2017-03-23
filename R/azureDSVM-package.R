@@ -1,6 +1,6 @@
 #' AzureDSVM
 #'
-#' Support data science analytics with Azure resources.
+#' Support data science analytics with Azure Data Science Virtual Machine.
 #'
 #' @name AzureDSVM-package
 #' @aliases AzureDSVM

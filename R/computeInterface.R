@@ -1,9 +1,15 @@
 #' @title Create an compute interface object that handles interaction with remote instance.
+#' 
 #' @param remote URL of remote instance.
+#' 
 #' @param user User name.
+#' 
 #' @param script R script with full path for execution at remote instance.
+#' 
 #' @param config Configuration for remote execution. Settings include computing context, data reference, etc.
+#' 
 #' @return An S3 compute interface object.
+#' 
 #' @export
 createComputeInterface <- function(remote,
                                    user,
@@ -41,14 +47,25 @@ createComputeInterface <- function(remote,
 }
 
 #' @title Set configuration for the compute interface object.
+#' 
 #' @param object An S3 compute interface object.
+#' 
 #' @param machine_list List of remote instances that execute R scripts.
+#' 
 #' @param dns_list DNS of the remote instances.
+#' 
 #' @param machine_user User name of the remote instances.
+#' 
 #' @param master Master node of the machine.
+#' 
 #' @param slaves Slave nodes of the machine.
+#' 
 #' @param data Reference to data used in the analytics.
+#' 
 #' @param context Computing context available in Microsoft R Server for running the analytics.
+#' 
+#' @return The compute interface object in which the informate needed for remote executioni is contained.
+#' 
 #' @export
 setConfig <- function(object,
                       machine_list,
@@ -72,8 +89,11 @@ setConfig <- function(object,
 }
 
 #' @title Dump the interface configuration.
+#' 
 #' @param object The compute interface object.
+#' 
 #' @return No return. Print compute interface object information.
+#' 
 #' @export
 dumpInterface <- function(object) {
   cat(
@@ -101,7 +121,11 @@ dumpInterface <- function(object) {
 }
 
 #' @title Update a worker script with compute interface object configuration.
+#' 
 #' @param object compute interface object.
+#' 
+#' @details The update script basically updates the computing context specific information into the worker script that is going to be executed on a remote instance. It saves the work of data scientists to rewrite initial set-ups for different computing contexts.
+#' 
 #' @export
 updateScript <- function(object) {
   if (!file.exists(object$script) || length(object$script) == 0)
@@ -214,6 +238,24 @@ updateScript <- function(object) {
       "rxSetComputeContext(RxLocalParallel())",
       "# --------- Load data.",
       "# ciData <- ifelse(CI_DATA != '', read_csv(CI_DATA), data.frame(0))",
+      "# ---------------------------------------------------------------------------",
+      "# END OF THE HEADER ADDED BY COMPUTE INTERFACE",
+      "# ---------------------------------------------------------------------------\n",
+      sep="\n"
+    )
+  } else if (object$config$CI_CONTEXT == "localSequential") {
+    codes_head <- paste(
+      codes_head,
+      paste("CI_MACHINES <-", "c(", paste(shQuote(unlist(object$config$CI_MACHINES)), collapse=", "), ")"),
+      paste("CI_DNS <-", "c(", paste(shQuote(unlist(object$config$CI_DNS)), collapse=", "), ")"),
+      paste("CI_VMUSER <-", "c(", paste(shQuote(unlist(object$config$CI_VMUSER)), collapse=", "), ")"),
+      paste("CI_MASTER <-", "c(", paste(shQuote(unlist(object$config$CI_MASTER)), collapse=", "), ")"),
+      paste("CI_SLAVES <-", "c(", paste(shQuote(unlist(object$config$CI_SLAVES)), collapse=", "), ")"),
+      paste("CI_DATA <-", paste(shQuote(unlist(object$config$CI_DATA)), collapse=", ")),
+      paste("CI_CONTEXT <-", paste(shQuote(unlist(object$config$CI_CONTEXT)), collapse=", ")),
+      "\nlibrary(RevoScaleR)",
+      "# --------- Set compute context",
+      "rxSetComputeContext(RxLocalSeq())",
       "# ---------------------------------------------------------------------------",
       "# END OF THE HEADER ADDED BY COMPUTE INTERFACE",
       "# ---------------------------------------------------------------------------\n",
