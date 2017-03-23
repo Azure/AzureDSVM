@@ -122,7 +122,9 @@ cat("Resource group", RG, "at", LOC,
 
 Multi-deployment of DSVM can be achieved by calling `deployDSVMCluster` function. Note the function is designed to implicitly switch between cluster and collection of DSVMs, according to the given inputs. That is, if the `hostnames`, i.e., names of the DSVMs consists of only one character string, the function will imply the deployment is to create a cluster of homogeneous DSVMs (i.e., same size), and use the unique machine name as the base, which is appended with a sequential number to form a full hostname. If the `hostnames` is a vector of character strings, the function will create machines with names specified in the name vector.
 
-We can now deploy a cluster of homogeneous DSVMs. Each DSVM will be named based on
+It is worth mentioning that a cluster of DSVMs is useful when batch-based analytical job needs to be done in a desired computing context, especially in a distributed manner across nodes of the cluster. The distributed computing functionality is empowered by Microsoft RevoScaleR parallel computing backend. The distributed and parallel computing is socket-based and relies on SSH for secure communication. To allow this communication across nodes, `deployDSVMCluster` added inbound security rules into security group of each DSVM in the cluster, and establish public key pairs for the machines.
+
+In the following snippets of codes, we deploy a cluster of homogeneous DSVMs. Each DSVM will be named based on
 the *name* provided and sequentially numbered. 
 
 ```{r deploy a cluster of DSVMs}
