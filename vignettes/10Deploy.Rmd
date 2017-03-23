@@ -1,6 +1,11 @@
 ---
 title = "Using Azure Data Science Virtual Machine: Deployment of a single DSVM"
 author= "Graham Williams and Le Zhang"
+output: rmarkdown::html_vignette
+vignette: >
+ %\VignetteIndexEntry{Vignette Title}
+ %\VignetteEngine{knitr::rmarkdown}
+ \usepackage[utf8]{inputenc}
 ---
 
 # Use Case

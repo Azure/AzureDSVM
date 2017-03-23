@@ -1,6 +1,11 @@
 ---
 title = "Using Azure Data Science Virtual Machine: a use case - binary classification" 
 author= "Graham Williams"
+output: rmarkdown::html_vignette
+vignette: >
+ %\VignetteIndexEntry{Vignette Title}
+ %\VignetteEngine{knitr::rmarkdown}
+ \usepackage[utf8]{inputenc}
 ---
 
 # Use Case
