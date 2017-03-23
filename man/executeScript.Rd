@@ -44,6 +44,9 @@ Remote execution of R script in an R interface new_interface.
 \details{
 For a "localSequential" compute context, there is no parallelism and the analytics run in a sequential manner. In the "localParallel" compute context, the analytics will be run across available cores of a computing node. The number of available cores can be checked with Microsoft RevoScaleR function \code{rxGetOption}. The "clusterParallel" compute context enables parallel computation across coputing nodes of a cluster.
 }
+\note{
+Remote code/script execution by using Microsoft R Server 9.0, which brings more convenience and is portable to both Linux and Windows system, will be supported soon.
+}
 \references{
 Details about distributed computing with Microsoft RevoScaleR package can be found at https://msdn.microsoft.com/en-us/microsoft-r/scaler-distributed-computing.
 }
