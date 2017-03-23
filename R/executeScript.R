@@ -78,6 +78,8 @@ executeScript <- function(context,
   }
 
   # Switch on the machines.
+  
+  message("The machines will be started sequentially.")
 
   for (vm in machines)
   {
