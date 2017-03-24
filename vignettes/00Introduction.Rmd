@@ -9,41 +9,22 @@ vignette: >
  \usepackage[utf8]{inputenc}
 ---
 
-## General Introduction
-
-Azure Data Science Virtual Machine (DSVM) is a powerful data science development environment with pre-installed tools and packages that empower data scientists for convenient data wrangling, model building, and service deployment. 
-
-The R package of `AzureDSVM` aims at offering functions that can be conveniently used by R data scientists for operating and using Azure Data Science Virtual Machine (DSVM) elastically and economically, **within local R session**. 
-
-## Features
-
-* Elasiticity
-
-    1. Deployment of a DSVM with customized information such as machine name, machine size, operating system, authentication method, etc.
-    2. Enjoy all benefits of a Windows/Linux DSVM. E.g., all tools for data science work such as R/Python/Julia programming languages, SQL Server, Visual Studio with RTVS, etc., remote working environment via RStudio Server or Jupyter Notebook interface, and machine learning & artificial intelligence packages such as Microsoft CNTK, MXNet, and XGBoost.
-    3. Execution of R analytics on DSVM(s) with Microsoft R Server computing context.
-
-* Scalability 
-
-    1. Deployment of a collection of heterogeneous DSVMs, which can be used by a group of data scientists.
-    2. Scale up DSVM and form them into a cluster for parallel computation (powered by Microsoft R Server backend). 
-    
-* Usability
-
-    1. Deploy, start, stop, and delete DSVM(s) on demand.
-    2. Monitor data consumption and estimate expense of using DSVM(s).
-
-## Preliminaries
+# Preliminaries
 
 1. `AzureDSVM` requires users to have access to Azure resources, so an Azure subscription is needed. Creation of an Azure account can be found [here](https://azure.microsoft.com/en-us/free/?b=17.09b).  
 
-2. `AzureDSVM` is built in R (>= 3.3.1), with dependencies on packages of `AzureSMR `(>= 0.2.2), `stringr` (>= 1.1.0), `stringi` (>= 1.1.2), `magrittr` (>= 1.5), `dplyr` (>= 0.5.0).
+2. It is highly recommended to read through some DSVM documentations to start off. 
+    * [Overview of DSVM](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-virtual-machine-overview).
+    * [Ten things you can do with DSVM](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-vm-do-ten-things).
+    * [DSVM GitHub repository](https://github.com/Azure/Azure-MachineLearning-DataScience/tree/master/Misc/DataScienceProcess/DataScienceScripts/Solution%20Arch/DSVM).
 
-3. Before using the functions in `AzureDSVM`, one needs to obtain authentication confidentials for managing Azure resources. Steps of achieving this are given [here](https://github.com/Microsoft/AzureSMR/blob/master/vignettes/Authentication.Rmd).  
+3. `AzureDSVM` is built in R (>= 3.3.1), with dependencies on packages of `AzureSMR `(>= 0.2.2), `stringr` (>= 1.1.0), `stringi` (>= 1.1.2), `magrittr` (>= 1.5), `dplyr` (>= 0.5.0). `AzureSMR` can be installed from its [GitHub repository](https://github.com/Microsoft/AzureSMR). The other packages are all available on CRAN or MRAN.
 
-## How-to
+4. Before using the functions in `AzureDSVM`, one needs to obtain authentication credentials for managing Azure resources. Steps of achieving this are given [here](https://github.com/Microsoft/AzureSMR/blob/master/vignettes/Authentication.Rmd).  
 
-### Installation
+# How-to
+
+## Installation
 
 `AzureDSVM` is available on [Gihub repository](https://github.com/Azure/AzureDSVM). To install, 
 
@@ -54,7 +35,7 @@ Help pages can be loaded by
 
     > library(help=AzureDSVM)
 
-### Tutorials
+## Tutorials
 
 Tutorials on how to use `AzureDSVM` package are provided in `/vignettes`.
 
