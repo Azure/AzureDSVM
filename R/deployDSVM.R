@@ -120,7 +120,7 @@ deployDSVM <- function(context,
 
   vm_available <- getVMSizes(context, location)
 
-  if(!(size %in% unlist(select(vm_available, name))))
+  if(!(size %in% unlist(vm_available[, 1])))
     stop("Unknown size - see getVMSizes() for allowed options.")
 
   # Incorrect naming of a vm may lead to an unsuccessful deployment of
