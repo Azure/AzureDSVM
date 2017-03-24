@@ -6,17 +6,17 @@
 #' 
 #' @param instance Instance of Azure DSVM name that one would like to check expense. 
 #' 
-#' @param timeStart Start time.
+#' @param time.start Start time.
 #' 
-#' @param timeEnd End time.
+#' @param time.end End time.
 #' 
 #' @param granularity Aggregation granularity. Can be either "Daily" or "Hourly".
 #' 
 #' @export
 dataConsumption <- function(context,
                             instance,
-                            timeStart,
-                            timeEnd,
+                            time.start,
+                            time.end,
                             granularity="Hourly"
 ) {
   # renew token if it expires.
@@ -31,14 +31,14 @@ dataConsumption <- function(context,
   if(missing(instance))
     stop("Please give instance name for retrieving records of data consumption.")
 
-  if(missing(timeStart))
+  if(missing(time.start))
     stop("Please specify a starting time point in YYYY-MM-DD HH:MM:SS format.")
 
-  if(missing(timeEnd))
+  if(missing(time.end))
     stop("Please specify an ending time point in YYYY-MM-DD HH:MM:SS format.")
 
-  ds <- try(as.POSIXlt(timeStart, format= "%Y-%m-%d %H:%M:%S", tz="UTC"))
-  de <- try(as.POSIXlt(timeEnd, format= "%Y-%m-%d %H:%M:%S", tz="UTC"))
+  ds <- try(as.POSIXlt(time.start, format= "%Y-%m-%d %H:%M:%S", tz="UTC"))
+  de <- try(as.POSIXlt(time.end, format= "%Y-%m-%d %H:%M:%S", tz="UTC"))
 
   if (class(ds) == "try-error" ||
      is.na(ds) ||
@@ -46,50 +46,50 @@ dataConsumption <- function(context,
      is.na(de))
     stop("Input date format should be YYYY-MM-DD HH:MM:SS.")
 
-  timeStart <- ds
-  timeEnd <- de
+  time.start <- ds
+  time.end <- de
 
-  if (timeStart >= timeEnd)
+  if (time.start >= time.end)
     stop("End time is no later than start time!")
 
-  lubridate::minute(timeStart) <- 0
-  lubridate::second(timeStart) <- 0
-  lubridate::minute(timeEnd)   <- 0
-  lubridate::second(timeEnd)   <- 0
+  lubridate::minute(time.start) <- 0
+  lubridate::second(time.start) <- 0
+  lubridate::minute(time.end)   <- 0
+  lubridate::second(time.end)   <- 0
 
   if (granularity == "Daily") {
 
-    # timeStart and timeEnd should be some day at midnight.
+    # time.start and time.end should be some day at midnight.
 
-    lubridate::hour(timeStart) <- 0
-    lubridate::hour(timeEnd) <- 0
+    lubridate::hour(time.start) <- 0
+    lubridate::hour(time.end) <- 0
 
   }
 
-  # If the computation time is less than a hour, timeEnd will be incremented by an hour to get the total cost within an hour aggregated from timeStart. However, only the consumption on computation is considered in the returned data, and the computation consumption will then be replaced with the actual timeEnd - timeStart.
+  # If the computation time is less than a hour, time.end will be incremented by an hour to get the total cost within an hour aggregated from time.start. However, only the consumption on computation is considered in the returned data, and the computation consumption will then be replaced with the actual time.end - time.start.
 
   # NOTE: estimation of cost in this case is rough though, it captures the major component of total cost, which originates from running an Azure instance. Other than computation cost, there are also cost on activities such as data transfer, software library license, etc. This is not included in the approximation here until a solid method for capturing those consumption data is found. Data ingress does not generate cost, but data egress does. Usually the occurrence of data transfer is not that frequent as computation, and pricing rates for data transfer is also less than computation (e.g., price rate of "data transfer in" is ~ 40% of that of computation on an A3 virtual machine).
 
   # TODO: inlude other types of cost for jobs that take less than an hour.
 
-  if (as.numeric(timeEnd - timeStart) == 0) {
-    writeLines("Difference between timeStart and timeEnd is less than the aggregation granularity. Cost is estimated solely on computation running time.")
+  if (as.numeric(time.end - time.start) == 0) {
+    writeLines("Difference between time.start and time.end is less than the aggregation granularity. Cost is estimated solely on computation running time.")
 
-    # increment timeEnd by one hour.
+    # increment time.end by one hour.
 
-    timeEnd <- timeEnd + 3600
+    time.end <- time.end + 3600
   }
 
   # reformat time variables to make them compatible with API call.
 
-  START <- URLencode(paste(as.Date(timeStart), "T",
-                           sprintf("%02d", lubridate::hour(timeStart)), ":", sprintf("%02d", lubridate::minute(timeStart)), ":", sprintf("%02d", second(timeStart)), "+",
+  START <- URLencode(paste(as.Date(time.start), "T",
+                           sprintf("%02d", lubridate::hour(time.start)), ":", sprintf("%02d", lubridate::minute(time.start)), ":", sprintf("%02d", second(time.start)), "+",
                            "00:00",
                            sep=""),
                      reserved=TRUE)
 
-  END <- URLencode(paste(as.Date(timeEnd), "T",
-                           sprintf("%02d", lubridate::hour(timeEnd)), ":", sprintf("%02d", lubridate::minute(timeEnd)), ":", sprintf("%02d", second(timeEnd)), "+",
+  END <- URLencode(paste(as.Date(time.end), "T",
+                           sprintf("%02d", lubridate::hour(time.end)), ":", sprintf("%02d", lubridate::minute(time.end)), ":", sprintf("%02d", second(time.end)), "+",
                            "00:00",
                            sep=""),
                      reserved=TRUE)
@@ -147,9 +147,9 @@ dataConsumption <- function(context,
 
   # if time difference is less than one hour. Only return one row of computation consumption whose value is the time difference.
 
-  timeEnd <- timeEnd - 3600
+  time.end <- time.end - 3600
 
-  if(as.numeric(timeEnd - timeStart) == 0) {
+  if(as.numeric(time.end - time.start) == 0) {
 
     time_diff <- as.numeric(de - ds) / 3600
 
@@ -171,8 +171,8 @@ dataConsumption <- function(context,
 
     writeLines(sprintf("The data consumption for %s between %s and %s is",
                        instance,
-                       as.character(timeStart),
-                       as.character(timeEnd)))
+                       as.character(time.start),
+                       as.character(time.end)))
     return(df_use)
 
   } else {
@@ -198,8 +198,8 @@ dataConsumption <- function(context,
 
     writeLines(sprintf("The data consumption for %s between %s and %s is",
                        instance,
-                       as.character(timeStart),
-                       as.character(timeEnd)))
+                       as.character(time.start),
+                       as.character(time.end)))
 
     df_use
   }
@@ -278,9 +278,9 @@ pricingRates <- function(context,
 #' 
 #' @param instance Instance of Azure instance that one would like to check expense. No matter whether resource group is given or not, if a instance of instance is given, data consumption of that instance is returned.
 #' 
-#' @param timeStart Start time.
+#' @param time.start Start time.
 #' 
-#' @param timeEnd End time.
+#' @param time.end End time.
 #' 
 #' @param granularity Aggregation granularity. Can be either "Daily" or "Hourly".
 #' 
@@ -294,13 +294,13 @@ pricingRates <- function(context,
 #' 
 #' @return Total cost measured in the given currency of the specified Azure instance in the period.
 #' 
-#' @note Note if difference between \code{timeStart} and \code{timeEnd} is less than the finest granularity, e.g., "Hourly" (we notice this is a usual case when one needs to be aware of the charges of a job that takes less than an hour), the expense will be estimated based solely on computation hour. That is, the total expense is the multiplication of computation hour and pricing rate of the DSVM instance.
+#' @note Note if difference between \code{time.start} and \code{time.end} is less than the finest granularity, e.g., "Hourly" (we notice this is a usual case when one needs to be aware of the charges of a job that takes less than an hour), the expense will be estimated based solely on computation hour. That is, the total expense is the multiplication of computation hour and pricing rate of the DSVM instance.
 #' 
 #' @export
 expenseCalculator <- function(context,
                               instance,
-                              timeStart,
-                              timeEnd,
+                              time.start,
+                              time.end,
                               granularity,
                               currency,
                               locale,
@@ -309,8 +309,8 @@ expenseCalculator <- function(context,
   df_use <-
     dataConsumption(context,
                     instance=instance,
-                    timeStart=timeStart,
-                    timeEnd=timeEnd,
+                    time.start=time.start,
+                    time.end=time.end,
                     granularity=granularity) %>%
     select(meterId,
            meterSubCategory,

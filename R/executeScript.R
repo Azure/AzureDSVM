@@ -2,7 +2,7 @@
 #'
 #' @param context AzureSMR context.
 #'
-#' @param resourceGroup Resource group of Azure resources for computation.
+#' @param resource.group Resource group of Azure resources for computation.
 #'
 #' @param machines Remote DSVMs that will be used for computation.
 #'
@@ -21,7 +21,7 @@
 #'
 #' @param slaves IP addresses or URLs of slave DSVMs.
 #'
-#' @param computeContext Computation context of Microsoft R Server
+#' @param compute.context Computation context of Microsoft R Server
 #'   under which the mechanisms of parallelization (e.g., local
 #'   parallel, cluster based parallel, etc.) is
 #'   specified. Accepted computing context include "localSequential", "localParallel", and
@@ -38,16 +38,15 @@
 #' @note Remote code/script execution by using Microsoft R Server 9.0, which brings more convenience and is portable to both Linux and Windows system, will be supported soon.
 #'
 #' @export
-
 executeScript <- function(context,
-                          resourceGroup,
+                          resource.group,
                           machines,
                           remote,
                           user,
                           script,
                           master,
                           slaves,
-                          computeContext)
+                          compute.context)
 {
 
   # Check pre-conditions.
@@ -55,7 +54,7 @@ executeScript <- function(context,
   if(missing(context) | !is.azureActiveContext(context))
     stop("Please provide a valid AzureSMR active context.")
 
-  if(missing(resourceGroup))
+  if(missing(resource.group))
     stop("Please specify a resource group.")
 
   if(missing(machines))
@@ -72,7 +71,7 @@ executeScript <- function(context,
 
   # Check master and slave only when it is cluster parallel.
 
-  if(computeContext == "clusterParallel")
+  if(compute.context == "clusterParallel")
   {
     if(missing(master))
       stop("Please specify a master node.")
@@ -91,7 +90,7 @@ executeScript <- function(context,
     # for a while patiently until everything is done.
 
     operateDSVM(context,
-                resource.group=resourceGroup,
+                resource.group=resource.group,
                 name=vm,
                 operation="Start")
   }
@@ -107,7 +106,7 @@ executeScript <- function(context,
                                slaves=slaves,
                                dns_list=c(master, slaves),
                                machine_user=user,
-                               context=computeContext)
+                               context=compute.context)
 
   # print interface contents.
 
@@ -178,11 +177,21 @@ executeScript <- function(context,
 }
 
 #' @title Upload or download files.
-#' @param from Source location (path) of file.
-#' @param to Target location (path) of file.
+#' 
+#' @param from Source location (local path or remote FQDN and path) of file.
+#' 
+#' @param to Target location (local path or remote FQDN and path) of file.
+#' 
 #' @param file File name - a character string.
-#' @note File transfer is implemented by `scp` with public key based authentication.
+#' 
+#' @note File transfer is implemented by `scp` with public key based authentication so it is limited only to Linux based DSVM at the moment. Future work will enable mrsdeploy functions for file transfer with higher convenience.
+#' 
 #' @export
+#' 
+#' @examples 
+#' \dontrun{
+#' # copy a file named "script.R" from local current working directory to remote (e.g., IP address is 192.168.19.1) home directory.
+#' fileTransfer(from=".", to="192.168.19.1:~", user="admin", file="script.R")}
 fileTransfer <- function(from=".",
                          to=".",
                          user,
