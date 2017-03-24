@@ -262,6 +262,12 @@ load("./results.RData")
 results_cluster <- results
 ```
 
+Save time points for later reference
+
+```{r}
+save(list(time_1, time_2, time_3, time_4), "./elapsed.RData")
+```
+
 Do some visualization with data.
 
 ```{r}
@@ -302,8 +308,9 @@ for reference so that later on `expenseCalculator` can be safely
 called for retrieving results.
 
 ```{r}
-# calculate expense on computations. 
-#
+# calculate expense on computations.
+
+load("./elapsed.RData")
 
 cost <- 0
 
@@ -331,3 +338,13 @@ if (length(vm$name) == 1) {
   }
 }
 ```
+
+# Clean-up
+
+Stop or delete computing resources if they are no longer needed to avoid unnecessary cost.
+
+```{r}
+if (! rg_pre_exists)
+  azureDeleteResourceGroup(context, RG)
+```
+

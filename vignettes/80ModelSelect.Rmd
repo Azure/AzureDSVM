@@ -286,13 +286,20 @@ time3 <- Sys.time()
 
 ```
 
+Save time variables into a data file for later references.
+
+```{r}
+save(list(time_1, time_2, time_3), "./elapsed.RData")
+```
+
 # Calculating expense
 
 After execution of the analytic job is done, expense on running the executions on Azure resources cannot be obtained.
 
 ```{r}
 # calculate expense on computations. 
-#
+
+load("./elapsed.RData")
 
 cost <- 0
 
@@ -324,3 +331,8 @@ if (length(vm$name) == 1) {
 # Clean-up
 
 Stop or delete computing resources if they are no longer needed to avoid unnecessary cost.
+
+```{r}
+if (! rg_pre_exists)
+  azureDeleteResourceGroup(context, RG)
+```
