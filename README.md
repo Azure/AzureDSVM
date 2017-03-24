@@ -4,6 +4,10 @@ The AzureDSVM (Azure Data Science Virtual Machine) is an R Package for Data Scie
 working with the Azure compute platform as a complement to the
 underlying AzureSMR for controlling [Azure Data Science Virtual Machines](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-provision-vm).
 
+Azure Data Science Virtual Machine (DSVM) is a powerful data science development environment with pre-installed tools and packages that empower data scientists for convenient data wrangling, model building, and service deployment. 
+
+The R package of `AzureDSVM` aims at offering functions that can be conveniently used by R data scientists for operating and using Azure Data Science Virtual Machine (DSVM) elastically and economically within local R session. 
+
 To install the package from github:
 
   > devtools::install_github("Azure/AzureDSVM")
@@ -16,6 +20,26 @@ package is loaded to see a list of functions/help pages or else
 
 Note: The package will work with any open source R Session or with
 Microsoft R extensions.
+
+# Features
+
+* Elasiticity
+
+    * Deployment of a DSVM with customized information such as machine name, machine size, operating system, authentication method, etc.
+    * Enjoy all benefits of a Windows/Linux DSVM. E.g., all tools for data science work such as R/Python/Julia programming languages, SQL Server, Visual Studio with RTVS, etc., remote working environment via RStudio Server or Jupyter Notebook interface, and machine learning & artificial intelligence packages such as Microsoft CNTK, MXNet, and XGBoost.
+    * Execution of R analytics on DSVM(s) with various Microsoft R Server computing contexts such as "local parallel" and "cluster parallel".
+
+* Scalability 
+
+    * Deployment of a collection of heterogeneous DSVMs for a group of data scientists.
+    * Scale up DSVM and form them into a cluster for parallel computation with Microsoft R Server backend. 
+    
+* Usability
+
+    * Deploy, start, stop, and delete DSVM(s) on demand.
+    * Monitor data consumption and estimate expense of using DSVM(s) with hourly aggregation granularity.
+
+# Tutorials
 
 To get started with this package, see the Vignettes:
 
