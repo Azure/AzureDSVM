@@ -165,8 +165,14 @@ dataConsumption <- function(context,
              meterRegion) %>%
       filter(meterName == "Compute Hours") %>%
       filter(row_number() == 1) %>%
-      mutate(quantity = time_diff)
+      mutate(quantity = time_diff) %>%
+      mutate(usageStartTime = as.POSIXct(usageStartTime)) %>%
+      mutate(usageEndTime = as.POSIXct(usageEndTime)) 
 
+    writeLines(sprintf("The data consumption for %s between %s and %s is",
+                       instance,
+                       as.character(timeStart),
+                       as.character(timeEnd)))
     return(df_use)
 
   } else {
@@ -186,7 +192,14 @@ dataConsumption <- function(context,
              unit,
              meterId,
              quantity,
-             meterRegion)
+             meterRegion) %>%
+      mutate(usageStartTime = as.POSIXct(usageStartTime)) %>%
+      mutate(usageEndTime = as.POSIXct(usageEndTime)) 
+
+    writeLines(sprintf("The data consumption for %s between %s and %s is",
+                       instance,
+                       as.character(timeStart),
+                       as.character(timeEnd)))
 
     df_use
   }
@@ -330,7 +343,7 @@ expenseCalculator <- function(context,
   df_cost <-
     left_join(df_used_data, df_used_rates) %>%
     mutate(Cost=totalQuantity * MeterRate) %>%
-    select(-IncludedQuantity, -EffectiveDate, -MeterStatus, -usageStartDate, -usageEndDate) %>%
+    select(-IncludedQuantity, -EffectiveDate, -MeterStatus, -usageStartDate, -usageEndDate, -meterId, -MeterRegion) %>%
     na.omit()
 
   df_cost
