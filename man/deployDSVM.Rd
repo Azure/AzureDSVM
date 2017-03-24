@@ -54,4 +54,20 @@ click on the failed deployment link to view the failure
 message. Typical errors include DnsRecordInUse or
 StorageAccountAlreadyTaken. If so then choose a different hostname.
 }
+\examples{
+\dontrun{
+# The following deploys a Linux DSVM with public key based authentication
+deployDSVM(context, resource.group="<resource_group>", location="<location>", hostname="<machine_name>", username="<user_name>", os="Linux", pubkey="<a_valid_public_key_string_in_SSH_format>")
+
+# The following deploys a Windows DSVM with password based authentication. The VM size is selected from all the available A-series machines that have the maximum number of computing cores.
+
+vm <- getVMSizes(context, "<location>")
+
+names(vm)
+
+vm_sub <- vm[grep(vm[, 1], pattern="Basic_A"), ]
+vm_name <- vm_sub[vm_sub[, 2] == max(vm_sub[, 2]), 1]
+
+deployDSVM(context, resource.group="<resource_group>", location="<location>", hostname="<machine_name>", username="<user_name>", os="Windows", password="<a_valid_password>")}
+}
 

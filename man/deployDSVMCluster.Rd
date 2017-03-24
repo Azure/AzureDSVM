@@ -71,4 +71,14 @@ provided. A colleciton is often used in creating multiple DSVMs for
 a group of data scientists or for training. A colleciton is often
 longer lasting than a cluster.
 }
+\examples{
+\dontrun{
+# The following deploys a cluster of 5 Linux DSVMs and form them as a cluster. 
+
+deployDSVMCluster(context, resource.group="<resource_group>", location="<location>", hostnames="<machine_name>", usernames="<user_name>", os="Windows", pubkeys="<a_valid_public_key_string_in_SSH_format>", count=5)
+
+# The following deploys a collection of 3 Linux DSVMs with different names and public keys.
+
+deployDSVMCluster(context, resource.group="<resource_group>", location="<location>", hostnames=c("<machine_name_1>", "<machine_name_2>", "<machine_name_3>", usernames=c("<user_name_1>", "<user_name_2>", "<user_name_3>"), os="Windows", pubkeys="<a_valid_public_key_string_in_SSH_format>"}
+}
 

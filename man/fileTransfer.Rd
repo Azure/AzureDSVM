@@ -7,13 +7,18 @@
 fileTransfer(from = ".", to = ".", user, file)
 }
 \arguments{
-\item{from}{Source location (path) of file.}
+\item{from}{Source location (local path or remote FQDN and path) of file.}
 
-\item{to}{Target location (path) of file.}
+\item{to}{Target location (local path or remote FQDN and path) of file.}
 
 \item{file}{File name - a character string.}
 }
 \note{
-File transfer is implemented by `scp` with public key based authentication.
+File transfer is implemented by `scp` with public key based authentication so it is limited only to Linux based DSVM at the moment. Future work will enable mrsdeploy functions for file transfer with higher convenience.
+}
+\examples{
+\dontrun{
+# copy a file named "script.R" from local current working directory to remote (e.g., IP address is 192.168.19.1) home directory.
+fileTransfer(from=".", to="192.168.19.1:~", user="admin", file="script.R")}
 }
 
