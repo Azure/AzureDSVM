@@ -339,12 +339,18 @@ expenseCalculator <- function(context,
   df_used_rates <-
     filter(df_rates, MeterId %in% meter_list) %>%
     rename(meterId=MeterId)
+  
+  # invisible(capture.output(df_cost <- left_join(df_used_data, df_used_rates)))
 
   df_cost <-
-    left_join(df_used_data, df_used_rates) %>%
+    left_join(df_used_data, df_used_rates, by="meterId") %>%
     mutate(Cost=totalQuantity * MeterRate) %>%
     select(-IncludedQuantity, -EffectiveDate, -MeterStatus, -usageStartDate, -usageEndDate, -meterId, -MeterRegion) %>%
     na.omit()
+  
+  # reorder columns.
+  
+  df_cost <- df_cost[, c(3, 2, 4, 1, 5, 6, 7)]
 
   df_cost
 }
