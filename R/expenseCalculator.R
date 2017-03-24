@@ -340,8 +340,6 @@ expenseCalculator <- function(context,
     filter(df_rates, MeterId %in% meter_list) %>%
     rename(meterId=MeterId)
   
-  # invisible(capture.output(df_cost <- left_join(df_used_data, df_used_rates)))
-
   df_cost <-
     left_join(df_used_data, df_used_rates, by="meterId") %>%
     mutate(Cost=totalQuantity * MeterRate) %>%
