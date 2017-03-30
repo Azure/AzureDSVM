@@ -179,7 +179,7 @@ directly from
 [togaware]{https://access.togaware.com/creditcard.xdf} in XDF format. The data consists both normal and fraudulent transactions, which are indicated by the label "Class", and the problem is to detect a potential fraudulent transaction based on patterns "learnt" by the trained model.
 
 Codes of solving such a machine learning problem can be obtained from
-[worker_classification.R]{...test/worker_classification.R}. The function `mlProcess` takes data, formula, and model specs as inputs. Considering scalability and performance efficiency, data of xdf format is used, which allows parallel computation outside memory. Area-under-curve is used as performance metric to evaluate quality of model. The function returns a model object (based on the training results) and evaluation result of the model.
+[workerClassification.R]{...test/workerClassification.R}. The function `mlProcess` takes data, formula, and model specs as inputs. Considering scalability and performance efficiency, data of xdf format is used, which allows parallel computation outside memory. Area-under-curve is used as performance metric to evaluate quality of model. The function returns a model object (based on the training results) and evaluation result of the model.
 
 Following shows snippets of the machine learning process.
 
@@ -263,7 +263,7 @@ executeScript(context,
               machines=LDSVM,
               remote=VM_URL,
               user=USER,
-              script="./worker_classification.R",
+              script="./workerClassification.R",
               master=VM_URL,
               slaves=VM_URL,
               computeContext="localParallel")
@@ -277,7 +277,7 @@ executeScript(context,
               machines=LDSVMS,
               remote=VMS_URL[1],
               user=USER,
-              script="./worker_classification.R",
+              script="./workerClassification.R",
               master=VMS_URL[1],
               slaves=VMS_URL[-1],
               computeContext="clusterParallel")
