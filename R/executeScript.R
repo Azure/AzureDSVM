@@ -197,7 +197,7 @@ fileTransfer <- function(from=".",
                          user,
                          file) {
   if(missing(file)) stop("Please specify a file to transfer.")
-
+  
   option <- "-q -o StrictHostKeyChecking=no"
 
   if(stringr::str_detect(from, ":")) {
@@ -206,6 +206,8 @@ fileTransfer <- function(from=".",
                    file.path(paste0(user, "@", from), file),
                    to)
   } else {
+    if(!file.exists(file.path(from, file))) stop("File does not exist!")
+    
     cmd <- sprintf("scp %s %s %s",
                    option,
                    file.path(from, file),
