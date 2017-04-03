@@ -246,7 +246,7 @@ operateDSVM(context, RG, HOST, operation="Stop")
 
 # Optional Cleanup
 
-```{r optionally_delete_resource_group, eval=FALSE}
+```{r optionally_delete_resource_group}
 # Delete the resource group now that we have proved existence. There
 # is probably no need to wait. Only delete if it did not pre-exist
 # this script. Deletion seems to take 10 minutes or more.

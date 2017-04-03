@@ -12,19 +12,24 @@ vignette: >
 
 Sometimes more than one DSVMs are needed.
 
-* Multi-deployment of heterogeneous DSVMs may be required for a collaborative project where each of group members work on a machine with specific configuration. For instance, a powerful yet expensive machine is assigned to perform computation intensive tasks while a cheap one can be used for explorative or interactive tasks. 
+* Multi-deployment of heterogeneous DSVMs may be required for a
+  collaborative project where each of group members work on a machine
+  with specific configuration. For instance, a powerful yet expensive
+  machine is assigned to perform computation intensive tasks while a
+  cheap one can be used for explorative or interactive tasks.
 
-* Another common use case is for a Data Scientist to create their R programs
-to analyse a dataset on their local compute platform (e.g., a laptop
-with 6GB RAM running Ubuntu with R installed). Development is
+* Another common use case is for a Data Scientist to create their R
+programs to analyse a dataset on their local compute platform (e.g., a
+laptop with 6GB RAM running Ubuntu with R installed). Development is
 performed with a subset of the full dataset (a random sample) that
 will not exceed the available memory and will return results
 quickly. When the experimental setup is complete the script can be
 sent across to a considerably more capable compute engine on Azure,
 possibly a cluster of servers to build models in parallel.
 
-This tutorial deploys a collection/cluster of Linux Data Science Virtual Machines
-(DSVMs) for the above two scenarios. In the latter one, user distributes a trivial compute task over those servers,
+This tutorial deploys a collection/cluster of Linux Data Science
+Virtual Machines (DSVMs) for the above two scenarios. In the latter
+one, user distributes a trivial compute task over those servers,
 collects the results and generates a report. Code is included but not
 run to then delete the resource group if the resources are no longer
 required. Once deleted consumption will cease.
@@ -84,7 +89,7 @@ LOC <-
 
 cat("\n")
 
-COUNT <- 3                 # Number of VMs to deploy.
+COUNT <- 4                 # Number of VMs to deploy.
 ```
 
 ```{r connect}
@@ -125,12 +130,30 @@ cat("Resource group", RG, "at", LOC,
 
 # Create a Cluster
 
-Multi-deployment of DSVM can be achieved by calling `deployDSVMCluster` function. Note the function is designed to implicitly switch between cluster and collection of DSVMs, according to the given inputs. That is, if the `hostnames`, i.e., names of the DSVMs consists of only one character string, the function will imply the deployment is to create a cluster of homogeneous DSVMs (i.e., same size), and use the unique machine name as the base, which is appended with a sequential number to form a full hostname. If the `hostnames` is a vector of character strings, the function will create machines with names specified in the name vector.
+Multi-deployment of DSVM can be achieved by calling
+`deployDSVMCluster` function. Note the function is designed to
+implicitly switch between cluster and collection of DSVMs, according
+to the given inputs. That is, if the `hostnames`, i.e., names of the
+DSVMs consists of only one character string, the function will imply
+the deployment is to create a cluster of homogeneous DSVMs (i.e., same
+size), and use the unique machine name as the base, which is appended
+with a sequential number to form a full hostname. If the `hostnames`
+is a vector of character strings, the function will create machines
+with names specified in the name vector.
 
-It is worth mentioning that a cluster of DSVMs is useful when batch-based analytical job needs to be done in a desired computing context, especially in a distributed manner across nodes of the cluster. The distributed computing functionality is empowered by Microsoft RevoScaleR parallel computing backend. The distributed and parallel computing is socket-based and relies on SSH for secure communication. To allow this communication across nodes, `deployDSVMCluster` added inbound security rules into security group of each DSVM in the cluster, and establish public key pairs for the machines.
+It is worth mentioning that a cluster of DSVMs is useful when
+batch-based analytical job needs to be done in a desired computing
+context, especially in a distributed manner across nodes of the
+cluster. The distributed computing functionality is empowered by
+Microsoft RevoScaleR parallel computing backend. The distributed and
+parallel computing is socket-based and relies on SSH for secure
+communication. To allow this communication across nodes,
+`deployDSVMCluster` added inbound security rules into security group
+of each DSVM in the cluster, and establish public key pairs for the
+machines.
 
-In the following snippets of codes, we deploy a cluster of homogeneous DSVMs. Each DSVM will be named based on
-the *name* provided and sequentially numbered. 
+We can now deploy a cluster of homogeneous DSVMs. Each DSVM will be
+named based on the *name* provided and sequentially numbered.
 
 ```{r deploy a cluster of DSVMs}
 # Deploy a cluster of DSVMs.
@@ -174,7 +197,7 @@ for (i in 1:COUNT)
 
 We can also create a collection of Linux DSVMs each with a different
 user and with public-key based authentication method. Name, username,
-and size can also be configured. 
+and size can also be configured.
 
 ```{r deploy a set of DSVMs, eval=FALSE}
 

@@ -6,7 +6,7 @@
 # Load the required packages.
 
 library(AzureSMR)    # Support for managing Azure resources.
-library(AzureDSR)    # Further support for the Data Scientist.
+library(AzureDSVM)   # Further support for the Data Scientist.
 library(magrittr)
 library(dplyr, warn.conflicts=FALSE)
 

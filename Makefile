@@ -9,11 +9,12 @@ help:
 	\tinstall     \tBuild and install to local machine\n\
 	\n\
 	Vignettes\n\
-	\tvdeploy     \tRun DeployDSVM vignette (single Linux DSVM, cleanup).\n\
-	\tvcluster    \tRun ClusterDSVM vignette (cluster Linux DSVMs, cleanup).\n\
+	\tvdeploy     \tRun 10Deploy vignette (single Linux DSVM, cleanup).\n\
+	\tvmulti      \tRun 20Multi  vignette (multipl Linux DSVMs, cleanup).\n\
+	\tvcompute    \tRun 30Compute vignette.\n\
 	\n\
 	Testing (RG my_)\n\
-	\tresources   \tList all resources in each resource group.\n\
+	\tlist        \tList all resources in each resource group.\n\
 	\tdeploy      \tDeploy single Linux DSVM with new resource group.\n\
 	\tdelete      \tDelete resource groups beginning with my_.\n\
 	\n\
@@ -37,13 +38,16 @@ include git.mk
 ########################################################################
 # Utilities for Testing
 
-.PHONY: vdeploy vcluster
+.PHONY: vdeploy vmulti vcompute
 
 vdeploy: vignettes
 	(cd vignettes; Rscript 10Deploy.R)
 
-vkmeans: vignettes
-	(cd vignettes; Rscript 20Kmeans.R)
+vmulti: vignettes
+	(cd vignettes; Rscript 20Multi.R)
+
+vcompute: vignettes
+	(cd vignettes; Rscript 30Compute.R)
 
 .PHONY: resources deploy delete ping
 
