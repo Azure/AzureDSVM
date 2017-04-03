@@ -84,7 +84,7 @@ LOC <-
 
 cat("\n")
 
-COUNT <- 3                 # Number of VMs to deploy.
+COUNT <- 2                 # Number of VMs to deploy.
 ```
 
 ```{r connect}
