@@ -4,17 +4,17 @@
 \alias{expenseCalculator}
 \title{Calculate cost of using a specific instance of Azure for certain period.}
 \usage{
-expenseCalculator(context, instance, timeStart, timeEnd, granularity, currency,
-  locale, offerId, region)
+expenseCalculator(context, instance, time.start, time.end, granularity,
+  currency, locale, offerId, region)
 }
 \arguments{
 \item{context}{AzureSMR context.}
 
 \item{instance}{Instance of Azure instance that one would like to check expense. No matter whether resource group is given or not, if a instance of instance is given, data consumption of that instance is returned.}
 
-\item{timeStart}{Start time.}
+\item{time.start}{Start time.}
 
-\item{timeEnd}{End time.}
+\item{time.end}{End time.}
 
 \item{granularity}{Aggregation granularity. Can be either "Daily" or "Hourly".}
 
@@ -30,6 +30,6 @@ expenseCalculator(context, instance, timeStart, timeEnd, granularity, currency,
 Total cost measured in the given currency of the specified Azure instance in the period.
 }
 \note{
-Note if difference between \code{timeStart} and \code{timeEnd} is less than the finest granularity, e.g., "Hourly" (we notice this is a usual case when one needs to be aware of the charges of a job that takes less than an hour), the expense will be estimated based solely on computation hour. That is, the total expense is the multiplication of computation hour and pricing rate of the DSVM instance.
+Note if difference between \code{time.start} and \code{time.end} is less than the finest granularity, e.g., "Hourly" (we notice this is a usual case when one needs to be aware of the charges of a job that takes less than an hour), the expense will be estimated based solely on computation hour. That is, the total expense is the multiplication of computation hour and pricing rate of the DSVM instance.
 }
 

@@ -4,13 +4,13 @@
 \alias{executeScript}
 \title{Remote execution of R script in an R interface new_interface.}
 \usage{
-executeScript(context, resourceGroup, machines, remote, user, script, master,
-  slaves, computeContext)
+executeScript(context, resource.group, machines, remote, user, script, master,
+  slaves, compute.context)
 }
 \arguments{
 \item{context}{AzureSMR context.}
 
-\item{resourceGroup}{Resource group of Azure resources for computation.}
+\item{resource.group}{Resource group of Azure resources for computation.}
 
 \item{machines}{Remote DSVMs that will be used for computation.}
 
@@ -29,7 +29,7 @@ master. By default is remote.}
 
 \item{slaves}{IP addresses or URLs of slave DSVMs.}
 
-\item{computeContext}{Computation context of Microsoft R Server
+\item{compute.context}{Computation context of Microsoft R Server
 under which the mechanisms of parallelization (e.g., local
 parallel, cluster based parallel, etc.) is
 specified. Accepted computing context include "localSequential", "localParallel", and

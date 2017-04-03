@@ -4,16 +4,17 @@
 \alias{dataConsumption}
 \title{Get data consumption of an Azure subscription for a time period. Aggregation method can be either daily based or hourly based.}
 \usage{
-dataConsumption(context, instance, timeStart, timeEnd, granularity = "Hourly")
+dataConsumption(context, instance, time.start, time.end,
+  granularity = "Hourly")
 }
 \arguments{
 \item{context}{AzureSMR context object.}
 
 \item{instance}{Instance of Azure DSVM name that one would like to check expense.}
 
-\item{timeStart}{Start time.}
+\item{time.start}{Start time.}
 
-\item{timeEnd}{End time.}
+\item{time.end}{End time.}
 
 \item{granularity}{Aggregation granularity. Can be either "Daily" or "Hourly".}
 }
