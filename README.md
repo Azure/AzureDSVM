@@ -48,8 +48,10 @@ To get started with this package, see the Vignettes:
 * [Deployment of multiple DSVMs](https://github.com/Azure/AzureDSVM/blob/master/vignettes/20Multi.Rmd)
 * [Do computation on a single DSVM or a cluster of DSVMs](https://github.com/Azure/AzureDSVM/blob/master/vignettes/30Compute.Rmd)
 * [Monitor data consumption and expense spent on using DSVM(s)](https://github.com/Azure/AzureDSVM/blob/master/vignettes/40Cost.Rmd)
-* [Putting all together - use case of kmeans clustering](https://github.com/Azure/AzureDSVM/blob/master/vignettes/60Kmeans.Rmd)
-* [Putting all together - use case of binary classification](https://github.com/Azure/AzureDSVM/blob/master/vignettes/80ModelSelect.Rmd)
+* Putting all together
+    * [k-means clustering](https://github.com/Azure/AzureDSVM/blob/master/vignettes/60Kmeans.Rmd)
+    * [Hot spots analysis](https://github.com/Azure/AzureDSVM/blob/master/vignettes/70Hotspots.Rmd)
+    * [Binary classification](https://github.com/Azure/AzureDSVM/blob/master/vignettes/80ModelSelect.Rmd)
 
 # Code of Conduct
 
