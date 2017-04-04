@@ -23,7 +23,7 @@ In this demonstration, Hot Spots analysis is used for supervised binary classifi
 
 0. Given a labelled data set. Split the data into training and testing sets.
 1. For the training set, cluster it into different segments. This is done by k-means algorithm.
-    1. Number of clusters is swept from 2 to a large enough number (say 20 in this demo) in order to select the optimal one. The selection is based on [elbow method](https://www.google.com.sg/url?sa=t&rct=j&q=&esrc=s&source=web&cd=2&cad=rja&uact=8&ved=0ahUKEwjDo7W43InTAhXEllQKHZc1CowQygQIIjAB&url=https%3A%2F%2Fen.wikipedia.org%2Fwiki%2FDetermining_the_number_of_clusters_in_a_data_set%23The_elbow_method&usg=AFQjCNEsAz8DP6f5iihKrOR6qT_hRDUdGw&sig2=XQySMd1rPShm8IRdwlFqRw). 
+    1. Number of clusters is swept from 2 to a large enough number (say 20 in this demo) in order to select the optimal one. This selection is based on the [elbow method](https://www.google.com.sg/url?sa=t&rct=j&q=&esrc=s&source=web&cd=2&cad=rja&uact=8&ved=0ahUKEwjDo7W43InTAhXEllQKHZc1CowQygQIIjAB&url=https%3A%2F%2Fen.wikipedia.org%2Fwiki%2FDetermining_the_number_of_clusters_in_a_data_set%23The_elbow_method&usg=AFQjCNEsAz8DP6f5iihKrOR6qT_hRDUdGw&sig2=XQySMd1rPShm8IRdwlFqRw). 
     2. Considering that k-means clustering performance relies on initial conditions, each clustering is run 10 times for averging out instability. 
 2. Assume the number of clusters is determined to be N. Build N descriptive models that differentiate each cluster from the rest. Within each cluster, build a predictive model to do binary classification on the data label.
 3. In the testing phase, examine the each observation of the data which cluster it belongs to using the descriptive models. Then do binary classification using the predictive models to produce the predicted label.
@@ -150,16 +150,15 @@ The following demo shows how to achieve a Hot Spots analysis in R and paralleliz
 The data used in this demonstration is still the credit card data, which is  
 available on [kaggle website](https://www.kaggle.com/dalpozz/creditcardfraud) or
 directly from
-[togaware]{https://access.togaware.com/creditcard.xdf} in XDF format. 
+[togaware](https://access.togaware.com/creditcard.xdf) in XDF format. 
 
-The R codes for Hot Spot analysis are available as [workerHotSpots.R](https://www.microsoft.com). Besides the main worker script, there are several other scripts where functions used for the analysis reside.
+The top-level worker script for Hot Spot analysis is available as [workerHotSpots.R](https://www.microsoft.com). Besides the main worker script, there are several other scripts where functions used for the analysis reside.
 
 * [workerHotSpotsSetup.R](https://github.com/Azure/AzureDSVM/blob/master/test/workerHotspotsSetup.R) function that sets up the environment.
 * [workerHotSpotsFuncs.R](https://github.com/Azure/AzureDSVM/blob/master/test/workerHotspotsFuncs.R) functions used in training or testing process.
 * [workerHotSpotsTrain.R](https://github.com/Azure/AzureDSVM/blob/master/test/workerHotspotsTrain.R) functions for training a Hot Spot model for binary classification. 
 * [workerHotSpotsTest.R](https://github.com/Azure/AzureDSVM/blob/master/test/workerHotspotsTest.R) functions for testing performance of a classification model based on Hot Spots method.
 * [workerHotSpotsProcess.R](https://github.com/Azure/AzureDSVM/blob/master/test/workerHotspotsProcess.R) a function for the whole process of Hot spots method.
-* [workerHotSpots.R](https://github.com/Azure/AzureDSVM/blob/master/test/workerHotspots.R) top-level script for Hot spots analysis.
 
 Specify the master node that will run the analytic script. In this case, it is the DSVM created just now.
 
@@ -231,9 +230,9 @@ save(list(time_1, time_2), "./elapsed.RData")
 ```
 
 The cost of running the above analytics can be obtained with
-`AzureDSVM::expenseCalculation` function. 
+`AzureDSVM::expenseCalculation` function. Note there is usually delay of recording data consumption into system and this delay depends on the location of data center.
 
-```{r}
+```{r, eval=FALSE}
 # calculate expense on computations.
 
 load("./elapsed.RData")
