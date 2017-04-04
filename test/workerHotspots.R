@@ -1,11 +1,11 @@
 # ---------------------------------------------------------------------------
 # THIS IS A HEADER ADDED BY COMPUTE INTERFACE
 # ---------------------------------------------------------------------------
-CI_MACHINES <- c( "wlke001", "wlke002", "wlke003", "wlke004", "wlke005", "wlke006" )
-CI_DNS <- c( "wlke001.southeastasia.cloudapp.azure.com", "wlke002.southeastasia.cloudapp.azure.com", "wlke003.southeastasia.cloudapp.azure.com", "wlke004.southeastasia.cloudapp.azure.com", "wlke005.southeastasia.cloudapp.azure.com", "wlke006.southeastasia.cloudapp.azure.com" )
+CI_MACHINES <- c( "rjhb001", "rjhb002", "rjhb003", "rjhb004" )
+CI_DNS <- c( "rjhb001.southeastasia.cloudapp.azure.com", "rjhb002.southeastasia.cloudapp.azure.com", "rjhb003.southeastasia.cloudapp.azure.com", "rjhb004.southeastasia.cloudapp.azure.com" )
 CI_VMUSER <- c( "zhle" )
-CI_MASTER <- c( "wlke001.southeastasia.cloudapp.azure.com" )
-CI_SLAVES <- c( "wlke002.southeastasia.cloudapp.azure.com", "wlke003.southeastasia.cloudapp.azure.com", "wlke004.southeastasia.cloudapp.azure.com", "wlke005.southeastasia.cloudapp.azure.com", "wlke006.southeastasia.cloudapp.azure.com" )
+CI_MASTER <- c( "rjhb001.southeastasia.cloudapp.azure.com" )
+CI_SLAVES <- c( "rjhb002.southeastasia.cloudapp.azure.com", "rjhb003.southeastasia.cloudapp.azure.com", "rjhb004.southeastasia.cloudapp.azure.com" )
 CI_DATA <- ""
 CI_CONTEXT <- "clusterParallel"
 
