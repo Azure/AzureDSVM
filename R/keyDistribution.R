@@ -8,8 +8,6 @@
 #' 
 #' @param usernames User name used for the DSVMs. In the case of DSVM cluster, the user name is unique.
 #' 
-#' @param pubkeys Public keys used for the DSVMs.
-#' 
 #' @param dns.labels DNS labels for the DSVMs.
 #' 
 #' @note Note this function merely applies for Linux DSVM. In addition, it relies on SSH/SCP for file transfer so OpenSSH or other SSH tools are required if they do not exist by default in the system.
@@ -18,7 +16,6 @@
 keyDistribution <- function(location,
                             hostnames,
                             usernames,
-                            pubkeys,
                             count,
                             dns.labels=hostnames)
 {
