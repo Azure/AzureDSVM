@@ -2,7 +2,7 @@
 
 installPkgs <- function(list_of_pkgs, lib=.libPaths()) {
   if (!(lib %in% .libPaths())) {
-    dir.create(lib)
+    dir.create(lib, showWarnings=FALSE)
     .libPaths(c(lib, .libPaths()))
   }
   
