@@ -57,33 +57,34 @@ source(paste0(USER, "_credentials.R"))
 Specifications of computing resources.
 
 ```{r}
-COUNT <- 4  # Number of VMs to deploy.
-
-SIZE <- "Standard_D12_v2"
-
-BASE  <- 
-  runif(4, 1, 26) %>%
+runif(4, 1, 26) %>%
   round() %>%
   letters[.] %>%
   paste(collapse="") %T>%
-  {sprintf("Base name:\t\t%s", .) %>% cat("\n")}
+  {sprintf("Base name:\t\t%s", .) %>% cat("\n")} ->
+BASE
 
-RG <-
-  paste0("my_dsvm_", BASE,"_rg_sea") %T>%
-  {sprintf("Resource group:\t\t%s", .) %>% cat("\n")}
+BASE %>%
+  paste0("my_dsvm_", .,"_rg_sea") %T>%
+  {sprintf("Resource group:\t\t%s", .) %>% cat("\n")} ->
+RG
+
+SIZE <- "Standard_D12_v2" 
+sprintf("DSVM size:\t\t%s", SIZE) %>% cat("\n")
 
 # Choose a data centre location.
 
-LOC <-
-  "southeastasia"  %T>%
-  {sprintf("Data centre location:\t%s", .) %>% cat("\n")}
+"southeastasia"  %T>%
+  {sprintf("Data centre location:\t%s", .) %>% cat("\n")} ->
+LOC
 
 # Include the random BASE in the hostname to reducely likelihood of
 # conflict.
 
-HOST <-
-  paste0("my", BASE) %T>%
-  {sprintf("Hostname:\t\t%s", .) %>% cat("\n")}
+BASE %>%
+  paste0("my", .) %T>%
+  {sprintf("Hostname:\t\t%s", .) %>% cat("\n")} ->
+HOST
 
 cat("\n")
 ```
@@ -117,6 +118,8 @@ if (! rg_pre_exists)
 }
 ```
 
+Create one remote DSVM for running the Hotspots analytics.
+
 ```{r}
 vm <- AzureSMR::azureListVM(context, RG)
 
@@ -131,44 +134,20 @@ if (!is.null(vm))
   
 } else
 {
+  ldsvm <- deployDSVM(context, 
+                      resource.group=RG,
+                      location=LOC,
+                      hostname=HOST,
+                      username=USER,
+                      size=SIZE,
+                      pubkey=PUBKEY)
+  ldsvm
   
-  # Create a cluster of Linux Data Science Virtual Machines.
+  operateDSVM(context, RG, HOST, operation="Check")
   
-  cluster <- deployDSVMCluster(context, 
-                               resource.group=RG, 
-                               size=SIZE,
-                               location=LOC, 
-                               hostnames=BASE,
-                               usernames=USER, 
-                               pubkeys=PUBKEY,
-                               count=COUNT)
-
-  # Confirm that each VM exists.
-  
-  for (i in 1:COUNT)
-  {
-    vm <- cluster[i, "hostname"]
-    fqdn <- cluster[i, "fqdn"]
-    
-    cat(vm, "\n")
-    
-    operateDSVM(context, RG, vm, operation="Check")
-    
-    # Send a simple system() command across to the new server to test
-    # its existence. Expect a single line with an indication of how long
-    # the server has been up and running.
-    
-    cmd <- paste("ssh -q",
-                 "-o StrictHostKeyChecking=no",
-                 "-o UserKnownHostsFile=/dev/null\\\n   ",
-                 fqdn,
-                 "uptime") %T>%
-                 {cat(., "\n")}
-    cmd
-    system(cmd)
-    cat("\n")
-  }
 }
+
+azureListVM(context, RG)
 ```
 
 # Remote execution of analysis
@@ -223,18 +202,6 @@ sapply(worker_scripts,
        from="../test",
        to=paste0(master, ":~"), 
        user=USER)
-```
-
-If the analysis is run across DSVM nodes, transfer script files to each of them.
-
-```{r}
-for (slave in slaves) {
-  sapply(worker_scripts,
-         fileTransfer,
-         from="../test",
-         to=paste0(slave, ":~"),
-         user=USER)
-}
 ```
 
 Remote execution of worker script (the analysis takes approximately 10 - 15 minutes on a D12 v2 DSVM which has 4 fores and 28 GB RAM.
@@ -320,7 +287,7 @@ Once finishing the analysis, switch off DSVMs.
 AzureDSVM::operateDSVM(context, RG, vm$name, operation="Stop")
 ```
 
-If the computing resources are used once, delete the resource group to avoid unnecessary cost.
+Or delete the resource group to avoid unnecessary cost.
 
 ```{r}
 if (! rg_pre_exists)
