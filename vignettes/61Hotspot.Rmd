@@ -1,0 +1,362 @@
+---
+title = "Using Azure Data Science Virtual Machine: a use case - hotspot" 
+author= "Le Zhang and Graham Williams"
+output: rmarkdown::html_vignette
+vignette: >
+ %\VignetteIndexEntry{Vignette Title}
+ %\VignetteEngine{knitr::rmarkdown}
+ \usepackage[utf8]{inputenc}
+---
+
+# Use Case
+
+Hotspot analysis.
+
+    0. Given a labelled data set. 
+    1. Use k-means to do clustering with n segments.
+    2. Build trees/forests to do binary classification to differentiate each of the cluster.
+    3. Within each cluster, build a tree/forest to do binary classification on label.
+
+# Setup
+
+Similar to the previous sections, credentials for authentication are required to fire up the DSVMs.
+
+```{r}
+library(AzureDSVM)
+library(AzureSMR)
+library(dplyr)
+library(stringr)
+library(stringi)
+library(magrittr)
+library(readr)
+library(rattle)
+library(ggplot2)
+library(wskm)
+```
+
+```{r setup}
+# Load the required subscription resources: TID, CID, and KEY.
+# Also includes the ssh PUBKEY for the user.
+
+USER <- Sys.info()[['user']]
+
+source(paste0(USER, "_credentials.R"))
+```
+
+Specifications of computing resources.
+
+```{r}
+COUNT <- 6  # Number of VMs to deploy.
+
+SIZE <- "Standard_D12_v2"
+
+BASE  <- 
+  runif(4, 1, 26) %>%
+  round() %>%
+  letters[.] %>%
+  paste(collapse="") %T>%
+  {sprintf("Base name:\t\t%s", .) %>% cat("\n")}
+
+RG <-
+  paste0("my_dsvm_", BASE,"_rg_sea") %T>%
+  {sprintf("Resource group:\t\t%s", .) %>% cat("\n")}
+
+# Choose a data centre location.
+
+LOC <-
+  "southeastasia"  %T>%
+  {sprintf("Data centre location:\t%s", .) %>% cat("\n")}
+
+# Include the random BASE in the hostname to reducely likelihood of
+# conflict.
+
+HOST <-
+  paste0("my", BASE) %T>%
+  {sprintf("Hostname:\t\t%s", .) %>% cat("\n")}
+
+cat("\n")
+```
+
+Deploy a cluster of DSVMs if there is no existing, otherwise start the
+machines. 
+
+```{r}
+# Connect to the Azure subscription and use this as the context for
+# all of our activities.
+
+context <- createAzureContext(tenantID=TID, clientID=CID, authKey=KEY)
+
+# Check if the resource group already exists. Take note this script
+# will not remove the resource group if it pre-existed.
+
+rg_pre_exists <- existsRG(context, RG, LOC) %T>% print()
+
+# Create Resource Group
+
+if (! rg_pre_exists)
+{
+  # Create a new resource group into which we create the VMs and
+  # related resources. Resource group name is RG. 
+  
+  # Note that to create a new resource group one needs to add access
+  # control of Active Directory application at subscription level.
+  
+  azureCreateResourceGroup(context, RG, LOC)
+  
+}
+```
+
+```{r}
+vm <- AzureSMR::azureListVM(context, RG)
+
+if (!is.null(vm))
+{
+  
+  AzureDSVM::operateDSVM(context, RG, vm$name, operation="Check")
+  
+  # start machines if they exist in the resource group.
+  
+  AzureDSVM::operateDSVM(context, RG, vm$name, operation="Start")
+  
+} else
+{
+  
+  # Create a cluster of Linux Data Science Virtual Machines.
+  
+  cluster <- deployDSVMCluster(context, 
+                               resource.group=RG, 
+                               size=SIZE,
+                               location=LOC, 
+                               hostnames=BASE,
+                               usernames=USER, 
+                               pubkeys=PUBKEY,
+                               count=COUNT)
+
+  # Confirm that each VM exists.
+  
+  for (i in 1:COUNT)
+  {
+    vm <- cluster[i, "hostname"]
+    fqdn <- cluster[i, "fqdn"]
+    
+    cat(vm, "\n")
+    
+    operateDSVM(context, RG, vm, operation="Check")
+    
+    # Send a simple system() command across to the new server to test
+    # its existence. Expect a single line with an indication of how long
+    # the server has been up and running.
+    
+    cmd <- paste("ssh -q",
+                 "-o StrictHostKeyChecking=no",
+                 "-o UserKnownHostsFile=/dev/null\\\n   ",
+                 fqdn,
+                 "uptime") %T>%
+                 {cat(., "\n")}
+    cmd
+    system(cmd)
+    cat("\n")
+  }
+}
+```
+
+# Hotspots analysis.
+
+This tutorial will demonstrate the effectiveness of parallelizing a [Hot Spots](https://togaware.com/papers/pakdd99.pdf) analysis across Azure DSVM(s). 
+The Hot Spots method was proposed by Graham Williams for discovering knowledge of interets from large data sets. It consists of three steps:
+
+    1. Cluster a data set into several complete and disjoint clusters. This is often achieved with a clustering algorithm such as k-means.
+    2. Rule-based inductions are then built to discriminatorily describe each of the clusters. 
+    3. Within each of the clusters specified by associative rules, create models to evaluate data attributes to find patterns.
+
+The greatest benefit of using Hot Spots method for data mining are that it visually describes the knowledge by a set of rules which are of particular convenience to a data miner to understand mining results. This is helpful in various scenarios such as insurance premium setting, fraud detection in health, etc.
+
+# Demo
+
+The following demo shows how to achieve a Hot Spots analysis in R and parallelize the analysis on Azure cloud.
+
+The data used in this demonstration is still the credit card data, which is  
+available on [kaggle website](https://www.kaggle.com/dalpozz/creditcardfraud) or
+directly from
+[togaware]{https://access.togaware.com/creditcard.xdf} in XDF format. 
+
+The R codes for Hot Spot analysis are available as [workerHotSpots.R](https://www.microsoft.com). Besides the main worker script, there are several other scripts where functions used for the analysis reside.
+
+    * [workerHotSpotsSetup.R](http://) function that sets up the environment.
+    * [workerHotSpotsFuncs.R](http://) functions used in training or testing process.
+    * [workerHotSpotsTrain.R](http://) functions for training a Hot Spot model for binary classification. 
+    * [workerHotSpotsTest.R](http://) functions for testing performance of a classification model based on Hot Spots method.
+
+The following is the configuration of computing cluster which is needed for specifying a "clusterParallel" computing context. 
+
+    * `machines` names of DSVMs used for parallelisation.
+    * `dns_list` DNS of DSVMs. 
+    * `master` DNS of the DSVM where the worker script will be uploaded to for execution.
+    * `slaves` DNS of DSVMs where execution of worker script will be distributed to.
+
+```{r}
+# specify machine names, master, and slaves.
+
+vm <- AzureSMR::azureListVM(context, RG)
+
+machines <- unlist(vm$name)
+dns_list <- paste0(machines, ".", LOC, ".cloudapp.azure.com")
+master <- dns_list[1]
+slaves <- dns_list[-1]
+```
+
+The following codes run the analytics of the worker script in a "local parallel" computing context, and obtain results from remote master node to local R session.
+
+Upload scripts onto remote server.
+
+```{r}
+worker_scripts <- c("workerHotspotsFuncs.R", 
+                    "workerHotspotsSetup.R", 
+                    "workerHotspotsTrain.R", 
+                    "workerHotspotsTest.R",
+                    "workerHotspotsProcess.R")
+
+sapply(worker_scripts, 
+       fileTransfer,
+       from="../test",
+       to=paste0(master, ":~"), 
+       user=USER)
+```
+
+If the analysis is run across DSVM nodes, transfer script files to each of them.
+
+```{r}
+for (slave in slaves) {
+  sapply(worker_scripts,
+         fileTransfer,
+         from="../test",
+         to=paste0(slave, ":~"),
+         user=USER)
+}
+```
+
+
+Remote execution of worker script.
+
+```{r}
+# parallel the analytics with local parallel computing context.
+
+time_1 <- Sys.time()
+
+AzureDSVM::executeScript(context=context, 
+                         resource.group=RG, 
+                         machines=machines, 
+                         remote=master, 
+                         user=USER, 
+                         script="../test/workerHotspots.R", 
+                         master=master, 
+                         slaves=slaves, 
+                         compute.context="localParallel")
+
+time_2 <- Sys.time()
+
+# get results from remote
+
+AzureDSVM::fileTransfer(from=paste0(master, ":~"), 
+                        to=".", 
+                        user=USER, 
+                        file="results.RData")
+
+load("./results.RData") 
+results_local <- 
+  results %T>%
+  print()
+```
+
+For comparison purpose, the same analysis is run in the "cluster parallel" context again. 
+
+```{r}
+# parallel the analytics across cluster.
+
+time_3 <- Sys.time()
+
+AzureDSVM::executeScript(context=context, 
+                        resource.group=RG, 
+                        machines=machines, 
+                        remote=master, 
+                        user=USER, 
+                        script="../test/workerHotspots.R", 
+                        master=master, 
+                        slaves=slaves, 
+                        compute.context="clusterParallel")
+
+time_4 <- Sys.time()
+
+# get results from remote
+
+AzureDSVM::fileTransfer(from=paste0(master, ":~"), 
+                       to=".", 
+                       user=USER, 
+                       file="results.RData")
+
+load("./results.RData") 
+results_cluster <- results
+```
+
+Save time points for later reference
+
+```{r}
+save(list(time_1, time_2, time_3, time_4), "./elapsed.RData")
+```
+
+Once finishing the analysis, switch off DSVMs.
+
+```{r}
+# stop machines after the analysis.
+
+AzureDSVM::operateDSVM(context, RG, vm$name, operation="Stop")
+```
+
+The cost of running the above analytics can be obtained with
+`expenseCalculation` function, but one thing worthing noting is that
+there is usually delay between execution of jobs and record of data
+consumption. The delay varies across regions of data centers, so it is
+recommended to save starting and ending time points of analytical jobs
+for reference so that later on `expenseCalculator` can be safely
+called for retrieving results.
+
+```{r}
+# calculate expense on computations.
+
+load("./elapsed.RData")
+
+cost <- 0
+
+if (length(vm$name) == 1) {
+  cost <- AzureDSVM::expenseCalculator(context=context,
+                                      instance=as.character(vm$name[1]), 
+                                      timeStart=time_1,
+                                      timeEnd=time_2,
+                                      granularity="Hourly",
+                                      currency="currency",
+                                      locale="your_locale",
+                                      offerId="your_offer_id",
+                                      region="your_location")
+} else {
+  for (name in as.character(vm$name)) {
+    cost <- cost + AzureDSVM::expenseCalculator(context=context,
+                                               instance=name, 
+                                               timeStart=time_1,
+                                               timeEnd=time_2,
+                                               granularity="Hourly",
+                                               currency="currency",
+                                               locale="your_locale",
+                                               offerId="your_offer_id",
+                                               region="your_location")
+  }
+}
+```
+
+# Clean-up
+
+Stop or delete computing resources if they are no longer needed to avoid unnecessary cost.
+
+```{r}
+if (! rg_pre_exists)
+  azureDeleteResourceGroup(context, RG)
+```
