@@ -19,7 +19,7 @@ The Hot Spots method was proposed by Graham Williams for discovering knowledge o
 
 The greatest benefit of using Hot Spots method for data mining are that it visually describes the knowledge by a set of rules which are of particular convenience to a data miner to understand mining results. This is helpful in various scenarios such as insurance premium setting, fraud detection in health, etc.
 
-In this demonstration, Hotspots analysis is used for supervised binary classification. The workflow is as follows
+In this demonstration, Hot Spots analysis is used for supervised binary classification. The workflow is as follows
 
     0. Given a labelled data set. Split the data into training and testing sets.
     1. For the training set, cluster it into different segments. This is done by k-means algorithm.
@@ -118,7 +118,7 @@ if (! rg_pre_exists)
 }
 ```
 
-Create one remote DSVM for running the Hotspots analytics.
+Create one remote DSVM for running the Hot Spots analytics.
 
 ```{r}
 vm <- AzureSMR::azureListVM(context, RG)
@@ -168,13 +168,6 @@ The R codes for Hot Spot analysis are available as [workerHotSpots.R](https://ww
     * [workerHotSpotsProcess.R](https://github.com/Azure/AzureDSVM/blob/master/test/workerHotspotsProcess.R) a function for the whole process of Hot spots method.
     * [workerHotSpots.R](https://github.com/Azure/AzureDSVM/blob/master/test/workerHotspots.R) top-level script for Hot spots analysis.
 
-The following is the configuration of computing cluster which is needed for specifying a "clusterParallel" computing context. 
-
-    * `machines` names of DSVMs used for parallelisation.
-    * `dns_list` DNS of DSVMs. 
-    * `master` DNS of the DSVM where the worker script will be uploaded to for execution.
-    * `slaves` DNS of DSVMs where execution of worker script will be distributed to.
-
 ```{r}
 # specify machine names, master, and slaves.
 
@@ -186,9 +179,9 @@ master <- dns_list[1]
 slaves <- dns_list[-1]
 ```
 
-The following codes run the analytics of the worker script on a remote DSVM in a "local parallel" computing context, and obtain results from remote master node to local R session.
+The whole end-to-end Hot Spots analysis is run on the remote machine in a parallel manner. To accelerate the analysis process, parameter sweeping inside model training and testing is executed with the help of `rxExec` function from Microsoft R Server. The local parallel backend will make use of available cores of the machine to run those functions in parallel.
 
-Since the functions used for the analysis are defined in separated scripts, these scripts are uploaded onto remote DSVM.
+Functions used for the analysis are defined in separated scripts, and uploaded onto remote DSVM with `AzureDSVM::fileTransfer`.
 
 ```{r}
 worker_scripts <- c("workerHotspotsFuncs.R", 
@@ -232,7 +225,7 @@ AzureDSVM::fileTransfer(from=paste0(master, ":~"),
 
 load("./results.RData") 
 results_local <- 
-  results %T>%
+  eval %T>%
   print()
 ```
 
@@ -243,7 +236,7 @@ save(list(time_1, time_2), "./elapsed.RData")
 ```
 
 The cost of running the above analytics can be obtained with
-`expenseCalculation` function. 
+`AzureDSVM::expenseCalculation` function. 
 
 ```{r}
 # calculate expense on computations.
