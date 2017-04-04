@@ -11,22 +11,22 @@ vignette: >
 # Use Case
 
 This tutorial will demonstrate the effectiveness of parallelizing a [Hot Spots](https://togaware.com/papers/pakdd99.pdf) analysis across Azure DSVM(s). 
-The Hot Spots method was proposed by Graham Williams for discovering knowledge of interets from large data sets. It consists of three steps:
+The Hot Spots method was proposed by Graham Williams for discovering knowledge of interets from large data sets. General steps of a Hot Spots analysis are as follows:
 
-    1. Cluster a data set into several complete and disjoint clusters. This is often achieved with a clustering algorithm such as k-means.
-    2. Rule-based inductions are then built to discriminatorily describe each of the clusters. 
-    3. Within each of the clusters specified by associative rules, create models to evaluate data attributes to find patterns.
+1. Cluster a data set into several complete and disjoint clusters. This is often achieved with a clustering algorithm such as k-means.
+2. Rule-based inductions are then built to discriminatorily describe each of the clusters. 
+3. Within each of the clusters specified by associative rules, create models to evaluate data attributes to find patterns.
 
 The greatest benefit of using Hot Spots method for data mining are that it visually describes the knowledge by a set of rules which are of particular convenience to a data miner to understand mining results. This is helpful in various scenarios such as insurance premium setting, fraud detection in health, etc.
 
 In this demonstration, Hot Spots analysis is used for supervised binary classification. The workflow is as follows
 
-    0. Given a labelled data set. Split the data into training and testing sets.
-    1. For the training set, cluster it into different segments. This is done by k-means algorithm.
-        1. Number of clusters is swept from 2 to a large enough number (say 20 in this demo) in order to select the optimal one. The selection is based on [elbow method](https://www.google.com.sg/url?sa=t&rct=j&q=&esrc=s&source=web&cd=2&cad=rja&uact=8&ved=0ahUKEwjDo7W43InTAhXEllQKHZc1CowQygQIIjAB&url=https%3A%2F%2Fen.wikipedia.org%2Fwiki%2FDetermining_the_number_of_clusters_in_a_data_set%23The_elbow_method&usg=AFQjCNEsAz8DP6f5iihKrOR6qT_hRDUdGw&sig2=XQySMd1rPShm8IRdwlFqRw). 
-        2. Considering that k-means clustering performance relies on initial conditions, each clustering is run 10 times for averging out instability. 
-    2. Assume the number of clusters is determined to be N. Build N descriptive models that differentiate each cluster from the rest. Within each cluster, build a predictive model to do binary classification on the data label.
-    3. In the testing phase, examine the each observation of the data which cluster it belongs to using the descriptive models. Then do binary classification using the predictive models to produce the predicted label.
+0. Given a labelled data set. Split the data into training and testing sets.
+1. For the training set, cluster it into different segments. This is done by k-means algorithm.
+    1. Number of clusters is swept from 2 to a large enough number (say 20 in this demo) in order to select the optimal one. The selection is based on [elbow method](https://www.google.com.sg/url?sa=t&rct=j&q=&esrc=s&source=web&cd=2&cad=rja&uact=8&ved=0ahUKEwjDo7W43InTAhXEllQKHZc1CowQygQIIjAB&url=https%3A%2F%2Fen.wikipedia.org%2Fwiki%2FDetermining_the_number_of_clusters_in_a_data_set%23The_elbow_method&usg=AFQjCNEsAz8DP6f5iihKrOR6qT_hRDUdGw&sig2=XQySMd1rPShm8IRdwlFqRw). 
+    2. Considering that k-means clustering performance relies on initial conditions, each clustering is run 10 times for averging out instability. 
+2. Assume the number of clusters is determined to be N. Build N descriptive models that differentiate each cluster from the rest. Within each cluster, build a predictive model to do binary classification on the data label.
+3. In the testing phase, examine the each observation of the data which cluster it belongs to using the descriptive models. Then do binary classification using the predictive models to produce the predicted label.
 
 # Setup
 
@@ -111,7 +111,7 @@ if (! rg_pre_exists)
 }
 ```
 
-Create one remote DSVM for running the Hot Spots analytics.
+Create one Linux DSVM for running the Hot Spots analytics.
 
 ```{r}
 vm <- AzureSMR::azureListVM(context, RG)
@@ -154,12 +154,14 @@ directly from
 
 The R codes for Hot Spot analysis are available as [workerHotSpots.R](https://www.microsoft.com). Besides the main worker script, there are several other scripts where functions used for the analysis reside.
 
-    * [workerHotSpotsSetup.R](https://github.com/Azure/AzureDSVM/blob/master/test/workerHotspotsSetup.R) function that sets up the environment.
-    * [workerHotSpotsFuncs.R](https://github.com/Azure/AzureDSVM/blob/master/test/workerHotspotsFuncs.R) functions used in training or testing process.
-    * [workerHotSpotsTrain.R](https://github.com/Azure/AzureDSVM/blob/master/test/workerHotspotsTrain.R) functions for training a Hot Spot model for binary classification. 
-    * [workerHotSpotsTest.R](https://github.com/Azure/AzureDSVM/blob/master/test/workerHotspotsTest.R) functions for testing performance of a classification model based on Hot Spots method.
-    * [workerHotSpotsProcess.R](https://github.com/Azure/AzureDSVM/blob/master/test/workerHotspotsProcess.R) a function for the whole process of Hot spots method.
-    * [workerHotSpots.R](https://github.com/Azure/AzureDSVM/blob/master/test/workerHotspots.R) top-level script for Hot spots analysis.
+* [workerHotSpotsSetup.R](https://github.com/Azure/AzureDSVM/blob/master/test/workerHotspotsSetup.R) function that sets up the environment.
+* [workerHotSpotsFuncs.R](https://github.com/Azure/AzureDSVM/blob/master/test/workerHotspotsFuncs.R) functions used in training or testing process.
+* [workerHotSpotsTrain.R](https://github.com/Azure/AzureDSVM/blob/master/test/workerHotspotsTrain.R) functions for training a Hot Spot model for binary classification. 
+* [workerHotSpotsTest.R](https://github.com/Azure/AzureDSVM/blob/master/test/workerHotspotsTest.R) functions for testing performance of a classification model based on Hot Spots method.
+* [workerHotSpotsProcess.R](https://github.com/Azure/AzureDSVM/blob/master/test/workerHotspotsProcess.R) a function for the whole process of Hot spots method.
+* [workerHotSpots.R](https://github.com/Azure/AzureDSVM/blob/master/test/workerHotspots.R) top-level script for Hot spots analysis.
+
+Specify the master node that will run the analytic script. In this case, it is the DSVM created just now.
 
 ```{r}
 # specify machine names, master, and slaves.
