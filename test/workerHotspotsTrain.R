@@ -15,7 +15,6 @@ clusterAnalysis <- function(data, centers) {
   for (i in 1:10) {
     clusters <- kmeans(df, 
                        centers=centers)
-    # algorithm="Lloyd")
     
     # calculate the explained variance for a reference of determining the optimal number of clusters.
     
@@ -70,6 +69,7 @@ distPointLine <- function(y) {
 # -------------------------------------------------------------------------
 
 modelCreation <- function(data, cluster, cl, lib) {
+  
   library(dplyr)
   library(DMwR, lib.loc=lib)
   
