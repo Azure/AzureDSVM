@@ -209,7 +209,11 @@ AzureDSVM::executeScript(context=context,
                          compute.context="localParallel")
 
 time_2 <- Sys.time()
+```
 
+Get the results from remote DSVM.
+
+```{r}
 # get results from remote
 
 AzureDSVM::fileTransfer(from=paste0(master, ":~"), 
@@ -252,14 +256,14 @@ if (length(vm$name) == 1) {
 } else {
   for (name in as.character(vm$name)) {
     cost <- cost + AzureDSVM::expenseCalculator(context=context,
-                                               instance=name, 
-                                               time.start=time_1,
-                                               time.end=time_2,
-                                               granularity="Hourly",
-                                               currency="currency",
-                                               locale="your_locale",
-                                               offerId="your_offer_id",
-                                               region="your_location")
+                                                instance=name, 
+                                                time.start=time_1,
+                                                time.end=time_2,
+                                                granularity="Hourly",
+                                                currency="currency",
+                                                locale="your_locale",
+                                                offerId="your_offer_id",
+                                                region="your_location")
   }
 }
 ```

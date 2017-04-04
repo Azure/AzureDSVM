@@ -1,3 +1,24 @@
+# ---------------------------------------------------------------------------
+# THIS IS A HEADER ADDED BY COMPUTE INTERFACE
+# ---------------------------------------------------------------------------
+CI_MACHINES <- c( "mynngf" )
+CI_DNS <- c( "mynngf.southeastasia.cloudapp.azure.com" )
+CI_VMUSER <- c( "zhle" )
+CI_MASTER <- c( "mynngf.southeastasia.cloudapp.azure.com" )
+CI_SLAVES <- c( "" )
+CI_DATA <- ""
+CI_CONTEXT <- "localParallel"
+
+library(RevoScaleR)
+library(doParallel)
+# library(readr)
+# --------- Set compute context
+rxSetComputeContext(RxLocalParallel())
+# --------- Load data.
+# ciData <- ifelse(CI_DATA != '', read_csv(CI_DATA), data.frame(0))
+# ---------------------------------------------------------------------------
+# END OF THE HEADER ADDED BY COMPUTE INTERFACE
+# ---------------------------------------------------------------------------
 # source the script to load functions used for the analysis.
 
 source("workerHotspotsSetup.R")

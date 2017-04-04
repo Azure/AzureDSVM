@@ -70,5 +70,15 @@ hotSpotsProcess <- function(data,
   
   eval <- table(True=df_test$Class, Pred=pred$Class)
   
-  eval
+  # or compute AUC?
+  
+  roc <- rxRoc(actualVarName="Class", 
+               predVarNames=c("Class_prob"), 
+               data=pred) 
+  
+  # return the results.
+  
+  results <- list(numberOfClusters=elbow,
+                  confusionMatrix=eval,
+                  roc=roc)
 }

@@ -10,8 +10,6 @@ predictLabel <- function(df_test, df_scores, models) {
   
   id <- max.col(df_scores)
   
-  # id <- apply(df_scores, 1, function(x) which(x == min(x)))
-  
   df_test <- 
     cbind(df_test, id) %>%
     mutate(key = row_number())
