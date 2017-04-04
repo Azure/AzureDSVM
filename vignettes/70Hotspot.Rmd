@@ -35,14 +35,7 @@ Similar to the previous sections, credentials for authentication are required to
 ```{r}
 library(AzureDSVM)
 library(AzureSMR)
-library(dplyr)
-library(stringr)
-library(stringi)
 library(magrittr)
-library(readr)
-library(rattle)
-library(ggplot2)
-library(wskm)
 ```
 
 ```{r setup}
