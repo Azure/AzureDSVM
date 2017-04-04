@@ -8,7 +8,9 @@ predictLabel <- function(df_test, df_scores, models) {
   
   # get the highest score to determine the predictive model to use.
   
-  id <- apply(df_scores, 1, function(x) which(x == min(x)))
+  id <- max.col(df_scores)
+  
+  # id <- apply(df_scores, 1, function(x) which(x == min(x)))
   
   df_test <- 
     cbind(df_test, id) %>%

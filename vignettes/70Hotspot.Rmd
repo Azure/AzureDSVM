@@ -152,7 +152,7 @@ available on [kaggle website](https://www.kaggle.com/dalpozz/creditcardfraud) or
 directly from
 [togaware](https://access.togaware.com/creditcard.xdf) in XDF format. 
 
-The top-level worker script for Hot Spot analysis is available as [workerHotSpots.R](https://www.microsoft.com). Besides the main worker script, there are several other scripts where functions used for the analysis reside.
+The top-level worker script for Hot Spot analysis is available as [workerHotSpots.R](https://github.com/Azure/AzureDSVM/blob/master/test/workerHotspots.R). Besides the main worker script, there are several other scripts where functions used for the analysis reside.
 
 * [workerHotSpotsSetup.R](https://github.com/Azure/AzureDSVM/blob/master/test/workerHotspotsSetup.R) function that sets up the environment.
 * [workerHotSpotsFuncs.R](https://github.com/Azure/AzureDSVM/blob/master/test/workerHotspotsFuncs.R) functions used in training or testing process.
