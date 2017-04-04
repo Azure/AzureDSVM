@@ -208,14 +208,14 @@ The following script run the analytics of the worker script in a "local parallel
 time_1 <- Sys.time()
 
 AzureDSVM::executeScript(context=context, 
-                        resourceGroup=RG, 
+                        resource.group=RG, 
                         machines=machines, 
                         remote=master, 
                         user=USER, 
                         script="./test/workerCluster.R", 
                         master=master, 
                         slaves=slaves, 
-                        computeContext="localParallel")
+                        compute.context="localParallel")
 
 time_2 <- Sys.time()
 
@@ -240,14 +240,14 @@ For comparison purpose, the same analysis is run in the "cluster parallel" conte
 time_3 <- Sys.time()
 
 AzureDSVM::executeScript(context=context, 
-                        resourceGroup=RG, 
-                        machines=machines, 
-                        remote=master, 
-                        user=USER, 
-                        script="./test/workerCluster.R", 
-                        master=master, 
-                        slaves=slaves, 
-                        computeContext="clusterParallel")
+                         resource.group=RG, 
+                         machines=machines, 
+                         remote=master, 
+                         user=USER, 
+                         script="./test/workerCluster.R", 
+                         master=master, 
+                         slaves=slaves, 
+                         compute.context="clusterParallel")
 
 time_4 <- Sys.time()
 
@@ -317,8 +317,8 @@ cost <- 0
 if (length(vm$name) == 1) {
   cost <- AzureDSVM::expenseCalculator(context=context,
                                       instance=as.character(vm$name[1]), 
-                                      timeStart=time_1,
-                                      timeEnd=time_2,
+                                      time.start=time_1,
+                                      time.end=time_2,
                                       granularity="Hourly",
                                       currency="currency",
                                       locale="your_locale",
@@ -328,8 +328,8 @@ if (length(vm$name) == 1) {
   for (name in as.character(vm$name)) {
     cost <- cost + AzureDSVM::expenseCalculator(context=context,
                                                instance=name, 
-                                               timeStart=time_1,
-                                               timeEnd=time_2,
+                                               time.start=time_1,
+                                               time.end=time_2,
                                                granularity="Hourly",
                                                currency="currency",
                                                locale="your_locale",
@@ -347,4 +347,3 @@ Stop or delete computing resources if they are no longer needed to avoid unneces
 if (! rg_pre_exists)
   azureDeleteResourceGroup(context, RG)
 ```
-

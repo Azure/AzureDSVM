@@ -175,28 +175,28 @@ writeLines(code, tmpf1)
 t1 <- Sys.time()
 
 executeScript(context,
-              resourceGroup=RG,
+              resource.group=RG,
               machines=cluster$hostname[1],
               remote=cluster$fqdn[1],
               user=unique(cluster$username),
               script=tmpf1,
               master=cluster$fqdn[1],
               slaves=cluster$fqdn[1],
-              computeContext="localParallel")
+              compute.context="localParallel")
 
 t2 <- Sys.time()
 
 # cluster parallelism across nodes.
 
 executeScript(context,
-              resourceGroup=RG,
+              resource.group=RG,
               machines=cluster$hostname,
               remote=cluster$fqdn[1],
               user=unique(cluster$username),
               script=tmpf1,
               master=cluster$fqdn[1],
               slaves=cluster$fqdn[-1],
-              computeContext="clusterParallel")
+              compute.context="clusterParallel")
 
 t3 <- Sys.time()
 
@@ -227,14 +227,14 @@ writeLines(codes, tmpf2)
 t4 <- Sys.time()
 
 executeScript(context,
-              resourceGroup=RG,
+              resource.group=RG,
               machines=cluster$hostname,
               remote=cluster$fqdn[1],
               user=unique(cluster$username),
               script=tmpf2,
               master=cluster$fqdn[1],
               slaves=cluster$fqdn[-1],
-              computeContext="clusterParallel")
+              compute.context="clusterParallel")
 
 t5 <- Sys.time()
 

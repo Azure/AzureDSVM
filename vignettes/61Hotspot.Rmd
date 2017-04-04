@@ -207,9 +207,9 @@ master <- dns_list[1]
 slaves <- dns_list[-1]
 ```
 
-The following codes run the analytics of the worker script in a "local parallel" computing context, and obtain results from remote master node to local R session.
+The following codes run the analytics of the worker script on a remote DSVM in a "local parallel" computing context, and obtain results from remote master node to local R session.
 
-Upload scripts onto remote server.
+Since the functions used for the analysis are defined in separated scripts, these scripts are uploaded onto remote DSVM.
 
 ```{r}
 worker_scripts <- c("workerHotspotsFuncs.R", 
@@ -237,7 +237,7 @@ for (slave in slaves) {
 }
 ```
 
-Remote execution of worker script.
+Remote execution of worker script (the analysis takes approximately 10 - 15 minutes on a D12 v2 DSVM which has 4 fores and 28 GB RAM.
 
 ```{r}
 # parallel the analytics with local parallel computing context.
@@ -269,57 +269,14 @@ results_local <-
   print()
 ```
 
-For comparison purpose, the same analysis is run in the "cluster parallel" context again. 
+Save time points for later reference.
 
 ```{r}
-# parallel the analytics across cluster.
-
-time_3 <- Sys.time()
-
-AzureDSVM::executeScript(context=context, 
-                        resource.group=RG, 
-                        machines=machines, 
-                        remote=master, 
-                        user=USER, 
-                        script="../test/workerHotspots.R", 
-                        master=master, 
-                        slaves=slaves, 
-                        compute.context="clusterParallel")
-
-time_4 <- Sys.time()
-
-# get results from remote
-
-AzureDSVM::fileTransfer(from=paste0(master, ":~"), 
-                       to=".", 
-                       user=USER, 
-                       file="results.RData")
-
-load("./results.RData") 
-results_cluster <- results
-```
-
-Save time points for later reference
-
-```{r}
-save(list(time_1, time_2, time_3, time_4), "./elapsed.RData")
-```
-
-Once finishing the analysis, switch off DSVMs.
-
-```{r}
-# stop machines after the analysis.
-
-AzureDSVM::operateDSVM(context, RG, vm$name, operation="Stop")
+save(list(time_1, time_2), "./elapsed.RData")
 ```
 
 The cost of running the above analytics can be obtained with
-`expenseCalculation` function, but one thing worthing noting is that
-there is usually delay between execution of jobs and record of data
-consumption. The delay varies across regions of data centers, so it is
-recommended to save starting and ending time points of analytical jobs
-for reference so that later on `expenseCalculator` can be safely
-called for retrieving results.
+`expenseCalculation` function. 
 
 ```{r}
 # calculate expense on computations.
@@ -330,20 +287,20 @@ cost <- 0
 
 if (length(vm$name) == 1) {
   cost <- AzureDSVM::expenseCalculator(context=context,
-                                      instance=as.character(vm$name[1]), 
-                                      timeStart=time_1,
-                                      timeEnd=time_2,
-                                      granularity="Hourly",
-                                      currency="currency",
-                                      locale="your_locale",
-                                      offerId="your_offer_id",
-                                      region="your_location")
+                                       instance=as.character(vm$name[1]), 
+                                       time.start=time_1,
+                                       time.end=time_2,
+                                       granularity="Hourly",
+                                       currency="currency",
+                                       locale="your_locale",
+                                       offerId="your_offer_id",
+                                       region="your_location")
 } else {
   for (name in as.character(vm$name)) {
     cost <- cost + AzureDSVM::expenseCalculator(context=context,
                                                instance=name, 
-                                               timeStart=time_1,
-                                               timeEnd=time_2,
+                                               time.start=time_1,
+                                               time.end=time_2,
                                                granularity="Hourly",
                                                currency="currency",
                                                locale="your_locale",
@@ -355,7 +312,15 @@ if (length(vm$name) == 1) {
 
 # Clean-up
 
-Stop or delete computing resources if they are no longer needed to avoid unnecessary cost.
+Once finishing the analysis, switch off DSVMs.
+
+```{r}
+# stop machines after the analysis.
+
+AzureDSVM::operateDSVM(context, RG, vm$name, operation="Stop")
+```
+
+If the computing resources are used once, delete the resource group to avoid unnecessary cost.
 
 ```{r}
 if (! rg_pre_exists)

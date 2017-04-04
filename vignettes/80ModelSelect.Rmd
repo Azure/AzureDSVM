@@ -259,28 +259,28 @@ The worker script for binary classification is located in "/test" directory, wit
 time1 <- Sys.time()
 
 executeScript(context,
-              resourceGroup=RG,
+              resource.group=RG,
               machines=LDSVM,
               remote=VM_URL,
               user=USER,
               script="./workerClassification.R",
               master=VM_URL,
               slaves=VM_URL,
-              computeContext="localParallel")
+              compute.context="localParallel")
 
 # remote execution on a cluster of DSVMs.
 
 time2 <- Sys.time()
 
 executeScript(context,
-              resourceGroup=RG,
+              resource.group=RG,
               machines=LDSVMS,
               remote=VMS_URL[1],
               user=USER,
               script="./workerClassification.R",
               master=VMS_URL[1],
               slaves=VMS_URL[-1],
-              computeContext="clusterParallel")
+              compute.context="clusterParallel")
 
 time3 <- Sys.time()
 
@@ -306,8 +306,8 @@ cost <- 0
 if (length(vm$name) == 1) {
   cost <- AzureDSVM::expenseCalculator(context=context,
                                       instance=as.character(vm$name[1]), 
-                                      timeStart=time_1,
-                                      timeEnd=time_2,
+                                      time.start=time_1,
+                                      time.end=time_2,
                                       granularity="Hourly",
                                       currency="currency",
                                       locale="your_locale",
@@ -317,8 +317,8 @@ if (length(vm$name) == 1) {
   for (name in as.character(vm$name)) {
     cost <- cost + AzureDSVM::expenseCalculator(context=context,
                                                instance=name, 
-                                               timeStart=time_1,
-                                               timeEnd=time_2,
+                                               time.start=time_1,
+                                               time.end=time_2,
                                                granularity="Hourly",
                                                currency="currency",
                                                locale="your_locale",

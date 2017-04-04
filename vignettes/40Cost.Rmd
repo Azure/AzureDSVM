@@ -69,8 +69,8 @@ context <- createAzureContext(tenantID=TID, clientID=CID, authKey=KEY)
 
 data_consum <- dataConsumption(context,
                                instance=VM,
-                               timeStart=START,
-                               timeEnd=END,
+                               time.start=START,
+                               time.end=END,
                                granularity=GRA)
 
 print(data_consum)
@@ -99,8 +99,8 @@ Again assuming the information is pre-stored into the "credential" script.
 ```{r}
 consum <- expenseCalculator(context,
                             instance=VM,
-                            timeStart=START,
-                            timeEnd=END,
+                            time.start=START,
+                            time.end=END,
                             granularity=GRA,
                             currency=CURR,
                             locale=LOCALE,
