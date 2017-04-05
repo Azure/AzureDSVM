@@ -50,7 +50,7 @@ To get started with this package, see the Vignettes:
 * [Monitor data consumption and expense spent on using DSVM(s)](https://github.com/Azure/AzureDSVM/blob/master/vignettes/40Cost.Rmd)
 * Putting all together
     * [Use case - k-means clustering](https://github.com/Azure/AzureDSVM/blob/master/vignettes/60Kmeans.Rmd)
-    * [Use case - Hot spots analysis](https://github.com/Azure/AzureDSVM/blob/master/vignettes/70Hotspots.Rmd)
+    * [Use case - Hot spots analysis](https://github.com/Azure/AzureDSVM/blob/master/vignettes/70Hotspot.Rmd)
     * [Use case - Binary classification](https://github.com/Azure/AzureDSVM/blob/master/vignettes/80ModelSelect.Rmd)
 
 # Code of Conduct
