@@ -44,7 +44,7 @@ library(magrittr)
 
 USER <- Sys.info()[['user']]
 
-source(paste0(USER, "_credentials.R"))
+source(file.path("../", paste0(USER, "_credentials.R")))
 ```
 
 Specifications of computing resources.
@@ -230,7 +230,8 @@ results_local <-
 Save time points for later reference.
 
 ```{r}
-save(list(time_1, time_2), "./elapsed.RData")
+elapsed <- list(time_1, time_2)
+save(elapsed, file="./elapsed.RData")
 ```
 
 The cost of running the above analytics can be obtained with
