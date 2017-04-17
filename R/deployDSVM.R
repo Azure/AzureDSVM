@@ -149,11 +149,11 @@ deployDSVM <- function(context,
   {
     if(authen == "Key")
     {
-      temp_path <- system.file("etc", "template_linux_key.json", package="AzureDSVM")
+      temp_path <- system.file("etc", "template_linux_key_ubuntu.json", package="AzureDSVM")
       para_path <- system.file("etc", "parameter_linux_key.json", package="AzureDSVM")
     } else if(authen == "Password")
     {
-      temp_path <- system.file("etc", "template_linux.json", package="AzureDSVM")
+      temp_path <- system.file("etc", "template_linux_ubuntu.json", package="AzureDSVM")
       para_path <- system.file("etc", "parameter_linux.json", package="AzureDSVM")
     } else
     {
