@@ -1,6 +1,6 @@
 ---
-title = "Using Azure Data Science Virtual Machine: Deployment of a single DSVM"
-author= "Graham Williams and Le Zhang"
+title  = "Using Azure Data Science Virtual Machine: Deployment of a single DSVM"
+author = "Graham Williams and Le Zhang"
 output: rmarkdown::html_vignette
 vignette: >
  %\VignetteIndexEntry{Vignette Title}
@@ -47,6 +47,10 @@ such a file in the current working directory, naming the file
 
 ```{r credentials, eval=FALSE}
 # Credentials come from app creation in Active Directory within Azure.
+#
+# See the following for details of app creation.
+#
+# https://github.com/Azure/AzureDSVM/blob/master/vignettes/00Introduction.Rmd
  
 TID <- "72f9....db47"          # Tenant ID
 CID <- "9c52....074a"          # Client ID
@@ -138,6 +142,11 @@ context <- createAzureContext(tenantID=TID, clientID=CID, authKey=KEY)
 # will not remove the resource group if it pre-existed.
 
 rg_pre_exists <- existsRG(context, RG, LOC)
+
+# Check that it now exists.
+
+cat("Resource group", RG, "at", LOC,
+    ifelse(!existsRG(context, RG, LOC), "does not exist.\n", "exists.\n"), "\n")
 ```
 
 # Create a Resource Group
@@ -178,7 +187,18 @@ performance. See the documentation for deployDSVM() for the actual
 default.
 
 ```{r}
-getVMSizes(context, "southeastasia") 
+# List the available VM sizes. May differ with location of the data centre.
+
+getVMSizes(context, "southeastasia") %>%
+  set_names(c("Size", "Cores", "Disk GB", "RAM GB", "Max Disks"))
+
+# The default size.
+
+formals(deployDSVM)$size
+
+# The default operating system is Ubuntu.
+
+formals(deployDSVM)$os
 ```
 
 The following code deploys a Linux DSVM, and it will take approximately 4 minutes.
@@ -215,6 +235,10 @@ cmd
 system(cmd, intern=TRUE)
 
 ```
+
+# Some Standard Setup
+
+TODO: Install wajig, lsb. Then update, distupgrade. Then lsb-release.
 
 # Deploy a Windows Data Science Virtual Machine
 
