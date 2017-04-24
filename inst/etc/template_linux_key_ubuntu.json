@@ -216,6 +216,19 @@
                         }
                     },
                     {
+                        "name": "Rstudio-server",
+                        "properties": {
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "8787",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 1050,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
                         "name": "allowROp",
                         "properties": {
                             "protocol": "TCP",
@@ -224,7 +237,7 @@
                             "sourceAddressPrefix": "*",
                             "destinationAddressPrefix": "*",
                             "access": "Allow",
-                            "priority": 1050,
+                            "priority": 1060,
                             "direction": "Inbound"
                         }
                     }
