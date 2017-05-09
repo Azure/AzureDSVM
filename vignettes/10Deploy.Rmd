@@ -80,7 +80,7 @@ than the system library if you are not a system user.
 # Install the packages if required.
 
 devtools::install_github("Microsoft/AzureSMR")
-devtools::install_github("Azure/AzureDSVM", auth_token=GIT_TOKEN)
+devtools::install_github("Azure/AzureDSVM")
 ```
 
 We can then load the required pacakges from the libraries.
