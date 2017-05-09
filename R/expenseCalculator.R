@@ -147,7 +147,7 @@ dataConsumption <- function(context,
 
   # if time difference is less than one hour. Only return one row of computation consumption whose value is the time difference.
 
-  time.end <- time.end - 3600
+  # time.end <- time.end - 3600
 
   if(as.numeric(time.end - time.start) == 0) {
 
