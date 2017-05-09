@@ -154,7 +154,9 @@ scientist as it can be efficiently automated by R scripts. The
 following chunks of codes demonstrate how to use an R interface for
 remote execution of R scripts under a desired computing context.
 
-A very simple experiment on random number generation. The function `executeScript` handles the remote execution (Note the current version only supports remote execution of script on a Linux DSVM). Computing context can be specified for the execution. In the case of "clusterParallel", a cluster of DSVMs are used.
+A very simple experiment on random number generation. The function `executeScript` handles the remote execution (Note the current version only supports remote execution of script on a Linux DSVM, and the remote execution is achieved via ssh channel). Computing context can be specified for the execution. In the case of "clusterParallel", a cluster of DSVMs are used.
+
+Updates - **Microsoft R Server (>= 9.0) allows remote execution on a DSVM which is properly configured. One can follow the [steps](https://msdn.microsoft.com/en-us/microsoft-r/operationalize/remote-execution) to configure the deployed DSVMs for remote interaction with Microsoft R Server.**  
 
 ```{r set R interface}
 
