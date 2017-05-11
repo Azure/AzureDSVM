@@ -18,8 +18,8 @@
 #'   available sizes can be obtained by function `getVMSizes`.
 #'
 #' @param os Operating system of DSVM. Permitted values are "Linux"
-#'   and "Windows". The default is to deploy a Linux Data Science
-#'   Virtual Machine.
+#'   ,"Windows", and "DeepLearning". The default is to deploy a Linux Data Science
+#'   Virtual Machine. NOTE Deep learning DSVM is still Windows based but there is an extension which preinstalls GPU related drivers and libraries.
 #'
 #' @param authen Either "Key" for public-key based authentication
 #'   (with Linux) or "Password" for a password based authentication
@@ -145,6 +145,9 @@ deployDSVM <- function(context,
   {
     temp_path <- system.file("etc", "template_windows.json", package="AzureDSVM")
     para_path <- system.file("etc", "parameter_windows.json", package="AzureDSVM")
+  } else if(os == "DeepLearning") {
+    temp_path <- system.file("etc", "template_deeplearning.json", package="AzureDSVM")
+    para_path <- system.file("etc", "parameter_deeplearning.json", package="AzureDSVM")
   } else if(os == "Linux")
   {
     if(authen == "Key")
@@ -161,7 +164,7 @@ deployDSVM <- function(context,
     }
   } else
   {
-    stop("Please specify a valid OS type, i.e., either 'Windows' or 'Linux'.")
+    stop("Please specify a valid OS type, i.e., either 'Windows', 'DeepLearning', or 'Linux'.")
   }
 
   # Update the parameter JSON with the virtual machine hostname.
