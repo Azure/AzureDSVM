@@ -47,7 +47,7 @@ library(rattle)
 
 USER <- Sys.info()[['user']]
 
-source(paste0(USER, "_credentials.R"))
+source(file.path("..", paste0(USER, "_credentials.R")))
 ```
 
 ```{r}
@@ -98,42 +98,42 @@ if (! rg_pre_exists) azureCreateResourceGroup(context, RG, LOC)
 existsRG(context, RG, LOC)
 ```
 
-## Deploy a Linux Data Science Virtual Machine
+## Deploy a Ubuntu Data Science Virtual Machine
 
-Create the actual Linux DSVM with public-key based authentication
+Create the actual Ubuntu DSVM with public-key based authentication
 method. Name, username, and size can also be configured.
 
 ```{r deploy}
 
-# Create the required Linux DSVM - generally 4 minutes.
+# Create the required Ubuntu DSVM - generally 4 minutes.
 
 ldsvm <- deployDSVM(context, 
                     resource.group=RG,
                     location=LOC,
-                    name=LDSVM,
+                    hostname=HOST,
                     username=USER,
-                    size="Standard_DS1_v2",
-                    os="Linux",
+                    size="Standard_D12_v2",
+                    os="Ubuntu",
                     authen="Key",
                     pubkey=PUBKEY)
 ldsvm
 
-operateDSVM(context, RG, LDSVM, operation="Check")
+operateDSVM(context, RG, HOST, operation="Check")
 
 azureListVM(context, RG)
 ```
 
-## Deploy a cluster of Linux Data Science Virtual Machines.
+## Deploy a cluster of Ubuntu Data Science Virtual Machines.
 
 ```{r}
 
-# Create a set of Linux DSVMs and they will be formed as a cluster.
+# Create a set of Ubuntu DSVMs and they will be formed as a cluster.
 
 ldsvm_set <- deployDSVMCluster(context, 
                                resource.group=RG, 
                                location=LOC, 
                                count=COUNT, 
-                               name=LDSVM, 
+                               name=HOST, 
                                username=LUSER, 
                                pubkey=rep(PUBKEY, COUNT), 
                                cluster=FALSE)
@@ -248,9 +248,13 @@ mlProcess <- function(formula, data, modelName, modelPara) {
 
 ```
 
-The worker script can be executed on a remote Linux DSVM or DSVM cluster with AzureDSVM function `executeScript` like what has been done in the previous tutorials. 
+The worker script can be executed on a remote Ubuntu DSVM or DSVM cluster with AzureDSVM function `executeScript` like what has been done in the previous tutorials. 
 
 The worker script for binary classification is located in "/test" directory, with name "worker_classficiation.R".
+
+```{r}
+VM_URL <- paste(HOST, LOC, "cloudapp.azure.com", sep=".")
+```
 
 ```{r execution}
 
@@ -260,10 +264,10 @@ time1 <- Sys.time()
 
 executeScript(context,
               resource.group=RG,
-              machines=LDSVM,
+              machines=HOST,
               remote=VM_URL,
               user=USER,
-              script="./workerClassification.R",
+              script="../test/workerClassification.R",
               master=VM_URL,
               slaves=VM_URL,
               compute.context="localParallel")

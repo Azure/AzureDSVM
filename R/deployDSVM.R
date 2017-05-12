@@ -17,8 +17,7 @@
 #' @param size Size of the DSVM. The default is "Standard_D1_v2". All
 #'   available sizes can be obtained by function `getVMSizes`.
 #'
-#' @param os Operating system of DSVM. Permitted values are "Linux"
-#'   ,"Windows", and "DeepLearning". The default is to deploy a Linux Data Science
+#' @param os Operating system of DSVM. Permitted values are "Ubuntu", "CentOS", "Windows", and "DeepLearning". The default is to deploy a Ubuntu Linux Data Science
 #'   Virtual Machine. NOTE Deep learning DSVM is still Windows based but there is an extension which preinstalls GPU related drivers and libraries.
 #'
 #' @param authen Either "Key" for public-key based authentication
@@ -49,8 +48,8 @@
 #' 
 #' @examples 
 #' \dontrun{
-#' # The following deploys a Linux DSVM with public key based authentication
-#' deployDSVM(context, resource.group="<resource_group>", location="<location>", hostname="<machine_name>", username="<user_name>", os="Linux", pubkey="<a_valid_public_key_string_in_SSH_format>")
+#' # The following deploys a Ubuntu DSVM with public key based authentication
+#' deployDSVM(context, resource.group="<resource_group>", location="<location>", hostname="<machine_name>", username="<user_name>", os="Ubuntu", pubkey="<a_valid_public_key_string_in_SSH_format>")
 #' 
 #' # The following deploys a Windows DSVM with password based authentication. The VM size is selected from all the available A-series machines that have the maximum number of computing cores.
 #' 
@@ -68,8 +67,8 @@ deployDSVM <- function(context,
                        hostname,
                        username,
                        size="Standard_D1_v2",
-                       os="Linux",
-                       authen=ifelse(os=="Linux", "Key", "Password"),
+                       os="Ubuntu",
+                       authen=ifelse(os=="Ubuntu", "Key", "Password"),
                        pubkey="",
                        password="",
                        dns.label=hostname,
@@ -148,7 +147,7 @@ deployDSVM <- function(context,
   } else if(os == "DeepLearning") {
     temp_path <- system.file("etc", "template_deeplearning.json", package="AzureDSVM")
     para_path <- system.file("etc", "parameter_deeplearning.json", package="AzureDSVM")
-  } else if(os == "Linux")
+  } else if(os == "Ubuntu")
   {
     if(authen == "Key")
     {
@@ -162,9 +161,23 @@ deployDSVM <- function(context,
     {
       stop("Please specific a valid authentication method, i.e., either 'Key' for public key based or 'Password' for password based, for Linux OS based DSVM")
     }
+  } else if(os == "CentOS")
+  {
+    if(authen == "Key")
+    {
+      temp_path <- system.file("etc", "template_linux_key.json", package="AzureDSVM")
+      para_path <- system.file("etc", "parameter_linux_key.json", package="AzureDSVM")
+    } else if(authen == "Password")
+    {
+      temp_path <- system.file("etc", "template_linux.json", package="AzureDSVM")
+      para_path <- system.file("etc", "parameter_linux.json", package="AzureDSVM")
+    } else
+    {
+      stop("Please specific a valid authentication method, i.e., either 'Key' for public key based or 'Password' for password based, for Linux OS based DSVM")
+    }
   } else
   {
-    stop("Please specify a valid OS type, i.e., either 'Windows', 'DeepLearning', or 'Linux'.")
+    stop("Please specify a valid OS type, i.e., either 'Windows', 'DeepLearning', 'CentOS', or 'Ubuntu'.")
   }
 
   # Update the parameter JSON with the virtual machine hostname.
