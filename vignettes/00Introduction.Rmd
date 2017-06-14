@@ -11,7 +11,9 @@ vignette: >
 
 # Preliminaries
 
-1. `AzureDSVM` requires users to have access to Azure resources, so an Azure subscription is needed. Creation of an Azure account can be found [here](https://azure.microsoft.com/en-us/free/?b=17.09b).  
+1. `AzureDSVM` requires users to have access to Azure resources
+through an Azure subscription. A free Azure account can be
+created [here](https://azure.microsoft.com/en-us/free).
 
 2. It is highly recommended to read through some DSVM documentations to start off. 
     * [Overview of DSVM](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-virtual-machine-overview).
