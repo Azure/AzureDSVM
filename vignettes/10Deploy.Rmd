@@ -206,7 +206,8 @@ formals(deployDSVM)$size
 formals(deployDSVM)$os
 ```
 
-The following code deploys a Linux DSVM, and it will take approximately 4 minutes.
+The following code deploys a Linux DSVM, and it will take a few
+minutes.
 
 ```{r deploy}
 # Create the required Linux DSVM - generally 4 minutes.
@@ -221,7 +222,7 @@ ldsvm
 
 operateDSVM(context, RG, HOST, operation="Check")
 
-azureListVM(context, RG) %>% t()
+azureListVM(context, RG)
 ```
 
 Prove that the deployed DSVM exists.
@@ -245,24 +246,25 @@ system(cmd, intern=TRUE)
 
 # Some Standard Setup --- Optional
 
-We can install some useful tools on a fesh server together.
+We can install some useful tools on a fesh server. Note that the
+Ubuntu server will still be running some background scripts as part of
+its own setup so if there are lock file error messages wait from the
+following commands then simply try again in a short while. We also
+update the operating system here though because of a bad console
+interaction from the msodbcsql package asking about licensing we have
+to do the distupgrade through a terminal so we need to log on to the
+server through the secure shell and manually run that command.  We
+then reboot the server so that, for example, kernel updates, take
+effect.
 
 ```{r useful tools}
 system(paste(ssh, "sudo locale-gen 'en_AU.UTF-8'"))
-system(paste(ssh, "sudo apt-get install wajig lsb htop"))
-system(paste(ssh, "lsb-release"))
-```
-
-It is also recommened that you log on to the server through the secure
-shell and manually update the operating system with all packages
-updated to their latest versions. You may be asked to accept the
-changes. Then reboot the server so that, for example, kernel updates,
-take effect.
-
-```{sh, eval=FALSE}	 
-$ wajig update
-$ wajig distupgrade
-$ sudo reboot
+system(paste(ssh, "sudo apt-get -y install wajig"))
+system(paste(ssh, "wajig install -y lsb htop"))
+system(paste(ssh, "lsb_release -idrc"))
+system(paste(ssh, "wajig update"))
+# wajig distupgrade
+# sudo reboot
 ```
 
 # Deploy a Windows Data Science Virtual Machine - Optional
