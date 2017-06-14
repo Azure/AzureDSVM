@@ -8,6 +8,8 @@ vignette: >
  \usepackage[utf8]{inputenc}
 ---
 
+*DRAFT UNDER DEVELOPMENT*
+
 # Use Case
 
 This tutorial will demonstrate the effectiveness of parallelizing a [Hot Spots](https://togaware.com/papers/pakdd99.pdf) analysis across Azure DSVM(s). 
@@ -44,7 +46,7 @@ library(magrittr)
 
 USER <- Sys.info()[['user']]
 
-source(file.path("../", paste0(USER, "_credentials.R")))
+source(file.path(paste0(USER, "_credentials.R")))
 ```
 
 Specifications of computing resources.
@@ -139,7 +141,13 @@ if (!is.null(vm))
   operateDSVM(context, RG, HOST, operation="Check")
   
 }
+```
 
+*This will now take 4 minutes. Whilst that is deploying let's discuss a little about the Hot Spots methodology. Fang's slide set is a great overview of the approach.*
+
+*Setting up a DSVM is not a trivial task as it is a complete solution for the data scientist and includes thew whole stack of open source data science technology including: R, Python, Hadoop, Spark, MRS, (SQL Server, RTVS, ...)*
+
+```{r}
 azureListVM(context, RG)
 ```
 
@@ -165,11 +173,11 @@ Specify the master node that will run the analytic script. In this case, it is t
 ```{r}
 # specify machine names, master, and slaves.
 
-vm <- AzureSMR::azureListVM(context, RG)
+vm <- AzureSMR::azureListVM(context, RG) %T>% print()
 
 machines <- unlist(vm$name)
 dns_list <- paste0(machines, ".", LOC, ".cloudapp.azure.com")
-master <- dns_list[1]
+master <- dns_list[1] %T>% print()
 slaves <- dns_list[-1]
 ```
 
@@ -191,7 +199,9 @@ sapply(worker_scripts,
        user=USER)
 ```
 
-Remote execution of worker script (the analysis takes approximately 10 - 15 minutes on a D12 v2 DSVM which has 4 fores and 28 GB RAM.
+Remote execution of worker script (the analysis takes approximately 10 - 15 minutes on a D12 v2 DSVM which has 4 cores and 28 GB RAM.
+
+*Whilst this is running we continue talking about the algorithm for Hot Spots.*
 
 ```{r}
 # parallel the analytics with local parallel computing context.
@@ -268,6 +278,8 @@ if (length(vm$name) == 1) {
   }
 }
 ```
+
+*So that has cost me something less than $1! The data is securely sent, fully encrypted, to and from the server on Azure, and the server itself is newly created (hence, no one will have previously discovered it and implanted spy ware or visrus) and only accessible via the secure shell so all communications are fully encrypted from your desktop to the server, and then we remove the server and ensure no remenants of our anonynmous data remain on the cloud!*
 
 # Clean-up
 
