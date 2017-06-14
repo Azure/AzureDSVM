@@ -12,17 +12,27 @@ vignette: >
 # Preliminaries
 
 1. `AzureDSVM` requires users to have access to Azure resources
-through an Azure subscription. A free Azure account can be
-created [here](https://azure.microsoft.com/en-us/free).
+through an Azure subscription which can be obtained through a [free
+Azure account](https://azure.microsoft.com/en-us/free).
 
-2. It is highly recommended to read through some DSVM documentations to start off. 
-    * [Overview of DSVM](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-virtual-machine-overview).
-    * [Ten things you can do with DSVM](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-vm-do-ten-things).
-    * [DSVM GitHub repository](https://github.com/Azure/Azure-MachineLearning-DataScience/tree/master/Misc/DataScienceProcess/DataScienceScripts/Solution%20Arch/DSVM).
+2. It is highly recommended to read through the DSVM documentations to
+start off.
 
-3. `AzureDSVM` is built in R (>= 3.3.1), with dependencies on packages of `AzureSMR `(>= 0.2.2), `stringr` (>= 1.1.0), `stringi` (>= 1.1.2), `magrittr` (>= 1.5), `dplyr` (>= 0.5.0). `AzureSMR` can be installed from its [GitHub repository](https://github.com/Microsoft/AzureSMR). The other packages are all available on CRAN or MRAN.
+      * [Overview of DSVM](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-virtual-machine-overview).
+      * [Ten things you can do with a DSVM](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-vm-do-ten-things).
+      * [DSVM GitHub repository](https://github.com/Azure/Azure-MachineLearning-DataScience/tree/master/Misc/DataScienceProcess/DataScienceScripts/Solution%20Arch/DSVM).
 
-4. Before using the functions in `AzureDSVM`, one needs to obtain authentication credentials for managing Azure resources. Steps of achieving this are given [here](https://github.com/Microsoft/AzureSMR/blob/master/vignettes/Authentication.Rmd).  
+3. `AzureDSVM` assumes R (>= 3.3.1), with dependencies on packages of
+`AzureSMR `(>= 0.2.2), `stringr` (>= 1.1.0), `stringi` (>= 1.1.2),
+`magrittr` (>= 1.5), `dplyr` (>= 0.5.0). `AzureSMR` can be installed
+from its [GitHub
+repository](https://github.com/Microsoft/AzureSMR). The other packages
+are all available on CRAN or MRAN.
+
+4. Before using the functions in `AzureDSVM`, one needs to obtain
+authentication credentials for managing Azure resources. Steps of
+achieving this are given
+[here](https://github.com/Microsoft/AzureSMR/blob/master/vignettes/Authentication.Rmd).
 
 # How-to
 
