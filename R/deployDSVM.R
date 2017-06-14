@@ -79,7 +79,7 @@ deployDSVM <- function(context,
                        username,
                        size="Standard_D1_v2",
                        os="Ubuntu",
-                       authen=ifelse(os=="Ubuntu", "Key", "Password"),
+                       authen=ifelse(os == "Ubuntu", "Key", "Password"),
                        pubkey="",
                        password="",
                        dns.label=hostname,
@@ -90,12 +90,10 @@ deployDSVM <- function(context,
   AzureSMR::azureCheckToken(context)
 
   # Check if required arguments are present.
+  
+  assert_that(is.azureActiveContext(context))
 
-  if(missing(context))
-    stop("Please specify a context (contains TID, CID, KEY).")
-
-  if(missing(resource.group))
-    stop("Please specify an Azure resouce group.")
+  if (missing(resource.group)) resource.group <- azureActiveContext$resourceGroup 
 
   if(missing(location))
     stop("Please specify a data centre location.")
@@ -107,24 +105,24 @@ deployDSVM <- function(context,
     stop("Please specify a virtual machine user name.")
 
   if(authen == "Key" && missing(pubkey))
-    stop("Please specify a public key.")
-
-  if(authen == "Password" && missing(password))
+    stop("Please specify a valid public key.")
+  
+  if(authen == "Password" && (missing(password) || !AzureSMR:::is_valid_admin_password(password)))
     stop("Please specify a password.")
 
   ## Other preconditions.
 
-  # Check if AzureSMR context is valid.
-
-  if(!AzureSMR::is.azureActiveContext(context))
-    stop("Please use a valid AzureSMR context.")
-
   # Check if resource group exists.
 
-  rg_exist <- existsRG(context, RG, LOC)
+  rg_exist <- existsRG(context, resource.group, location)
 
   if(!rg_exist)
     stop("The specified resource group does not exist in the current region.")
+  
+  assert_that(AzureSMR:::is_resource_group(resource.group))
+  assert_that(AzureSMR:::is_location(location))
+  assert_that(AzureSMR:::is_admin_user(username))
+  assert_that(AzureSMR:::is_vm_name(hostname))
 
   # Check if vm size is available.
 
@@ -133,16 +131,16 @@ deployDSVM <- function(context,
   if(!(size %in% unlist(vm_available[, 1])))
     stop("Unknown size - see getVMSizes() for allowed options.")
 
-  # Incorrect naming of a vm may lead to an unsuccessful deployment of
-  # the DSVM - normally it returns a 400 error from REST call. Check
-  # the name here to ensure it is valid.
-
-  if(length(hostname) > 15)
-    stop("Name of virtual machine is too long at ", length(hostname),
-         "characters. At most it can be 15 characters.")
-
-  if(grepl("[[:upper:]]|[[:punct:]]", hostname))
-    stop("Name of virtual machine is not valid - only lowercase and digits permitted.")
+  # # Incorrect naming of a vm may lead to an unsuccessful deployment of
+  # # the DSVM - normally it returns a 400 error from REST call. Check
+  # # the name here to ensure it is valid.
+  # 
+  # if(length(hostname) > 15)
+  #   stop("Name of virtual machine is too long at ", length(hostname),
+  #        "characters. At most it can be 15 characters.")
+  # 
+  # if(grepl("[[:upper:]]|[[:punct:]]", hostname))
+  #   stop("Name of virtual machine is not valid - only lowercase and digits permitted.")
 
   # check if password is valid.
 

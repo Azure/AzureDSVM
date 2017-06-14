@@ -9,6 +9,7 @@
 #'
 #' @import dplyr
 #' @import magrittr
+#' @importFrom assertthat assert_that
 #' @importFrom jsonlite fromJSON
 #' @importFrom httr add_headers headers content status_code http_status authenticate
 #' @importFrom httr GET PUT POST
