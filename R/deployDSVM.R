@@ -217,8 +217,8 @@ deployDSVM <- function(context,
 
   fqdn <- paste0(dns.label, ".", location, ".cloudapp.azure.com")
 
-  # Use the command line to obtain the IP if in sync model. Should be
-  # a way to get this data from Azure. If mode is async then the
+  # Use the command line to obtain the IP if in sync model. *Should be
+  # a way to get this data from Azure.* If mode is async then the
   # machine will not be available yet and so no IP to be found from
   # DNS. Note that as of 20170614 dig fails with the newly created
   # Ubuntu server so let's drop this optional functionality for now.
