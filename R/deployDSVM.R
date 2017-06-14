@@ -65,7 +65,13 @@
 #' vm_sub <- vm[grep(vm[, 1], pattern="Basic_A"), ]
 #' vm_name <- vm_sub[vm_sub[, 2] == max(vm_sub[, 2]), 1]
 #' 
-#' deployDSVM(context, resource.group="<resource_group>", location="<location>", hostname="<machine_name>", username="<user_name>", os="Windows", password="<a_valid_password>")}
+#' deployDSVM(context,
+#'            resource.group="<resource_group>",
+#'            location="<location>",
+#'            hostname="<machine_name>",
+#'            username="<user_name>",
+#'            os="Windows",
+#'            password="<a_valid_password>")}
 deployDSVM <- function(context,
                        resource.group,
                        location,
@@ -164,7 +170,9 @@ deployDSVM <- function(context,
       para_path <- system.file("etc", "parameter_linux.json", package="AzureDSVM")
     } else
     {
-      stop("Please specific a valid authentication method, i.e., either 'Key' for public key based or 'Password' for password based, for Linux OS based DSVM")
+      stop("Please specific a valid authentication method, i.e., ",
+           "either 'Key' for public key based or 'Password' ",
+           "for password based, for Linux OS based DSVM")
     }
   } else if(os == "CentOS")
   {
@@ -178,11 +186,15 @@ deployDSVM <- function(context,
       para_path <- system.file("etc", "parameter_linux.json", package="AzureDSVM")
     } else
     {
-      stop("Please specific a valid authentication method, i.e., either 'Key' for public key based or 'Password' for password based, for Linux OS based DSVM")
+      stop("Please specific a valid authentication method, ",
+           "i.e., either 'Key' for public key based or ",
+           "'Password' for password based, for Linux OS based DSVM")
     }
   } else
   {
-    stop("Please specify a valid OS type, i.e., either 'Windows', 'DeepLearning', 'CentOS', or 'Ubuntu'.")
+    stop("Please specify a valid OS type, ",
+         "i.e., either 'Windows', 'DeepLearning', ",
+         "'CentOS', or 'Ubuntu'.")
   }
 
   # Update the parameter JSON with the virtual machine hostname.
