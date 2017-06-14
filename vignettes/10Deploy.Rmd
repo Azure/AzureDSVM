@@ -10,29 +10,31 @@ vignette: >
 
 # Use Case
 
-In this tutorial, a Linux is deployed and sample code to deploy a
-Windows Data Science Virtual Machine (DSVM) is provided.  Code is
-included but not run to then delete the resource group if the resource
-group was created within this vignette. Once deleted consumption
-(cost) will cease.
+In this tutorial a Ubuntu DSVM is deployed whilst sample code to
+deploy a Windows Data Science Virtual Machine (DSVM) is provided. The
+virtual machine is created within its own resource group so that all
+created resources (the VM, networking, disk, etc) can be deleted
+easily. Code is also included, but not run, to then delete the
+resource group if the resource group was created within this
+vignette. Once deleted consumption (cost) will cease.
 
 This script is best run interactively to review its operation and to
 ensure that the interaction with Azure completes.
 
-As a standalone script we can run this script to setup a new resource
-group and single Linux DSVM.
+The R script that can be generated from this vignette can be run as a
+standalone script to setup a new resource group and single Ubuntu
+DSVM.
 
 # Preparation
 
-We assume the user already has an Azure subscription and we have
-obtained the credentials required. See the
+We assume the user already has an Azure subscription and has obtained
+their credentials as explained in the
 [Introduction](https://github.com/Azure/AzureDSVM/blob/master/vignettes/00Introduction.Rmd)
-for details. We will then ensure a resource group exists and within
-that resource group deploy a Linux DSVM. A secure shell (ssh) public
-key matching the current user's private key is used to access the
-server in this script although a username and password is also an
-option. We deploy a Linux DSVM and include sample code to deploy a
-Windows DSVM.
+vignette. We ensure a resource group exists and within that resource
+group deploy the Linux DSVM. A secure shell
+([ssh](https://en.wikipedia.org/wiki/Secure_Shell)) public key
+matching the current user's private key is used to access the server
+in this script although a username and password is also an option.
 
 # Setup
 
@@ -40,9 +42,9 @@ To get started we need to load our Azure credentials as well as the
 user's ssh public key. Public keys on Linux are typically created on
 the users desktop/laptop machine and will be found within
 ~/.ssh/id_rsa.pub. It will be convenient to create a credentials file
-to contain this information. The content's of the credentials file
-will be something like the foloowing and we assume the user creates
-such a file in the current working directory, naming the file
+to contain this information. The contents of the credentials file will
+be something like the foloowing and we assume the user creates such a
+file in the current working directory, naming the file
 <USER>_credentials.R, replace <USER> with the user's username.
 
 ```{r credentials, eval=FALSE}
@@ -61,7 +63,10 @@ PASSWORD <- "Public%4aR3@kn"               # For Windows DSVM
 
 ```
 
-We can simply source that file in R.
+Notice we include a password (fake in this case) for account creation
+on a Windows DSVM.
+
+We can simply source the credentials file in R.
 
 ```{r setup}
 # Load the required subscription resources: TID, CID, and KEY.
@@ -178,10 +183,10 @@ cat("Resource group", RG, "at", LOC,
 Create the actual Linux DSVM with public-key based authentication
 method. Name, username, and size can also be configured.
 
-Note one can check available VM sizes within the region by using
+We can check the available VM sizes within the region by using
 `getVMSizes()`. Different sizes will cost differently, and the
-detailed information can be checked on
-[Azure website](https://docs.microsoft.com/en-us/azure/virtual-machines/virtual-machines-windows-sizes). The
+detailed information can be checked on [Azure
+website](https://docs.microsoft.com/en-us/azure/virtual-machines/virtual-machines-windows-sizes). The
 default VM size for deployment is chosen for by enhanced computation
 performance. See the documentation for deployDSVM() for the actual
 default.
@@ -190,13 +195,13 @@ default.
 # List the available VM sizes. May differ with location of the data centre.
 
 getVMSizes(context, "southeastasia") %>%
-  set_names(c("Size", "Cores", "Disk GB", "RAM GB", "Max Disks"))
+  set_names(c("Size", "Cores", "DiskGB", "RAM GB", "Disks"))
 
 # The default size.
 
 formals(deployDSVM)$size
 
-# The default operating system is Ubuntu.
+# The default operating system.
 
 formals(deployDSVM)$os
 ```
@@ -207,16 +212,16 @@ The following code deploys a Linux DSVM, and it will take approximately 4 minute
 # Create the required Linux DSVM - generally 4 minutes.
 
 ldsvm <- deployDSVM(context, 
-                    resource.group=RG,
-                    location=LOC,
-                    hostname=HOST,
-                    username=USER,
-                    pubkey=PUBKEY)
+                    resource.group = RG,
+                    location       = LOC,
+                    hostname       = HOST,
+                    username       = USER,
+                    pubkey         = PUBKEY)
 ldsvm
 
 operateDSVM(context, RG, HOST, operation="Check")
 
-azureListVM(context, RG)
+azureListVM(context, RG) %>% t()
 ```
 
 Prove that the deployed DSVM exists.
@@ -227,22 +232,42 @@ Prove that the deployed DSVM exists.
 # existence. Expect a single line with an indication of how long the
 # server has been up and running.
 
-cmd <- paste("ssh -q",
+ssh <- paste("ssh -q",
              "-o StrictHostKeyChecking=no",
              "-o UserKnownHostsFile=/dev/null",
-             ldsvm, "uptime")
-cmd
-system(cmd, intern=TRUE)
+             ldsvm)
 
+cmd <- paste(ssh, "uptime")
+cmd
+
+system(cmd, intern=TRUE)
 ```
 
-# Some Standard Setup
+# Some Standard Setup --- Optional
 
-TODO: Install wajig, lsb. Then update, distupgrade. Then lsb-release.
+We can install some useful tools on a fesh server together.
 
-# Deploy a Windows Data Science Virtual Machine
+```{r useful tools}
+system(paste(ssh, "sudo locale-gen 'en_AU.UTF-8'"))
+system(paste(ssh, "sudo apt-get install wajig lsb htop"))
+system(paste(ssh, "lsb-release"))
+```
 
-`deployDSVM` also supports deployment of Windows DSVM, which can be
+It is also recommened that you log on to the server through the secure
+shell and manually update the operating system with all packages
+updated to their latest versions. You may be asked to accept the
+changes. Then reboot the server so that, for example, kernel updates,
+take effect.
+
+```{sh, eval=FALSE}	 
+$ wajig update
+$ wajig distupgrade
+$ sudo reboot
+```
+
+# Deploy a Windows Data Science Virtual Machine - Optional
+
+deployDSVM() also supports deployment of Windows DSVM, which can be
 achieved by setting the argument of `os` to "Windows". The deployment
 will take approximately 10 minutes. One can use Remote Desktop to
 verify the success of deployment and use the virtual machine in a
@@ -262,7 +287,8 @@ wdsvm
 
 # Optional Stop
 
-It is always a good practice to stop DSVMs after using them, to avoid any unnecessary cost.
+It is always a good practice to stop DSVMs after using them to avoid
+any unnecessary cost.
 
 ```{r, eval=FALSE}
 operateDSVM(context, RG, HOST, operation="Stop")
@@ -270,10 +296,13 @@ operateDSVM(context, RG, HOST, operation="Stop")
 
 # Optional Cleanup
 
+Once we have finished with the server we can delete it and all of its
+related resources.
+  
 ```{r optionally_delete_resource_group}
 # Delete the resource group now that we have proved existence. There
 # is probably no need to wait. Only delete if it did not pre-exist
-# this script. Deletion seems to take 10 minutes or more.
+# this script. Deletion takes 10 minutes or more.
 
 if (! rg_pre_exists)
   azureDeleteResourceGroup(context, RG)
