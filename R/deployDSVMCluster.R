@@ -56,6 +56,9 @@
 #' remote execution for computation. A cluster is typcially created by
 #' the data scientist when needed and the resource group deleted on
 #' completion of the activity.
+#' 
+#' Note clustering of DSVMs for high performance computing will deprecate. 
+#' Users are encouraged to use azureDoParallel package for doing  
 #'
 #' A collection is a deployment with different usernames and public
 #' keys for each of the DSVMS. A vector of usernames must be
@@ -150,7 +153,7 @@ deployDSVMCluster <- function(context,
                  location=location,
                  hostname=hostnames[i],
                  username=usernames[i],
-                 size=size,
+                 size=size[i],
                  os="Ubuntu",
                  authen="Key",
                  pubkey=pubkeys[i],
