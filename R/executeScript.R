@@ -44,8 +44,8 @@ executeScript <- function(context,
                           remote,
                           user,
                           script,
-                          master,
-                          slaves,
+                          master="",
+                          slaves="",
                           compute.context)
 {
 
