@@ -75,11 +75,11 @@ deployDSVMCluster <- function(context,
 
   if(missing(hostname))
     stop("Please specify virtual machine hostname(s).")
-  assert_that(AzureSMR:::is_vm_name(hostname))
+  assert_that(all(sapply(hostname, AzureSMR:::is_vm_name)))
 
   if(missing(username))
     stop("Please specify virtual machine username(s).")
-  assert_that(AzureSMR:::is_admin_user(username))
+  assert_that(all(sapply(username, AzureSMR:::is_admin_user)))
   
   if(missing(authen))
     stop("Please specify authentication method(s).")
