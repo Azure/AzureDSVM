@@ -126,9 +126,9 @@ if (!is.null(vm))
                                resource.group=RG, 
                                size=SIZE,
                                location=LOC, 
-                               hostnames=BASE,
-                               usernames=USER, 
-                               pubkeys=PUBKEY,
+                               hostname=BASE,
+                               username=USER, 
+                               pubkey=PUBKEY,
                                count=COUNT)
 
   # Confirm that each VM exists.

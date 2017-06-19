@@ -133,10 +133,9 @@ ldsvm_set <- deployDSVMCluster(context,
                                resource.group=RG, 
                                location=LOC, 
                                count=COUNT, 
-                               name=HOST, 
+                               hostname=HOST, 
                                username=LUSER, 
-                               pubkey=rep(PUBKEY, COUNT), 
-                               cluster=FALSE)
+                               pubkey=rep(PUBKEY, COUNT)) 
 ```
 
 # Analytics

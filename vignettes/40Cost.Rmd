@@ -50,9 +50,13 @@ Following are the information needed to obtain data consumption of a DSVM named 
 ```{r, eval=FALSE}
 # not-run
 
-VM     <- "dsvm_name"
-START  <- "starting_time_point" # in the format of YYYY-MM-DD HH:MM:SS.
-END    <- "ending_time_point"   # in the format of YYYY-MM-DD HH:MM:SS
+# VM     <- "dsvm_name"
+# START  <- "starting_time_point" # in the format of YYYY-MM-DD HH:MM:SS.
+# END    <- "ending_time_point"   # in the format of YYYY-MM-DD HH:MM:SS
+# GRA    <- "Daily"
+VM     <- "dlzd"
+START  <- "2016-09-01 00:00:00" # in the format of YYYY-MM-DD HH:MM:SS.
+END    <- "2017-06-01 00:00:00"   # in the format of YYYY-MM-DD HH:MM:SS
 GRA    <- "Daily"
 ```
 
@@ -88,10 +92,14 @@ Basic information for expense calculation include
 ```{r, eval=FALSE}
 # not-run
 
-CURR   <- "your_currency"
-LOCALE <- "locale_of_the_azure_subscription"
-REG    <- "region_of_the_azure_subscription"
-OFFER  <- "a_valid_offer_id"
+# CURR   <- "your_currency"
+# LOCALE <- "locale_of_the_azure_subscription"
+# REG    <- "region_of_the_azure_subscription"
+# OFFER  <- "a_valid_offer_id"
+CURR   <- "USD"
+LOCALE <- "en-SG"
+REG    <- "SG"
+OFFER  <- "MS-AZR-0015P"
 ```
 
 Again assuming the information is pre-stored into the "credential" script.

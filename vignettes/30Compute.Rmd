@@ -118,9 +118,9 @@ COUNT <- 3
 cluster <- deployDSVMCluster(context, 
                              resource.group=RG, 
                              location=LOC, 
-                             hostnames=BASE,
-                             usernames=USER, 
-                             pubkeys=PUBKEY,
+                             hostname=BASE,
+                             username=USER, 
+                             pubkey=PUBKEY,
                              count=COUNT)
 
 for (i in 1:COUNT)

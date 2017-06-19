@@ -133,11 +133,11 @@ cat("Resource group", RG, "at", LOC,
 Multi-deployment of DSVM can be achieved by calling
 `deployDSVMCluster` function. Note the function is designed to
 implicitly switch between cluster and collection of DSVMs, according
-to the given inputs. That is, if the `hostnames`, i.e., names of the
+to the given inputs. That is, if the `hostname`, i.e., names of the
 DSVMs consists of only one character string, the function will imply
 the deployment is to create a cluster of homogeneous DSVMs (i.e., same
 size), and use the unique machine name as the base, which is appended
-with a sequential number to form a full hostname. If the `hostnames`
+with a sequential number to form a full hostname. If the `hostname`
 is a vector of character strings, the function will create machines
 with names specified in the name vector.
 
@@ -161,9 +161,9 @@ named based on the *name* provided and sequentially numbered.
 cluster <- deployDSVMCluster(context, 
                              resource.group=RG, 
                              location=LOC, 
-                             hostnames=BASE,
-                             usernames=USER, 
-                             pubkeys=PUBKEY,
+                             hostname=BASE,
+                             username=USER, 
+                             pubkey=PUBKEY,
                              count=COUNT)
 
 # To validate the existence of deployed DSVMs.
@@ -209,8 +209,7 @@ ldsvm_set <- deployDSVMCluster(context,
                                count=COUNT, 
                                hostname=LDSVM, 
                                username=LUSER, 
-                               pubkey=rep(PUBKEY, COUNT), 
-                               cluster=FALSE)
+                               pubkey=rep(PUBKEY, COUNT)) 
 
 # Check the deployed machines?
 
