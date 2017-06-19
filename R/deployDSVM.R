@@ -18,7 +18,7 @@
 #'   available sizes can be obtained by function `getVMSizes`.
 #'
 #' @param os Operating system of DSVM. Permitted values are "Ubuntu",
-#'   "CentOS", "Windows", and "MRS". The default is to deploy
+#'   "CentOS", "Windows", "DeepLearning", and "MRS". The default is to deploy
 #'   a Ubuntu Linux Data Science Virtual Machine. NOTE previously Windows
 #'   based DSVM for deep learning toolkit is using a separated package but
 #'   now it is merged into one. 
@@ -55,7 +55,9 @@
 #' # The following deploys a Ubuntu DSVM with public key based authentication
 #' deployDSVM(context, resource.group="<resource_group>", location="<location>", hostname="<machine_name>", username="<user_name>", os="Ubuntu", pubkey="<a_valid_public_key_string_in_SSH_format>")
 #' 
-#' # The following deploys a Windows DSVM with password based authentication. The VM size is selected from all the available A-series machines that have the maximum number of computing cores.
+#' # The following deploys a Windows DSVM with password based authentication. 
+#' The VM size is selected from all the available A-series machines that have 
+#' the maximum number of computing cores.
 #' 
 #' vm <- getVMSizes(context, "<location>")
 #' 
@@ -92,7 +94,8 @@ deployDSVM <- function(context,
   
   assert_that(is.azureActiveContext(context))
 
-  if (missing(resource.group)) resource.group <- azureActiveContext$resourceGroup 
+  if (missing(resource.group)) 
+    resource.group <- azureActiveContext$resourceGroup 
 
   if(missing(location))
     stop("Please specify a data centre location.")
@@ -106,7 +109,8 @@ deployDSVM <- function(context,
   if(authen == "Key" && missing(pubkey))
     stop("Please specify a valid public key.")
   
-  if(authen == "Password" && (missing(password) || !AzureSMR:::is_valid_admin_password(password)))
+  if(authen == "Password" && 
+     (missing(password) || !AzureSMR:::is_valid_admin_password(password)))
     stop("Please specify a password.")
 
   ## Other preconditions.
@@ -136,7 +140,11 @@ deployDSVM <- function(context,
   {
     temp_path <- system.file("etc", "template_windows.json", package="AzureDSVM")
     para_path <- system.file("etc", "parameter_windows.json", package="AzureDSVM")
-  } else if(os == "Ubuntu")
+  } else if(os == "DeepLearning") 
+  {
+    temp_path <- system.file("etc", "template_deeplearning.json", package="AzureDSVM")
+    para_path <- system.file("etc", "parameter_windows.json", package="AzureDSVM")
+  }else if(os == "Ubuntu")
   {
     if(authen == "Key")
     {
