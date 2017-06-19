@@ -171,7 +171,7 @@ deployDSVMCluster <- function(context,
                  pubkey=pubkey[i],
                  password=password[i],
                  dns.label=hostname[i],
-                 mode=ifelse(i == count, "Sync", "ASync"))
+                 mode=ifelse(i == count, "Sync", "Async"))
   }
 
   # For a cluster set up public credentials for the DSVM cluster to
