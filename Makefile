@@ -9,6 +9,7 @@ help:
 	\tinstall     \tBuild and install to local machine\n\
 	\n\
 	Vignettes\n\
+	\tvignettes   \tCreate .R from each vignette .Rmd.\n\
 	\tvdeploy     \tRun 10Deploy vignette (single Linux DSVM, cleanup).\n\
 	\tvmulti      \tRun 20Multi  vignette (multipl Linux DSVMs, cleanup).\n\
 	\tvcompute    \tRun 30Compute vignette.\n\

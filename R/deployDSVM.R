@@ -17,8 +17,11 @@
 #' @param size Size of the DSVM. The default is "Standard_D1_v2". All
 #'   available sizes can be obtained by function `getVMSizes`.
 #'
-#' @param os Operating system of DSVM. Permitted values are "Ubuntu", "CentOS", "Windows", and "RServer". The default is to deploy a Ubuntu Linux Data Science
-#'   Virtual Machine. NOTE Deep learning DSVM is still Windows based but there is an extension which preinstalls GPU related drivers and libraries.
+#' @param os Operating system of DSVM. Permitted values are "Ubuntu",
+#'   "CentOS", "Windows", and "MRS". The default is to deploy
+#'   a Ubuntu Linux Data Science Virtual Machine. NOTE previously Windows
+#'   based DSVM for deep learning toolkit is using a separated package but
+#'   now it is merged into one. 
 #'
 #' @param authen Either "Key" for public-key based authentication
 #'   (with Linux) or "Password" for a password based authentication
@@ -37,12 +40,13 @@
 #' @param mode Mode of virtual machine deployment. Default is "Sync".
 #'
 #' @details
-#'
-#' Usually an error message will be returned if the deployment is unsuccessful. If the deployment fails without explicit error message returned visit the Azure portal
-#' https://ms.portal.azure.com and browse to the resource group and
-#' click on the failed deployment link to view the failure
-#' message. Typical errors include DnsRecordInUsehha or
-#' StorageAccountAlreadyTaken. If so then choose a different hostname.
+#' Usually an error message will be returned if the deployment is
+#' unsuccessful. If the deployment fails without explicit error
+#' message returned visit the Azure portal https://ms.portal.azure.com
+#' and browse to the resource group and click on the failed deployment
+#' link to view the failure message. Typical errors include
+#' DnsRecordInUse or StorageAccountAlreadyTaken. If so then choose a
+#' different hostname.
 #'
 #' @export
 #' 
@@ -60,7 +64,13 @@
 #' vm_sub <- vm[grep(vm[, 1], pattern="Basic_A"), ]
 #' vm_name <- vm_sub[vm_sub[, 2] == max(vm_sub[, 2]), 1]
 #' 
-#' deployDSVM(context, resource.group="<resource_group>", location="<location>", hostname="<machine_name>", username="<user_name>", os="Windows", password="<a_valid_password>")}
+#' deployDSVM(context,
+#'            resource.group="<resource_group>",
+#'            location="<location>",
+#'            hostname="<machine_name>",
+#'            username="<user_name>",
+#'            os="Windows",
+#'            password="<a_valid_password>")}
 deployDSVM <- function(context,
                        resource.group,
                        location,
@@ -141,7 +151,9 @@ deployDSVM <- function(context,
       para_path <- system.file("etc", "parameter_linux.json", package="AzureDSVM")
     } else
     {
-      stop("Please specific a valid authentication method, i.e., either 'Key' for public key based or 'Password' for password based, for Linux OS based DSVM")
+      stop("Please specific a valid authentication method, i.e., ",
+           "either 'Key' for public key based or 'Password' ",
+           "for password based, for Linux OS based DSVM")
     }
   } else if(os == "CentOS")
   {
@@ -155,7 +167,9 @@ deployDSVM <- function(context,
       para_path <- system.file("etc", "parameter_linux.json", package="AzureDSVM")
     } else
     {
-      stop("Please specific a valid authentication method, i.e., either 'Key' for public key based or 'Password' for password based, for Linux OS based DSVM")
+      stop("Please specific a valid authentication method, ",
+           "i.e., either 'Key' for public key based or ",
+           "'Password' for password based, for Linux OS based DSVM")
     }
   } else if(os == "RServer") 
   {
@@ -173,7 +187,9 @@ deployDSVM <- function(context,
     }
   } else
   {
-    stop("Please specify a valid OS type, i.e., either 'Windows', 'DeepLearning', 'CentOS', or 'Ubuntu'.")
+    stop("Please specify a valid OS type, ",
+         "i.e., either 'Windows', 'DeepLearning', ",
+         "'CentOS', or 'Ubuntu'.")
   }
 
   # Update the parameter JSON with the virtual machine hostname.
@@ -208,14 +224,15 @@ deployDSVM <- function(context,
 
   fqdn <- paste0(dns.label, ".", location, ".cloudapp.azure.com")
 
-  # Use the command line to obtain the IP if in sync model. Should be
-  # a way to get this data from Azure. If mode is async then the
+  # Use the command line to obtain the IP if in sync model. *Should be
+  # a way to get this data from Azure.* If mode is async then the
   # machine will not be available yet and so no IP to be found from
-  # DNS.
+  # DNS. Note that as of 20170614 dig fails with the newly created
+  # Ubuntu server so let's drop this optional functionality for now.
 
-  if (Sys.which("dig") != "" && tolower(mode) == "sync")
-    attr(fqdn, "ip") <-
-      system(paste("dig", fqdn, "+short"), intern=TRUE)
+  #if (Sys.which("dig") != "" && tolower(mode) == "sync")
+  #  attr(fqdn, "ip") <-
+  #    system(paste("dig", fqdn, "+short"), intern=TRUE)
 
   return(fqdn)
 }
