@@ -53,7 +53,9 @@
 #' @examples 
 #' \dontrun{
 #' # The following deploys a Ubuntu DSVM with public key based authentication
-#' deployDSVM(context, resource.group="<resource_group>", location="<location>", hostname="<machine_name>", username="<user_name>", os="Ubuntu", pubkey="<a_valid_public_key_string_in_SSH_format>")
+#' deployDSVM(context, resource.group="<resource_group>", 
+#' location="<location>", hostname="<machine_name>", username="<user_name>", 
+#' os="Ubuntu", pubkey="<a_valid_public_key_string_in_SSH_format>")
 #' 
 #' # The following deploys a Windows DSVM with password based authentication. 
 #' The VM size is selected from all the available A-series machines that have 
@@ -95,16 +97,20 @@ deployDSVM <- function(context,
   assert_that(is.azureActiveContext(context))
 
   if (missing(resource.group)) 
-    resource.group <- azureActiveContext$resourceGroup 
+    stop("Please specify a resource group.")
+  assert_that(AzureSMR:::is_resource_group(resource.group))
 
   if(missing(location))
     stop("Please specify a data centre location.")
+  assert_that(AzureSMR:::is_location(location))
 
   if(missing(hostname))
     stop("Please specify a virtual machine hostname.")
+  assert_that(AzureSMR:::is_vm_name(hostname))
 
   if(missing(username))
     stop("Please specify a virtual machine user name.")
+  assert_that(AzureSMR:::is_admin_user(username))
 
   if(authen == "Key" && missing(pubkey))
     stop("Please specify a valid public key.")
@@ -121,11 +127,6 @@ deployDSVM <- function(context,
 
   if(!rg_exist)
     stop("The specified resource group does not exist in the current region.")
-  
-  assert_that(AzureSMR:::is_resource_group(resource.group))
-  assert_that(AzureSMR:::is_location(location))
-  assert_that(AzureSMR:::is_admin_user(username))
-  assert_that(AzureSMR:::is_vm_name(hostname))
 
   # Check if vm size is available.
 
@@ -138,22 +139,38 @@ deployDSVM <- function(context,
 
   if(os == "Windows")
   {
-    temp_path <- system.file("etc", "template_windows.json", package="AzureDSVM")
-    para_path <- system.file("etc", "parameter_windows.json", package="AzureDSVM")
+    temp_path <- system.file("etc", 
+                             "template_windows.json", 
+                             package="AzureDSVM")
+    para_path <- system.file("etc", 
+                             "parameter_windows.json", 
+                             package="AzureDSVM")
   } else if(os == "DeepLearning") 
   {
-    temp_path <- system.file("etc", "template_deeplearning.json", package="AzureDSVM")
-    para_path <- system.file("etc", "parameter_windows.json", package="AzureDSVM")
+    temp_path <- system.file("etc", 
+                             "template_deeplearning.json", 
+                             package="AzureDSVM")
+    para_path <- system.file("etc", 
+                             "parameter_windows.json", 
+                             package="AzureDSVM")
   }else if(os == "Ubuntu")
   {
     if(authen == "Key")
     {
-      temp_path <- system.file("etc", "template_linux_key_ubuntu.json", package="AzureDSVM")
-      para_path <- system.file("etc", "parameter_linux_key.json", package="AzureDSVM")
+      temp_path <- system.file("etc", 
+                               "template_linux_key_ubuntu.json", 
+                               package="AzureDSVM")
+      para_path <- system.file("etc", 
+                               "parameter_linux_key.json", 
+                               package="AzureDSVM")
     } else if(authen == "Password")
     {
-      temp_path <- system.file("etc", "template_linux_ubuntu.json", package="AzureDSVM")
-      para_path <- system.file("etc", "parameter_linux.json", package="AzureDSVM")
+      temp_path <- system.file("etc", 
+                               "template_linux_ubuntu.json", 
+                               package="AzureDSVM")
+      para_path <- system.file("etc", 
+                               "parameter_linux.json", 
+                               package="AzureDSVM")
     } else
     {
       stop("Please specific a valid authentication method, i.e., ",
@@ -164,12 +181,20 @@ deployDSVM <- function(context,
   {
     if(authen == "Key")
     {
-      temp_path <- system.file("etc", "template_linux_key.json", package="AzureDSVM")
-      para_path <- system.file("etc", "parameter_linux_key.json", package="AzureDSVM")
+      temp_path <- system.file("etc", 
+                               "template_linux_key.json", 
+                               package="AzureDSVM")
+      para_path <- system.file("etc", 
+                               "parameter_linux_key.json", 
+                               package="AzureDSVM")
     } else if(authen == "Password")
     {
-      temp_path <- system.file("etc", "template_linux.json", package="AzureDSVM")
-      para_path <- system.file("etc", "parameter_linux.json", package="AzureDSVM")
+      temp_path <- system.file("etc", 
+                               "template_linux.json", 
+                               package="AzureDSVM")
+      para_path <- system.file("etc", 
+                               "parameter_linux.json", 
+                               package="AzureDSVM")
     } else
     {
       stop("Please specific a valid authentication method, ",
@@ -180,15 +205,25 @@ deployDSVM <- function(context,
   {
     if(authen == "Key")
     {
-      temp_path <- system.file("etc", "template_mrs_key_ubuntu.json", package="AzureDSVM")
-      para_path <- system.file("etc", "parameter_linux_key.json", package="AzureDSVM")
+      temp_path <- system.file("etc", 
+                               "template_mrs_key_ubuntu.json", 
+                               package="AzureDSVM")
+      para_path <- system.file("etc", 
+                               "parameter_linux_key.json", 
+                               package="AzureDSVM")
     } else if(authen == "Password")
     {
-      temp_path <- system.file("etc", "template_mrs_ubuntu.json", package="AzureDSVM")
-      para_path <- system.file("etc", "parameter_linux.json", package="AzureDSVM")
+      temp_path <- system.file("etc", 
+                               "template_mrs_ubuntu.json", 
+                               package="AzureDSVM")
+      para_path <- system.file("etc", 
+                               "parameter_linux.json", 
+                               package="AzureDSVM")
     } else
     {
-      stop("Please specific a valid authentication method, i.e., either 'Key' for public key based or 'Password' for password based, for Linux OS based DSVM")
+      stop("Please specific a valid authentication method, 
+           i.e., either 'Key' for public key based or 'Password' 
+           for password based, for Linux OS based DSVM")
     }
   } else
   {
