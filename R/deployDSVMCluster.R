@@ -68,7 +68,9 @@ deployDSVMCluster <- function(context,
                               location,
                               hostnames,
                               usernames,
+                              authen="Key",
                               pubkeys,
+                              passwords,
                               count,
                               oss="Ubuntu",
                               sizes="Standard_D1_v2",
@@ -100,6 +102,15 @@ deployDSVMCluster <- function(context,
   if(missing(usernames))
     stop("Please specify virtual machine username(s).")
   assert_that(AzureSMR:::is_admin_user(usernames))
+  
+  if(missing(authen))
+    stop("Please specify an authentication method.")
+  
+  if(authen == "Password" && missing(passwords))
+    stop("Please specify virtual machine password(s).")
+  
+  if(authen == "Key" && missing(pubkeys))
+    stop("Please specify virtual machine public key(s).")
   
   # length of hostnames, usernames, pubkeys, oss, sizes, and dns labels
   # should always be the same.
