@@ -155,8 +155,7 @@ Create the resource group within which all resources we create will be
 grouped.
 
 ```{r create resource group}
-if (! rg_pre_exists)
-{
+if (! rg_pre_exists) {
   # Create a new resource group into which we create the VMs and
   # related resources. Resource group name is RG. 
   

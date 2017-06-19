@@ -230,7 +230,10 @@ results_local <-
 Save time points for later reference.
 
 ```{r}
-elapsed <- list(time_1, time_2)
+elapsed <- list(instances=machines
+                time_start=time_1, 
+                time_end=time_2)
+
 save(elapsed, file="./elapsed.RData")
 ```
 
