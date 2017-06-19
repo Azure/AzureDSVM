@@ -17,7 +17,7 @@
 #' @param size Size of the DSVM. The default is "Standard_D1_v2". All
 #'   available sizes can be obtained by function `getVMSizes`.
 #'
-#' @param os Operating system of DSVM. Permitted values are "Ubuntu", "CentOS", "Windows", and "DeepLearning". The default is to deploy a Ubuntu Linux Data Science
+#' @param os Operating system of DSVM. Permitted values are "Ubuntu", "CentOS", "Windows", and "RServer". The default is to deploy a Ubuntu Linux Data Science
 #'   Virtual Machine. NOTE Deep learning DSVM is still Windows based but there is an extension which preinstalls GPU related drivers and libraries.
 #'
 #' @param authen Either "Key" for public-key based authentication
@@ -152,6 +152,20 @@ deployDSVM <- function(context,
     } else if(authen == "Password")
     {
       temp_path <- system.file("etc", "template_linux.json", package="AzureDSVM")
+      para_path <- system.file("etc", "parameter_linux.json", package="AzureDSVM")
+    } else
+    {
+      stop("Please specific a valid authentication method, i.e., either 'Key' for public key based or 'Password' for password based, for Linux OS based DSVM")
+    }
+  } else if(os == "RServer") 
+  {
+    if(authen == "Key")
+    {
+      temp_path <- system.file("etc", "template_mrs_key_ubuntu.json", package="AzureDSVM")
+      para_path <- system.file("etc", "parameter_linux_key.json", package="AzureDSVM")
+    } else if(authen == "Password")
+    {
+      temp_path <- system.file("etc", "template_mrs_ubuntu.json", package="AzureDSVM")
       para_path <- system.file("etc", "parameter_linux.json", package="AzureDSVM")
     } else
     {
