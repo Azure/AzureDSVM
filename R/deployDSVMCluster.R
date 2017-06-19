@@ -200,4 +200,6 @@ deployDSVMCluster <- function(context,
     
     df
   }
+  
+  return(TRUE)
 }
