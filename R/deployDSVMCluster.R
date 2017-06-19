@@ -68,7 +68,7 @@ deployDSVMCluster <- function(context,
                               location,
                               hostnames,
                               usernames,
-                              authen="Key",
+                              authens="Key",
                               pubkeys,
                               passwords,
                               count,
@@ -103,8 +103,8 @@ deployDSVMCluster <- function(context,
     stop("Please specify virtual machine username(s).")
   assert_that(AzureSMR:::is_admin_user(usernames))
   
-  if(missing(authen))
-    stop("Please specify an authentication method.")
+  if(missing(authens))
+    stop("Please specify authentication method(s).")
   
   if(authen == "Password" && missing(passwords))
     stop("Please specify virtual machine password(s).")
@@ -117,15 +117,12 @@ deployDSVMCluster <- function(context,
   
   input_args_number <- c(length(hostnames),
                          length(usernames),
-                         length(pubkeys),
-                         length(oss),
-                         length(sizes),
                          length(dns.labels))
   
   if (!identical(input_args_number, 
                  rep(input_args_number[1], length(input_args_number))))
-    stop("Input host names, user names, public keys, operating systems, 
-         VM sizes, and DNS labels should all have the same length.")
+    stop("Input host names, user names, and DNS labels 
+         should all have the same length.")
 
   # If no count is provided then set it to the number of hostnames or
   # usernames supplied. 
@@ -135,25 +132,36 @@ deployDSVMCluster <- function(context,
                     ifelse(length(usernames) == 1,
                            1, length(usernames)),
                     length(hostnames))
+  
+  if (count == 1) 
+    stop("If 'count' is specified, it should be greater than 1.")
 
   # If the count is greater than 1 then ensure we have the right
   # lengths of hostnames, usernames, and public keys.
 
-  if (count > 1)
-  {
-    if (length(hostnames) == 1)
-      hostnames <- sprintf("%s%03d", hostnames, 1:count)
-    if (length(usernames) == 1)
-      usernames <- rep(usernames, count)
-    if (length(pubkeys) == 1)
-      pubkeys <- rep(pubkeys, count)
-    if (length(oss) == 1)
-      pubkeys <- rep(oss, count)
-    if (length(sizes) == 1)
-      pubkeys <- rep(sizes, count)
-    if (length(dns.labels) == 1)
-      pubkeys <- rep(dns.labels, count)
-  }
+  if (length(hostnames) == 1)
+    hostnames <- sprintf("%s%03d", hostnames, 1:count)
+  
+  if (length(usernames) == 1)
+    usernames <- rep(usernames, count)
+  
+  if (length(authens) == 1)
+    authens <- rep(authens, count)
+  
+  if (length(pubkeys) == 1)
+    pubkeys <- rep(pubkeys, count)
+  
+  if (length(passwords) == 1)
+    passwords <- rep(passwords, count)
+  
+  if (length(oss) == 1)
+    oss <- rep(oss, count)
+  
+  if (length(sizes) == 1)
+    sizes <- rep(sizes, count)
+  
+  if (length(dns.labels) == 1)
+    dns.labels <- rep(dns.labels, count)
 
   # Check the number of DSVM deployments to be a reasonable number but
   # allow the user to override. This is only useful if interactive.
@@ -181,7 +189,7 @@ deployDSVMCluster <- function(context,
                  username=usernames[i],
                  size=size[i],
                  os=oss[i],
-                 authen="Key",
+                 authen=authens[i],
                  pubkey=pubkeys[i],
                  dns.label=hostnames[i],
                  mode=ifelse(i == count, "Sync", "ASync"))
@@ -191,6 +199,9 @@ deployDSVMCluster <- function(context,
   # allow DSVMs to communicate with each other. This is required if
   # one wants to execute analytics on the cluster with parallel
   # compute context in ScaleR.
+  
+  # NOTE: this will be soon deprecated. The users are encouraged to use
+  # doAzureParallel package for high-performance computation.
 
   if (length(unique(usernames)) == 1)
   {
