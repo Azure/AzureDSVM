@@ -68,18 +68,7 @@
                             "uri": "[concat('https', '://', parameters('storageAccounts_dsvmdisks490_name'), '.blob.core.windows.net', concat('/vhds/', parameters('virtualMachines_newdsvm_name'),'20168192442.vhd'))]"
                         },
                         "caching": "ReadWrite"
-                    },
-                    "dataDisks": [
-                        {
-                            "lun": 0,
-                            "name": "[concat(parameters('virtualMachines_newdsvm_name'),'-disk-1')]",
-                            "createOption": "FromImage",
-                            "vhd": {
-                                "uri": "[concat('https', '://', parameters('storageAccounts_dsvmdisks490_name'), '.blob.core.windows.net', concat('/vhds/', parameters('virtualMachines_newdsvm_name'),'-disk-1-20168192442.vhd'))]"
-                            },
-                            "caching": "None"
-                        }
-                    ]
+                    }
                 },
                 "osProfile": {
                     "computerName": "[parameters('virtualMachines_newdsvm_name')]",
