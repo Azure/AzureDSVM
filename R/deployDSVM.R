@@ -136,9 +136,6 @@ deployDSVM <- function(context,
   {
     temp_path <- system.file("etc", "template_windows.json", package="AzureDSVM")
     para_path <- system.file("etc", "parameter_windows.json", package="AzureDSVM")
-  } else if(os == "DeepLearning") {
-    temp_path <- system.file("etc", "template_deeplearning.json", package="AzureDSVM")
-    para_path <- system.file("etc", "parameter_deeplearning.json", package="AzureDSVM")
   } else if(os == "Ubuntu")
   {
     if(authen == "Key")

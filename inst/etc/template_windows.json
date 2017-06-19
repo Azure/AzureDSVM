@@ -48,12 +48,12 @@
         {
             "type": "Microsoft.Compute/virtualMachines",
             "name": "[parameters('virtualMachines_name')]",
-            "apiVersion": "2015-06-15",
+            "apiVersion": "2016-04-30-preview",
             "location": "[parameters('location')]",
             "plan": {
-                "name": "standard-data-science-vm",
-                "product": "standard-data-science-vm",
-                "publisher": "microsoft-ads"
+                "name": "windows2016",
+                "publisher": "microsoft-ads",
+                "product": "windows-data-science-vm"
             },
             "properties": {
                 "hardwareProfile": {
@@ -62,8 +62,8 @@
                 "storageProfile": {
                     "imageReference": {
                         "publisher": "microsoft-ads",
-                        "offer": "standard-data-science-vm",
-                        "sku": "standard-data-science-vm",
+                        "offer": "windows-data-science-vm",
+                        "sku": "windows2016",
                         "version": "latest"
                     },
                     "osDisk": {
