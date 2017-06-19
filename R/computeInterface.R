@@ -71,8 +71,8 @@ setConfig <- function(object,
                       machine_list,
                       dns_list,
                       machine_user,
-                      master,
-                      slaves,
+                      master="",
+                      slaves="",
                       data,
                       context) {
   object$config <- list(
