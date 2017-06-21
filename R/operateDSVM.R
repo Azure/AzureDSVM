@@ -3,7 +3,9 @@
 #' 
 #' @inheritParams deployDSVM
 #' 
-#' @param operation Operations on the DSVM. Available operations are "Check", "Start", "Stop", "Delete", which check the status of, start running, stop running, and delete a DSVM, respectively.
+#' @param operation Operations on the DSVM. Available operations are 
+#' "Check", "Start", "Stop", "Delete", which check the status of, 
+#' start running, stop running, and delete a DSVM, respectively.
 #' 
 #' @export
 operateDSVM <- function(context,
