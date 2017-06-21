@@ -7,9 +7,10 @@
 getVMSizes(context, location)
 }
 \arguments{
-\item{context}{An AzureSMR context.}
+\item{context}{Authentication context of AzureSMR encapsulating the
+TID, CID, and key obtained from Azure Actrive Directory.}
 
-\item{location}{Location of the Azure resources.}
+\item{location}{Location of the data centre to host the DSVM.}
 }
 \value{
 A data frame that contains basic information such as number of cores, disk size, RAM size, etc.,

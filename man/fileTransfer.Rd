@@ -14,11 +14,13 @@ fileTransfer(from = ".", to = ".", user, file)
 \item{file}{File name - a character string.}
 }
 \note{
-File transfer is implemented by `scp` with public key based authentication so it is limited only to Linux based DSVM at the moment. Future work will enable mrsdeploy functions for file transfer with higher convenience.
+File transfer is implemented by `scp` with public key based 
+authentication so it is limited only to Linux based DSVM at the moment.
 }
 \examples{
 \dontrun{
-# copy a file named "script.R" from local current working directory to remote (e.g., IP address is 192.168.19.1) home directory.
+# copy a file named "script.R" from local current working directory to 
+remote (e.g., IP address is 192.168.19.1) home directory.
 fileTransfer(from=".", to="192.168.19.1:~", user="admin", file="script.R")}
 }
 

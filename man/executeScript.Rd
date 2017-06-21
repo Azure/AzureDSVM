@@ -4,8 +4,8 @@
 \alias{executeScript}
 \title{Remote execution of R script in an R interface new_interface.}
 \usage{
-executeScript(context, resource.group, machines, remote, user, script, master,
-  slaves, compute.context)
+executeScript(context, resource.group, machines, remote, user, script,
+  master = "", slaves = "", compute.context)
 }
 \arguments{
 \item{context}{AzureSMR context.}
@@ -15,7 +15,8 @@ executeScript(context, resource.group, machines, remote, user, script, master,
 \item{machines}{Remote DSVMs that will be used for computation.}
 
 \item{remote}{IP address or FQDN for a computation engine. For
-DSVM, it is either the fully qualified domain name (usually in the format of
+DSVM, it is either the fully qualified domain name (usually in 
+the format of
 <hostname>.<location>.cloudapp.azure.com) or its public IP
 address. Note if more than one machines are used for execution,
 the remote is used as master node by default.}
@@ -32,7 +33,8 @@ master. By default is remote.}
 \item{compute.context}{Computation context of Microsoft R Server
 under which the mechanisms of parallelization (e.g., local
 parallel, cluster based parallel, etc.) is
-specified. Accepted computing context include "localSequential", "localParallel", and
+specified. Accepted computing context include "localSequential", 
+"localParallel", and
 "clusterParallel".}
 }
 \value{
@@ -42,12 +44,17 @@ Status of scription execution.
 Remote execution of R script in an R interface new_interface.
 }
 \details{
-For a "localSequential" compute context, there is no parallelism and the analytics run in a sequential manner. In the "localParallel" compute context, the analytics will be run across available cores of a computing node. The number of available cores can be checked with Microsoft RevoScaleR function \code{rxGetOption}. The "clusterParallel" compute context enables parallel computation across coputing nodes of a cluster.
-}
-\note{
-Remote code/script execution by using Microsoft R Server 9.0, which brings more convenience and is portable to both Linux and Windows system, will be supported soon.
+For a "localSequential" compute context, there is no parallelism and 
+the analytics run in a sequential manner. In the "localParallel" 
+compute context, the analytics will be run across available cores 
+of a computing node. The number of available cores can be checked with
+ Microsoft RevoScaleR function \code{rxGetOption}. The "clusterParallel" 
+ compute context enables parallel computation across coputing nodes of
+  a cluster.
 }
 \references{
-Details about distributed computing with Microsoft RevoScaleR package can be found at https://msdn.microsoft.com/en-us/microsoft-r/scaler-distributed-computing.
+Details about distributed computing with Microsoft 
+RevoScaleR package can be found at 
+https://msdn.microsoft.com/en-us/microsoft-r/scaler-distributed-computing.
 }
 

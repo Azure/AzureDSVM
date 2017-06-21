@@ -2,17 +2,27 @@
 % Please edit documentation in R/operateDSVM.R
 \name{operateDSVM}
 \alias{operateDSVM}
-\title{Operations on a data science virtual machine. Available operations are "Check", "Start", "Stop", and "Delete".}
+\title{Operations on a data science virtual machine. 
+Available operations are "Check", "Start", "Stop", and "Delete".}
 \usage{
-operateDSVM(context, resource.group, names, operation = "Check")
+operateDSVM(context, resource.group, hostname, operation = "Check")
 }
 \arguments{
-\item{context}{AzureSMR context.}
+\item{context}{Authentication context of AzureSMR encapsulating the
+TID, CID, and key obtained from Azure Actrive Directory.}
 
-\item{resource.group}{Resource group.}
+\item{resource.group}{The Azure resource group where the DSVM is
+created.}
 
-\item{operation}{Operations on the DSVM. Available operations are "Check", "Start", "Stop", "Delete", which check the status of, start running, stop running, and delete a DSVM, respectively.}
+\item{hostname}{Name of the DSVM.  Lowercase characters or numbers
+only. Special characters are not permitted.}
 
-\item{name}{Name(s) of the DSVM(s).}
+\item{operation}{Operations on the DSVM. Available operations are 
+"Check", "Start", "Stop", "Delete", which check the status of, 
+start running, stop running, and delete a DSVM, respectively.}
+}
+\description{
+Operations on a data science virtual machine. 
+Available operations are "Check", "Start", "Stop", and "Delete".
 }
 

@@ -4,81 +4,84 @@
 \alias{deployDSVMCluster}
 \title{Deploy a cluster of Linux Data Science Virtual Machines on Azure.}
 \usage{
-deployDSVMCluster(context, resource.group, location, hostnames, usernames,
-  pubkeys, count, size = "Standard_D1_v2", dns.labels = hostnames)
+deployDSVMCluster(context, resource.group, location, hostname, username,
+  authen = "Key", pubkey = "", password = "", os = "Ubuntu",
+  size = "Standard_D1_v2", dns.label = hostname, count)
 }
 \arguments{
-\item{context}{AzureSMR active context.}
+\item{context}{Authentication context of AzureSMR encapsulating the
+TID, CID, and key obtained from Azure Actrive Directory.}
 
 \item{resource.group}{The Azure resource group where the DSVM is
-allocated.}
+created.}
 
 \item{location}{Location of the data centre to host the DSVM.}
 
-\item{hostnames}{Hostnames for the DSVMs. Lowercase characters or
-numbers only. If a single hostname is supplied and count > 1 then
-the hostname will be used as a prefix for a sequential count of
-hostnames.}
+\item{hostname}{Name of the DSVM.  Lowercase characters or numbers
+only. Special characters are not permitted.}
 
-\item{usernames}{Usernames for the admin account created on the
-DSVM. If a single username is supplied then that username is used
-as the admin user on each host. Otherwise a username is provided
-for each of the DSVMs.}
+\item{username}{User name of the DSVM. It should be different from
+`name`.}
 
-\item{pubkeys}{Public keys for the DSVM. This is only applicable
-for public-key based authentication of Linux based DSVM. One or a
-vector of public keys can be provided, depending on the count or
-the number of hostnames or usernames.}
+\item{authen}{Either "Key" for public-key based authentication
+(with Linux) or "Password" for a password based authentication
+(Linux or Windows). Default is to use public key authentication
+for Linux and password based authentication for Windows.}
+
+\item{pubkey}{Public key for the DSVM. Only applicable for
+public-key based authentication of Linux based DSVM.}
+
+\item{password}{Pass word for the DSVM.}
+
+\item{os}{Operating system of DSVM. Permitted values are "Ubuntu",
+"CentOS", "Windows", "DeepLearning", and "MRS". The default is to deploy
+a Ubuntu Linux Data Science Virtual Machine. NOTE previously Windows
+based DSVM for deep learning toolkit is using a separated package but
+now it is merged into one.}
+
+\item{size}{Size of the DSVM. The default is "Standard_D1_v2". All
+available sizes can be obtained by function `getVMSizes`.}
+
+\item{dns.label}{DNS label for the VM address. The URL for
+accessing the deployed DSVM will be
+"<dns_label>.<location>.cloudapp.azure.com}
 
 \item{count}{If provided this is the number of DSVM instances to be
 created. If not provided the number of DSVMs created will be
-either the number of names provided or the number of usernames
+either the number of names provided or the number of username
 provided.}
-
-\item{size}{The size of the DSVMs. Each DSVM is the same size.}
-
-\item{dns.labels}{DNS labels for the VM. By default this is the
-hostnames but is not required to be. The fully qualified domain
-name for accessing the deployed DSVM will then be
-"<dns.label_label>.<location>.cloudapp.azure.com".}
 }
 \description{
 Creates a cluster of Data Science Virtual Machines and enables the
-DSVMs to communicate across the cluster via public key based
+DSVMs to communicate acros the cluster via public key based
 credentials for high performance computation. All DSVMs in the
 cluster are based on Linux OS and use public key cryptogrphy for
 log in.
 }
 \details{
-We identify two specific use cases but recognise there are many
-that are supported by this function.
+Note clustering of DSVMs for high performance computing will be 
+deprecated. Users are encouraged to use azureDoParallel package 
+for the same purpose with Azure Batch Services. 
 
-A cluster is intended as a High Performance Compute engine across
-the deployed DSVMs supporting a parallel computing context as is
-available with Microsoft R Server ScaleR package. A cluster is a
-deployment of multiple identitical DSVMs. A single admin username
-and public key will be used across the cluster. The individual
-machine names will be constructed from the provided name with
-sequential numbers. The data scientist will typically connect to
-the cluster from their local desktop/laptop running R locally with
-remote execution for computation. A cluster is typcially created by
-the data scientist when needed and the resource group deleted on
-completion of the activity.
-
-A collection is a deployment with different usernames and public
-keys for each of the DSVMS. A vector of usernames must be
-provided. A colleciton is often used in creating multiple DSVMs for
-a group of data scientists or for training. A colleciton is often
-longer lasting than a cluster.
+The current function supports for deployment of identical DSVMs 
+(i.e., size, OS, etc.) or heterogeneous DSVMs with differerent 
+specifications.
 }
 \examples{
 \dontrun{
-# The following deploys a cluster of 5 Linux DSVMs and form them as a cluster. 
+# The following deploys a cluster of 5 Linux DSVMs.
 
-deployDSVMCluster(context, resource.group="<resource_group>", location="<location>", hostnames="<machine_name>", usernames="<user_name>", os="Windows", pubkeys="<a_valid_public_key_string_in_SSH_format>", count=5)
+deployDSVMCluster(context, resource.group="<resource_group>", 
+location="<location>", hostname="<machine_name>", username="<user_name>", 
+os="Windows", pubkey="<a_valid_public_key_string_in_SSH_format>", count=5)
 
-# The following deploys a collection of 3 Linux DSVMs with different names and public keys.
+# The following deploys a collection of 3 Linux DSVMs with different 
+names and public keys.
 
-deployDSVMCluster(context, resource.group="<resource_group>", location="<location>", hostnames=c("<machine_name_1>", "<machine_name_2>", "<machine_name_3>", usernames=c("<user_name_1>", "<user_name_2>", "<user_name_3>"), os="Windows", pubkeys="<a_valid_public_key_string_in_SSH_format>"}
+deployDSVMCluster(context, resource.group="<resource_group>", 
+location="<location>", hostname=c("<machine_name_1>", "<machine_name_2>", 
+"<machine_name_3>", username=c("<user_name_1>", "<user_name_2>", 
+"<user_name_3>"), os="Windows", 
+pubkey="<a_valid_public_key_string_in_SSH_format>"}
 }
 

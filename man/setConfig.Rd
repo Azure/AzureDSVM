@@ -4,8 +4,8 @@
 \alias{setConfig}
 \title{Set configuration for the compute interface object.}
 \usage{
-setConfig(object, machine_list, dns_list, machine_user, master, slaves, data,
-  context)
+setConfig(object, machine_list, dns_list, machine_user, master = "",
+  slaves = "", data, context)
 }
 \arguments{
 \item{object}{An S3 compute interface object.}
