@@ -28,7 +28,7 @@ operateDSVM <- function(context,
   assert_that(AzureSMR:::is_vm_name(hostname))
   
   if (missing(operation)) stop("Please specify an operation on the DSVM")
-  operation <- match.arg(c("Check", "Start", "Stop", "Delete"))
+  operation <- match.arg(operation, c("Check", "Start", "Stop", "Delete"))
 
   # check if vm exists.
 

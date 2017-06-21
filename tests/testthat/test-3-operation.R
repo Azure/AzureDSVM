@@ -36,19 +36,19 @@ dsvm_username <- "dsvmuser"
 
 context("Operate a DSVM")
 
-res <- deployDSVM(asc, 
-                  resource.group=resourceGroup_name,
-                  location=location,
-                  hostname=dsvm_name,
-                  username=dsvm_username,
-                  size=dsvm_size,
-                  os=dsvm_os,
-                  authen="Password",
-                  pubkey="",
-                  password=dsvm_password,
-                  mode="Sync")
-
 test_that("- check status of a DSVM", {
+  deployDSVM(asc, 
+             resource.group=resourceGroup_name,
+             location=location,
+             hostname=dsvm_name,
+             username=dsvm_username,
+             size=dsvm_size,
+             os=dsvm_os,
+             authen="Password",
+             pubkey="",
+             password=dsvm_password,
+             mode="Sync")
+
   res <- operateDSVM(asc, 
                      resource.group=resourceGroup_name, 
                      hostname=dsvm_name, 
