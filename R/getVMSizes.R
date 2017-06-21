@@ -13,8 +13,9 @@ getVMSizes <- function(context, location)
 
   AzureSMR::azureCheckToken(context)
 
-  if(missing(context) || !AzureSMR::is.azureActiveContext(context))
+  if(missing(context))
     stop("Please provide a valid AzureSMR context.")
+  assert_that(AzureSMR::is.azureActiveContext(context))
 
   if(missing(location))
     stop("Please provide a location.")
@@ -28,26 +29,29 @@ getVMSizes <- function(context, location)
                 "/vmSizes?api-version=",
                 api_version)
 
-  headers <- c(Host="management.azure.com",
-               Authorization=context$Token,
-               `Content-type`="application/json")
-
-  r <- httr::GET(url, add_headers(.headers=headers))
+  # headers <- c(Host="management.azure.com",
+  #              Authorization=context$Token,
+  #              `Content-type`="application/json")
+  # 
+  # r <- httr::GET(url, add_headers(.headers=headers))
+  
+  r <- AzureSMR::call_azure_sm(asc,
+                               uri=url,
+                               verb="GET")
+  
+  AzureSMR:::stopWithAzureError(r)
 
   rl <- content(r, "text", encoding="UTF-8")
-
-  if(! status_code(r) %in% c(200, 201, 202)) AzureSMR:::stopWithAzureError(r)
-
-  df_size <- 
-    jsonlite::fromJSON(rl)$value %>%
-    rename(Name=name,
-           Cores=numberOfCores,
-           Disk=resourceDiskSizeInMB,
-           RAM=memoryInMB,
-           Disks=maxDataDiskCount) %>%
-    select(Name, Cores, Disk, RAM, Disks) %>%
-    mutate(Disk=scales::comma(Disk/1024),
-           RAM=scales::comma(round(RAM/1024)))
+  
+  df_size <- jsonlite::fromJSON(rl)$value
+  
+  # rename the columns for convenient reading.
+  
+  df_size$Name  <- df_size$name
+  df_size$Cores <- df_size$numberOfCores
+  df_size$Disk  <- (df_size$resourceDiskSizeInMB) / 1024
+  df_size$RAM   <- (df_size$memoryInMB) / 1024
+  df_size$Disks <- df_size$maxDataDiskCount
   
   names(df_size) <- c("VM Size",
                       "Number of cores",

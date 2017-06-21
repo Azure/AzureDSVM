@@ -48,6 +48,15 @@ dsvm_name     <- paste0("dsvm",
 dsvm_password <- "AzureDSVM_test123"
 dsvm_username <- "dsvmuser"
 
+test_that("Get VM sizes"，{
+  skip_if_missing_config(settingsfile)
+  
+  res <- getVMSizes(asc, 
+                    location=location)
+  
+  
+})
+
 test_that("Deploy a CentOS DSVM", {
   skip_if_missing_config(settingsfile)
   
