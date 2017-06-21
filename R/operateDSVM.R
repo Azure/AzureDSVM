@@ -72,4 +72,6 @@ operateDSVM <- function(context,
                               verbose=FALSE)
     }
   }
+  
+  return(TRUE)
 }
