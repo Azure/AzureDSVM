@@ -1,8 +1,6 @@
 #' Get available sizes for data science virtual machines.
 #' 
-#' @param context An AzureSMR context.
-#' 
-#' @param location Location of the Azure resources.
+#' @inheritParams deployDSVM
 #' 
 #' @return A data frame that contains basic information such as number of cores, disk size, RAM size, etc.,
 #' about the available DSVM sizes.
@@ -29,12 +27,6 @@ getVMSizes <- function(context, location)
                 "/vmSizes?api-version=",
                 api_version)
 
-  # headers <- c(Host="management.azure.com",
-  #              Authorization=context$Token,
-  #              `Content-type`="application/json")
-  # 
-  # r <- httr::GET(url, add_headers(.headers=headers))
-  
   r <- AzureSMR:::call_azure_sm(asc,
                                 uri=url,
                                 verb="GET")
