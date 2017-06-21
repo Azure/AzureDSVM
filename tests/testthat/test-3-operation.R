@@ -34,9 +34,9 @@ dsvm_name     <- paste0("dsvm",
 dsvm_password <- "AzureDSVM_test123"
 dsvm_username <- "dsvmuser"
 
-context("Check status of a DSVM")
+context("- Check status of a DSVM")
 
-test_that("- check status of a DSVM", {
+test_that("check status of a DSVM", {
   deployDSVM(asc, 
              resource.group=resourceGroup_name,
              location=location,
@@ -58,9 +58,9 @@ test_that("- check status of a DSVM", {
   
 })
 
-context("Stop a DSVM")
+context("- Stop a DSVM")
 
-test_that("- stop a DSVM", {
+test_that("stop a DSVM", {
   res <- operateDSVM(asc, 
                      resource.group=resourceGroup_name, 
                      hostname=dsvm_name, 
@@ -69,9 +69,9 @@ test_that("- stop a DSVM", {
   expect_true(res)
 }) 
 
-context("Delete a DSVM")
+context("- Delete a DSVM")
 
-test_that("- delete a DSVM", {
+test_that("delete a DSVM", {
   res <- operateDSVM(asc, 
                      resource.group=resourceGroup_name, 
                      hostname=dsvm_name, 
