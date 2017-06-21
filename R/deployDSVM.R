@@ -233,25 +233,38 @@ deployDSVM <- function(context,
   }
 
   # Update the parameter JSON with the virtual machine hostname.
-
-  para_path %>%
-    readLines() %>%
-    gsub("<LOCATION>", location, .) %>%
-    gsub("<DEFAULT>", hostname, .) %>%
-    gsub("<USER>", username, .) %>%
-    gsub("<VMSIZE>", size, .) %>%
-    gsub("<PWD>", password, .) %>%
-    gsub("<PUBKEY>", pubkey, .) %>%
-    paste0(collapse="") ->
-  param
+  
+  param <- readLines(para_path)
+  gsub("<LOCATION>", location, param) 
+  gsub("<DEFAULT>", hostname, param) 
+  gsub("<USER>", username, param) 
+  gsub("<VMSIZE>", size, param) 
+  gsub("<PWD>", password, param) 
+  gsub("<PUBKEY>", pubkey, param) 
+  param <- paste0(param, collapse="")
+  
+  # para_path %>%
+  #   readLines() %>%
+  #   gsub("<LOCATION>", location, .) %>%
+  #   gsub("<DEFAULT>", hostname, .) %>%
+  #   gsub("<USER>", username, .) %>%
+  #   gsub("<VMSIZE>", size, .) %>%
+  #   gsub("<PWD>", password, .) %>%
+  #   gsub("<PUBKEY>", pubkey, .) %>%
+  #   paste0(collapse="") ->
+  # param
 
   # Update the template JSON with the appropriate parameters.
+  
+  templ <- readLines(temp_path)
+  gsub("<DNS_LABEL", dns.label, templ)
+  templ <- paste0(templ, collapse="")
 
-  temp_path %>%
-    readLines() %>%
-    gsub("<DNS_LABEL>", dns.label, .) %>%
-    paste0(collapse="") ->
-  templ
+  # temp_path %>%
+  #   readLines() %>%
+  #   gsub("<DNS_LABEL>", dns.label, .) %>%
+  #   paste0(collapse="") ->
+  # templ
 
   dname <- paste0(hostname, "_dpl")
 
