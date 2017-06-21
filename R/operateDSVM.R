@@ -24,8 +24,8 @@ operateDSVM <- function(context,
   if (missing(resource.group)) stop("Please specify resource group.")
   assert_that(AzureSMR:::is_resource_group(resource.group))
   
-  if (missing(hostname)) stop("Please specify DSVM name.")
-  assert_that(AzureSMR:::is_vm_name(hostname))
+  if(missing(hostname)) stop("Please specify virtual machine hostname(s).")
+  assert_that(all(sapply(hostname, AzureSMR:::is_vm_name)))
   
   if (missing(operation)) stop("Please specify an operation on the DSVM")
   operation <- match.arg(operation, c("Check", "Start", "Stop", "Delete"))
