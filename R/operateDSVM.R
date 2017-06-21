@@ -19,7 +19,7 @@ operateDSVM <- function(context,
   # check input arguments.
 
   if (missing(context)) stop("Please specify AzureSMR context.")
-  assert_that(is.azureActiveContext(context))
+  assert_that(AzureSMR::is.azureActiveContext(context))
   
   if (missing(resource.group)) stop("Please specify resource group.")
   assert_that(AzureSMR:::is_resource_group(resource.group))
