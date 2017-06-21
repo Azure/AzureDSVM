@@ -10,7 +10,7 @@
 #' @export
 operateDSVM <- function(context,
                         resource.group,
-                        names,
+                        hostname,
                         operation="Check") {
   # check if token is valid.
 
@@ -19,13 +19,16 @@ operateDSVM <- function(context,
   # check input arguments.
 
   if (missing(context)) stop("Please specify AzureSMR context.")
+  assert_that(is.azureActiveContext(context))
+  
   if (missing(resource.group)) stop("Please specify resource group.")
-  if (missing(names)) stop("Please specify DSVM name.")
+  assert_that(AzureSMR:::is_resource_group(resource.group))
+  
+  if (missing(hostname)) stop("Please specify DSVM name.")
+  assert_that(AzureSMR:::is_vm_name(hostname))
+  
   if (missing(operation)) stop("Please specify an operation on the DSVM")
-
-  # check if input operations are available.
-
-  if (!(operation %in% c("Check", "Start", "Stop", "Delete"))) stop("Please use an allowed operation, i.e., 'Check', 'Start', 'Stop', or 'Delete', for the DSVM.")
+  operation <- match.arg(c("Check", "Start", "Stop", "Delete"))
 
   # check if vm exists.
 
@@ -33,10 +36,10 @@ operateDSVM <- function(context,
                                     resourceGroup=resource.group,
                                     verbose=FALSE)
 
-  if(!all(names %in% unlist(vm_names$name)))
+  if(!all(hostname %in% unlist(vm_names$name)))
     stop("Given DSVM(s) does not exist in resource group.")
 
-  for (name in names) {
+  for (name in hostname) {
     status <- AzureSMR::azureVMStatus(azureActiveContext=context,
                                       resourceGroup=resource.group,
                                       vmName=name,
