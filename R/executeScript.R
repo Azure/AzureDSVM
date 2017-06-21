@@ -55,27 +55,35 @@ executeScript <- function(context,
 
   # Check pre-conditions.
 
-  if(missing(context) | !is.azureActiveContext(context))
-    stop("Please provide a valid AzureSMR active context.")
-
-  if(missing(resource.group))
+  if (missing(resource.group)) 
     stop("Please specify a resource group.")
-
+  assert_that(AzureSMR:::is_resource_group(resource.group))
+  
+  if(missing(location))
+    stop("Please specify a data centre location.")
+  assert_that(AzureSMR:::is_location(location))
+  
   if(missing(hostname))
-    stop("Please give a list of virtual machines.")
-
+    stop("Please specify a virtual machine hostname.")
+  assert_that(AzureSMR:::is_vm_name(hostname))
+  
+  if(missing(username))
+    stop("Please specify a virtual machine user name.")
+  assert_that(AzureSMR:::is_admin_user(username))
+ 
   if(missing(remote))
     stop("Please specify a remote machine.")
-
-  if(missing(username))
-    stop("Please give user name for the remote login.")
+  # some check for a valid endpoint.
 
   if(missing(script))
     stop("Please specify the script to be executed remotely with full path.")
+  # some check for a valid file name.
 
   # Check master and slave only when it is cluster parallel.
   
-  compute.context <- match.arg(compute.context)
+  compute.context <- match.arg(compute.context, c("localParallel",
+                                                  "localSeq", 
+                                                  "clusterParallel"))
 
   if(compute.context == "clusterParallel")
   {
@@ -107,12 +115,13 @@ executeScript <- function(context,
 
   # set configuration
 
-  new_interface %<>% setConfig(machine_list=hostname,
-                               master=master,
-                               slaves=slaves,
-                               dns_list=c(master, slaves),
-                               machine_user=username,
-                               context=compute.context)
+  new_interface <- setConfig(newinterface,
+                             machine_list=hostname,
+                             master=master,
+                             slaves=slaves,
+                             dns_list=c(master, slaves),
+                             machine_user=username,
+                             context=compute.context)
 
   # print interface contents.
 
