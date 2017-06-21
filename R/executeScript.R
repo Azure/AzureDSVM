@@ -7,7 +7,8 @@
 #' @param machines Remote DSVMs that will be used for computation.
 #'
 #' @param remote IP address or FQDN for a computation engine. For
-#'   DSVM, it is either the fully qualified domain name (usually in the format of
+#'   DSVM, it is either the fully qualified domain name (usually in 
+#'   the format of
 #'   <hostname>.<location>.cloudapp.azure.com) or its public IP
 #'   address. Note if more than one machines are used for execution,
 #'   the remote is used as master node by default.
@@ -24,19 +25,26 @@
 #' @param compute.context Computation context of Microsoft R Server
 #'   under which the mechanisms of parallelization (e.g., local
 #'   parallel, cluster based parallel, etc.) is
-#'   specified. Accepted computing context include "localSequential", "localParallel", and
+#'   specified. Accepted computing context include "localSequential", 
+#'   "localParallel", and
 #'   "clusterParallel".
 #'
 #' @return Status of scription execution.
 #'
 #' @details
 #'
-#' For a "localSequential" compute context, there is no parallelism and the analytics run in a sequential manner. In the "localParallel" compute context, the analytics will be run across available cores of a computing node. The number of available cores can be checked with Microsoft RevoScaleR function \code{rxGetOption}. The "clusterParallel" compute context enables parallel computation across coputing nodes of a cluster.
+#' For a "localSequential" compute context, there is no parallelism and 
+#' the analytics run in a sequential manner. In the "localParallel" 
+#' compute context, the analytics will be run across available cores 
+#' of a computing node. The number of available cores can be checked with
+#'  Microsoft RevoScaleR function \code{rxGetOption}. The "clusterParallel" 
+#'  compute context enables parallel computation across coputing nodes of
+#'   a cluster.
 #' 
-#' @references Details about distributed computing with Microsoft RevoScaleR package can be found at https://msdn.microsoft.com/en-us/microsoft-r/scaler-distributed-computing.
+#' @references Details about distributed computing with Microsoft 
+#' RevoScaleR package can be found at 
+#' https://msdn.microsoft.com/en-us/microsoft-r/scaler-distributed-computing.
 #' 
-#' @note Remote code/script execution by using Microsoft R Server 9.0, which brings more convenience and is portable to both Linux and Windows system, will be supported soon.
-#'
 #' @export
 executeScript <- function(context,
                           resource.group,
@@ -119,12 +127,16 @@ executeScript <- function(context,
   # execute script on remote machine(s).
 
   option <- "-q -o StrictHostKeyChecking=no"
-  remote_script <- paste0("script_", paste0(sample(letters, 5), collapse=""), ".R")
+  remote_script <- paste0("script_", 
+                          paste0(sample(letters, 5), collapse=""), 
+                          ".R")
   
   # to avoid issues with drive letter in Windows system.
   
   script_name <- basename(new_interface$script)
-  script_path <- sub(x=new_interface$script, pattern=script_name, replacement="")
+  script_path <- sub(x=new_interface$script, 
+                     pattern=script_name, 
+                     replacement="")
   curr_wd <- getwd()
   setwd(script_path)
 
@@ -139,7 +151,9 @@ executeScript <- function(context,
   if (is.null(attributes(exe)))
   {
     writeLines(sprintf("File %s is successfully uploaded on %s$%s.",
-                       new_interface$script, new_interface$user, new_interface$remote))
+                       new_interface$script, 
+                       new_interface$user,
+                       new_interface$remote))
   } else {
     writeLines("Something must be wrong....... See warning message.")
   }
@@ -158,7 +172,9 @@ executeScript <- function(context,
   if (is.null(attributes(exe)))
   {
     writeLines(sprintf("File %s is successfully executed on %s$%s.",
-                       new_interface$script, new_interface$user, new_interface$remote))
+                       new_interface$script, 
+                       new_interface$user, 
+                       new_interface$remote))
   } else {
     writeLines("Something must be wrong....... See warning message.")
   }
@@ -184,13 +200,15 @@ executeScript <- function(context,
 #' 
 #' @param file File name - a character string.
 #' 
-#' @note File transfer is implemented by `scp` with public key based authentication so it is limited only to Linux based DSVM at the moment. Future work will enable mrsdeploy functions for file transfer with higher convenience.
+#' @note File transfer is implemented by `scp` with public key based 
+#' authentication so it is limited only to Linux based DSVM at the moment. 
 #' 
 #' @export
 #' 
 #' @examples 
 #' \dontrun{
-#' # copy a file named "script.R" from local current working directory to remote (e.g., IP address is 192.168.19.1) home directory.
+#' # copy a file named "script.R" from local current working directory to 
+#' remote (e.g., IP address is 192.168.19.1) home directory.
 #' fileTransfer(from=".", to="192.168.19.1:~", user="admin", file="script.R")}
 fileTransfer <- function(from=".",
                          to=".",
