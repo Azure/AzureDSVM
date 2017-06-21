@@ -1,4 +1,4 @@
-#' @title Distribute public keys across nodes.
+#' Distribute public keys across nodes.
 #' 
 #' @description The function distributes public keys across nodes so as to allow secure communication between each of the nodes. This is to enable doParallel backend to create socket-based cluster based on the nodes for parallel computation.
 #' 
