@@ -183,10 +183,10 @@ deployDSVMCluster <- function(context,
   # doAzureParallel package for high-performance computation.
 
   if (length(unique(username)) == 1 && 
-      all(authen == "Key") &&
-      all(os == "Ubuntu" ||
-          os == "CentOS" ||
-          os == "RServer"))
+      authen == "Key" &&
+      (os == "Ubuntu" ||
+       os == "CentOS" ||
+       os == "RServer"))
   {
     # sleep for a while as ssh to a ubuntu LDSVM cannot be immediately 
     # executed after deployment.
