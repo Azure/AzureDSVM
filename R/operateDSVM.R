@@ -1,8 +1,10 @@
-#' @title Operations on a data science virtual machine. Available operations are "Check", "Start", "Stop", and "Delete".
-#' @param context AzureSMR context.
-#' @param resource.group Resource group.
-#' @param name Name(s) of the DSVM(s).
+#' Operations on a data science virtual machine. 
+#' Available operations are "Check", "Start", "Stop", and "Delete".
+#' 
+#' @inheritParams deployDSVM
+#' 
 #' @param operation Operations on the DSVM. Available operations are "Check", "Start", "Stop", "Delete", which check the status of, start running, stop running, and delete a DSVM, respectively.
+#' 
 #' @export
 operateDSVM <- function(context,
                         resource.group,
