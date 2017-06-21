@@ -8,10 +8,10 @@
 #' 
 #' @return No returned value. 
 keyDistribution <- function(location,
-                            hostnames,
-                            usernames,
+                            hostname,
+                            username,
                             count,
-                            dns.labels=hostnames)
+                            dns.labels=hostname)
 {
   
   # Set working directory to where temp files are located.
@@ -40,22 +40,22 @@ keyDistribution <- function(location,
     # of avoiding pop up. Also do not clog up the user's known_hosts
     # file with all the servers created.
     
-    tmpkey <- tempfile(paste0("AzureDSVM_pubkey_", hostnames[i], "_"))
+    tmpkey <- tempfile(paste0("AzureDSVM_pubkey_", hostname[i], "_"))
     
     file.create(tmpkey)
     
     # Generate key pairs in the VM
     
     cmd <- sprintf("ssh %s -l %s %s %s",
-                   options, usernames[i], fqdns[i],
+                   options, username[i], fqdns[i],
                    "'ssh-keygen -t rsa -N \"\" -f ~/.ssh/id_rsa'")
     system(cmd, intern=TRUE, ignore.stdout=FALSE, ignore.stderr=FALSE, wait=FALSE)
     
     # Copy the public key and append it to the local machine.
     
     cmd <- sprintf("%s %s %s@%s:.ssh/id_rsa.pub %s",
-                   # copy, options, usernames[i], fqdns[i], tmpkey)
-                   copy, options, usernames[i], fqdns[i], file.path(".", basename(tmpkey)))
+                   # copy, options, username[i], fqdns[i], tmpkey)
+                   copy, options, username[i], fqdns[i], file.path(".", basename(tmpkey)))
     
     system(cmd)
     
@@ -73,7 +73,7 @@ keyDistribution <- function(location,
   # Create a config file. To avoid any prompt when nodes are
   # communicating with each other.
   
-  tmpscript <- paste0("./AzureDSVM_script_", hostnames[i], "_")
+  tmpscript <- paste0("./AzureDSVM_script_", hostname[i], "_")
   
   file.create(tmpscript)
   
@@ -92,20 +92,20 @@ keyDistribution <- function(location,
     # Copy the pub_keys onto node.
     
     system(sprintf("%s %s %s %s@%s:.ssh/pub_keys",
-                   # copy, options, tmpkeys, usernames[i], fqdns[i]))
-                   copy, options, file.path(".", basename(tmpkeys)), usernames[i], fqdns[i]))
+                   # copy, options, tmpkeys, username[i], fqdns[i]))
+                   copy, options, file.path(".", basename(tmpkeys)), username[i], fqdns[i]))
     
     # Copy the config onto node and run it.
     
     system(sprintf("%s %s %s %s@%s:.ssh/shell_script",
-                   # copy, options, tmpscript, usernames[i], fqdns[i]))
-                   copy, options, file.path(".", basename(tmpscript)), usernames[i], fqdns[i]))
+                   # copy, options, tmpscript, username[i], fqdns[i]))
+                   copy, options, file.path(".", basename(tmpscript)), username[i], fqdns[i]))
     
     system(sprintf("ssh %s -l %s %s 'chmod +x .ssh/shell_script'",
-                   options, usernames[i], fqdns[i]))
+                   options, username[i], fqdns[i]))
     
     system(sprintf("ssh %s -l %s %s '.ssh/shell_script'",
-                   options, usernames[i], fqdns[i]))
+                   options, username[i], fqdns[i]))
   }
   
   # Clean up.
@@ -116,8 +116,8 @@ keyDistribution <- function(location,
 
   setwd(cwd)
   
-  data.frame(hostname = hostnames,
-             username = usernames,
+  data.frame(hostname = hostname,
+             username = username,
              fqdn     = fqdns,
              stringsAsFactors=FALSE)
 }
