@@ -8,28 +8,28 @@
    "adminUsername": {
         "value": "<USER>"
     },
-   "virtualMachines_newdsvm_adminPassword": {
+   "virtualMachines_adminPassword": {
         "value": "<PWD>"
     },
-    "virtualMachines_newdsvm_adminPublicKey": {
+    "virtualMachines_adminPublicKey": {
 	"value": "<PUBKEY>"
     },
-    "virtualMachines_newdsvm_name": {
+    "virtualMachines_name": {
 	"value": "<DEFAULT>"
     },
-    "networkInterfaces_newdsvm161_name": {
+    "networkInterfaces_name": {
         "value": "<DEFAULT>nic"
     },
-    "networkSecurityGroups_newdsvm_nsg_name": {
+    "networkSecurityGroups_nsg_name": {
         "value": "<DEFAULT>sg"
     },
-    "publicIPAddresses_newdsvm_ip_name": {
+    "publicIPAddresses_ip_name": {
         "value": "<DEFAULT>ip"
     },
-    "virtualNetworks_dsvm_vnet_name": {
+    "virtualNetworks_name": {
         "value": "<DEFAULT>vnet"
     },
-    "storageAccounts_dsvmdisks490_name": {
+    "storageAccounts_name": {
         "value": "<DEFAULT>sa"
     }
 }

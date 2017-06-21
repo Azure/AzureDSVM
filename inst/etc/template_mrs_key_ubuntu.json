@@ -15,43 +15,43 @@
             "defaultValue": null,
             "type": "String"
     	},
-      "virtualMachines_newdsvm_adminPassword": {
+      "virtualMachines_adminPassword": {
             "defaultValue": null,
             "type": "SecureString"
       },
-    	"virtualMachines_newdsvm_adminPublicKey": {
+    	"virtualMachines_adminPublicKey": {
             "defaultValue": null,
             "type": "SecureString"
     	},
-      "virtualMachines_newdsvm_name": {
+      "virtualMachines_name": {
             "defaultValue": "newdsvm",
             "type": "String"
       },
-      "networkInterfaces_newdsvm161_name": {
-            "defaultValue": "newdsvm161",
+      "networkInterfaces_name": {
+            "defaultValue": "newdsvm-ni",
             "type": "String"
       },
-      "networkSecurityGroups_newdsvm_nsg_name": {
+      "networkSecurityGroups_nsg_name": {
             "defaultValue": "newdsvm-nsg",
             "type": "String"
       },
-      "publicIPAddresses_newdsvm_ip_name": {
+      "publicIPAddresses_ip_name": {
             "defaultValue": "newdsvm-ip",
             "type": "String"
       },
-      "virtualNetworks_dsvm_vnet_name": {
+      "virtualNetworks_name": {
             "defaultValue": "dsvm-vnet",
             "type": "String"
       },
-      "storageAccounts_dsvmdisks490_name": {
-            "defaultValue": "dsvmdisks490",
+      "storageAccounts_name": {
+            "defaultValue": "dsvmdisks",
             "type": "String"
       }
     },
     "resources": [
         {
             "type": "Microsoft.Compute/virtualMachines",
-            "name": "[parameters('virtualMachines_newdsvm_name')]",
+            "name": "[parameters('virtualMachines_name')]",
             "apiVersion": "2016-04-30-preview",
             "location": "[resourceGroup().location]",
             "properties": {
@@ -66,16 +66,16 @@
                         "version": "latest"
                     },
                     "osDisk": {
-                        "name": "[parameters('virtualMachines_newdsvm_name')]",
+                        "name": "[parameters('virtualMachines_name')]",
                         "createOption": "FromImage",
                         "vhd": {
-                            "uri": "[concat('https', '://', parameters('storageAccounts_dsvmdisks490_name'), '.blob.core.windows.net', concat('/vhds/', parameters('virtualMachines_newdsvm_name'),'20168192442.vhd'))]"
+                            "uri": "[concat('https', '://', parameters('storageAccounts_name'), '.blob.core.windows.net', concat('/vhds/', parameters('virtualMachines_name'),'20168192442.vhd'))]"
                         },
                         "caching": "ReadWrite"
                     }
                 },
                 "osProfile": {
-                    "computerName": "[parameters('virtualMachines_newdsvm_name')]",
+                    "computerName": "[parameters('virtualMachines_name')]",
                     "adminUsername": "[parameters('adminUsername')]",
 		    "linuxConfiguration": {
                         "disablePasswordAuthentication": true,
@@ -83,30 +83,30 @@
                             "publicKeys": [
                                 {
                                     "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
-                                    "keyData": "[parameters('virtualMachines_newdsvm_adminPublicKey')]"
+                                    "keyData": "[parameters('virtualMachines_adminPublicKey')]"
                                 }
                             ]
                         }
                     },
-                    "adminPassword": "[parameters('virtualMachines_newdsvm_adminPassword')]"
+                    "adminPassword": "[parameters('virtualMachines_adminPassword')]"
                 },
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_newdsvm161_name'))]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_name'))]"
                         }
                     ]
                 }
             },
             "resources": [],
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_dsvmdisks490_name'))]",
-                "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_newdsvm161_name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_name'))]",
+                "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_name'))]"
             ]
         },
         {
             "type": "Microsoft.Network/networkInterfaces",
-            "name": "[parameters('networkInterfaces_newdsvm161_name')]",
+            "name": "[parameters('networkInterfaces_name')]",
             "apiVersion": "2016-03-30",
             "location": "[resourceGroup().location]",
             "properties": {
@@ -117,10 +117,10 @@
                             "privateIPAddress": "10.0.0.4",
                             "privateIPAllocationMethod": "Dynamic",
                             "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_newdsvm_ip_name'))]"
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_ip_name'))]"
                             },
                             "subnet": {
-                                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_dsvm_vnet_name')), '/subnets/default')]"
+                                "id": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_name')), '/subnets/default')]"
                             }
                         }
                     }
@@ -130,19 +130,19 @@
                 },
                 "enableIPForwarding": false,
                 "networkSecurityGroup": {
-                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_newdsvm_nsg_name'))]"
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_name'))]"
                 }
             },
             "resources": [],
             "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_newdsvm_ip_name'))]",
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_dsvm_vnet_name'))]",
-                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_newdsvm_nsg_name'))]"
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_ip_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_nsg_name'))]"
             ]
         },
         {
             "type": "Microsoft.Network/networkSecurityGroups",
-            "name": "[parameters('networkSecurityGroups_newdsvm_nsg_name')]",
+            "name": "[parameters('networkSecurityGroups_nsg_name')]",
             "apiVersion": "2016-03-30",
             "location": "[resourceGroup().location]",
             "properties": {
@@ -232,7 +232,7 @@
         },
         {
             "type": "Microsoft.Network/publicIPAddresses",
-            "name": "[parameters('publicIPAddresses_newdsvm_ip_name')]",
+            "name": "[parameters('publicIPAddresses_ip_name')]",
             "apiVersion": "2016-03-30",
             "location": "[resourceGroup().location]",
             "properties": {
@@ -247,7 +247,7 @@
         },
         {
             "type": "Microsoft.Network/virtualNetworks",
-            "name": "[parameters('virtualNetworks_dsvm_vnet_name')]",
+            "name": "[parameters('virtualNetworks_name')]",
             "apiVersion": "2016-03-30",
             "location": "[resourceGroup().location]",
             "properties": {
@@ -275,7 +275,7 @@
                 "tier": "Standard"
             },
             "kind": "Storage",
-            "name": "[parameters('storageAccounts_dsvmdisks490_name')]",
+            "name": "[parameters('storageAccounts_name')]",
             "apiVersion": "2016-01-01",
             "location": "[resourceGroup().location]",
             "tags": {},

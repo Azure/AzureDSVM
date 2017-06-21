@@ -39,7 +39,7 @@
             "type": "String"
         },
         "storageAccounts_name": {
-            "defaultValue": "dsvmdisks490",
+            "defaultValue": "dsvmdisks",
             "type": "String"
         }
     },
