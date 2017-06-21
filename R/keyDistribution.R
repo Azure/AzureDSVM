@@ -2,13 +2,7 @@
 #' 
 #' @description The function distributes public keys across nodes so as to allow secure communication between each of the nodes. This is to enable doParallel backend to create socket-based cluster based on the nodes for parallel computation.
 #' 
-#' @param location Location of the DSVMs.
-#' 
-#' @param hostnames Host names of the DSVMs.
-#' 
-#' @param usernames User name used for the DSVMs. In the case of DSVM cluster, the user name is unique.
-#' 
-#' @param dns.labels DNS labels for the DSVMs.
+#' @inheritParams deployDSVMCluster
 #' 
 #' @note Note this function merely applies for Linux DSVM. In addition, it relies on SSH/SCP for file transfer so OpenSSH or other SSH tools are required if they do not exist by default in the system.
 #' 
