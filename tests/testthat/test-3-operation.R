@@ -54,7 +54,7 @@ test_that("- check status of a DSVM", {
                      hostname=dsvm_name, 
                      operation="Check")
   
-  expect_equal(res, "Provisioning succeeded, VM running")
+  expect_true(res)
   
 })
 
@@ -64,7 +64,7 @@ test_that("- stop a DSVM", {
                      hostname=dsvm_name, 
                      operation="Stop")
   
-  expect_equal(res, "Provisioning succeeded, VM deallocated")
+  expect_true(res)
 }) 
 
 test_that("- delete a DSVM", {
