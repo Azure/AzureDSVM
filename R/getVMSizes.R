@@ -35,9 +35,9 @@ getVMSizes <- function(context, location)
   # 
   # r <- httr::GET(url, add_headers(.headers=headers))
   
-  r <- AzureSMR::call_azure_sm(asc,
-                               uri=url,
-                               verb="GET")
+  r <- AzureSMR:::call_azure_sm(asc,
+                                uri=url,
+                                verb="GET")
   
   AzureSMR:::stopWithAzureError(r)
 
@@ -52,6 +52,8 @@ getVMSizes <- function(context, location)
   df_size$Disk  <- (df_size$resourceDiskSizeInMB) / 1024
   df_size$RAM   <- (df_size$memoryInMB) / 1024
   df_size$Disks <- df_size$maxDataDiskCount
+  
+  df_size <- df_size[, c("Name", "Cores", "Disk", "RAM", "Disks")]
   
   names(df_size) <- c("VM Size",
                       "Number of cores",
