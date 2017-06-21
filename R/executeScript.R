@@ -197,6 +197,8 @@ executeScript <- function(context,
                  new_interface$user,
                  new_interface$remote,
                  remote_script))
+  
+  return(TRUE)
 }
 
 #' @title Upload or download files.
