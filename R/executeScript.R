@@ -1,10 +1,6 @@
 #' Remote execution of R script in an R interface new_interface.
-#'
-#' @param context AzureSMR context.
-#'
-#' @param resource.group Resource group of Azure resources for computation.
-#'
-#' @param machines Remote DSVMs that will be used for computation.
+#' 
+#' @inheritParams deployDSVM
 #'
 #' @param remote IP address or FQDN for a computation engine. For
 #'   DSVM, it is either the fully qualified domain name (usually in 
@@ -12,8 +8,6 @@
 #'   <hostname>.<location>.cloudapp.azure.com) or its public IP
 #'   address. Note if more than one machines are used for execution,
 #'   the remote is used as master node by default.
-#'
-#' @param user Username for logging into the remote resource.
 #'
 #' @param script R script to be executed on remote resource(s).
 #'
@@ -48,13 +42,15 @@
 #' @export
 executeScript <- function(context,
                           resource.group,
-                          machines,
+                          hostname,
                           remote,
-                          user,
+                          username,
                           script,
                           master="",
                           slaves="",
-                          compute.context)
+                          compute.context=ifelse(master == "" && slaves == "",
+                                                 "localParallel",
+                                                 "clusterParallel"))
 {
 
   # Check pre-conditions.
@@ -65,19 +61,21 @@ executeScript <- function(context,
   if(missing(resource.group))
     stop("Please specify a resource group.")
 
-  if(missing(machines))
+  if(missing(hostname))
     stop("Please give a list of virtual machines.")
 
   if(missing(remote))
     stop("Please specify a remote machine.")
 
-  if(missing(user))
+  if(missing(username))
     stop("Please give user name for the remote login.")
 
   if(missing(script))
     stop("Please specify the script to be executed remotely with full path.")
 
   # Check master and slave only when it is cluster parallel.
+  
+  compute.context <- match.arg(compute.context)
 
   if(compute.context == "clusterParallel")
   {
@@ -92,7 +90,7 @@ executeScript <- function(context,
   
   message("The machines will be started sequentially.")
 
-  for (vm in machines)
+  for (vm in hostname)
   {
     # Starting a machine is running in synchronous mode so let's wait
     # for a while patiently until everything is done.
@@ -105,15 +103,15 @@ executeScript <- function(context,
 
   # Manage input strings in an interface new_interface.
 
-  new_interface <- createComputeInterface(remote, user, script)
+  new_interface <- createComputeInterface(remote, username, script)
 
   # set configuration
 
-  new_interface %<>% setConfig(machine_list=machines,
+  new_interface %<>% setConfig(machine_list=hostname,
                                master=master,
                                slaves=slaves,
                                dns_list=c(master, slaves),
-                               machine_user=user,
+                               machine_user=username,
                                context=compute.context)
 
   # print interface contents.
