@@ -262,8 +262,8 @@ updateScript <- function(object) {
       sep="\n"
     )
   } else {
-    stop(paste("Specify a context from \"localParallel\", \"clusterParallel\",",
-               "\"Hadoop\", \"Spark\", or \"Teradata\"."))
+    stop(paste("Specify a context from \"localSequential\", \"localParallel\", 
+               \"clusterParallel\","))
   }
 
   cat(codes_head, file=object$script)

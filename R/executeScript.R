@@ -59,13 +59,8 @@ executeScript <- function(context,
     stop("Please specify a resource group.")
   assert_that(AzureSMR:::is_resource_group(resource.group))
   
-  if(missing(location))
-    stop("Please specify a data centre location.")
-  assert_that(AzureSMR:::is_location(location))
-  
-  if(missing(hostname))
-    stop("Please specify a virtual machine hostname.")
-  assert_that(AzureSMR:::is_vm_name(hostname))
+  if(missing(hostname)) stop("Please specify virtual machine hostname(s).")
+  assert_that(all(sapply(hostname, AzureSMR:::is_vm_name)))
   
   if(missing(username))
     stop("Please specify a virtual machine user name.")
@@ -82,7 +77,7 @@ executeScript <- function(context,
   # Check master and slave only when it is cluster parallel.
   
   compute.context <- match.arg(compute.context, c("localParallel",
-                                                  "localSeq", 
+                                                  "localSequential", 
                                                   "clusterParallel"))
 
   if(compute.context == "clusterParallel")
@@ -105,17 +100,19 @@ executeScript <- function(context,
 
     operateDSVM(context,
                 resource.group=resource.group,
-                name=vm,
+                hostname=vm,
                 operation="Start")
   }
 
   # Manage input strings in an interface new_interface.
 
-  new_interface <- createComputeInterface(remote, username, script)
+  new_interface <- createComputeInterface(remote=remote, 
+                                          user=username, 
+                                          script=script)
 
   # set configuration
 
-  new_interface <- setConfig(newinterface,
+  new_interface <- setConfig(new_interface,
                              machine_list=hostname,
                              master=master,
                              slaves=slaves,
