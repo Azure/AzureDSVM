@@ -83,7 +83,7 @@ costDSVM <- function(context,
                      verbose=FALSE) {
   
   if(missing(context)) stop("Please specify an active Azure context")
-  assertthat(is.azureActiveContext(context))
+  assert_that(is.azureActiveContext(context))
   
   if(missing(timeStart)) stop("Please specify a starting time point")
   
