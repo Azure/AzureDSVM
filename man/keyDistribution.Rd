@@ -4,19 +4,21 @@
 \alias{keyDistribution}
 \title{Distribute public keys across nodes.}
 \usage{
-keyDistribution(location, hostnames, usernames, pubkeys, count,
-  dns.labels = hostnames)
+keyDistribution(location, hostname, username, count, dns.labels = hostname)
 }
 \arguments{
-\item{location}{Location of the DSVMs.}
+\item{location}{Location of the data centre to host the DSVM.}
 
-\item{hostnames}{Host names of the DSVMs.}
+\item{hostname}{Name of the DSVM.  Lowercase characters or numbers
+only. Special characters are not permitted.}
 
-\item{usernames}{User name used for the DSVMs. In the case of DSVM cluster, the user name is unique.}
+\item{username}{User name of the DSVM. It should be different from
+`name`.}
 
-\item{pubkeys}{Public keys used for the DSVMs.}
-
-\item{dns.labels}{DNS labels for the DSVMs.}
+\item{count}{If provided this is the number of DSVM instances to be
+created. If not provided the number of DSVMs created will be
+either the number of names provided or the number of username
+provided.}
 }
 \value{
 No returned value.

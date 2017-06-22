@@ -5,9 +5,8 @@
 \title{Deploy a new Data Science Virtual Machine (DSVM).}
 \usage{
 deployDSVM(context, resource.group, location, hostname, username,
-  size = "Standard_D1_v2", os = "Linux", authen = ifelse(os == "Linux",
-  "Key", "Password"), pubkey = "", password = "", dns.label = hostname,
-  mode = "Sync")
+  size = "Standard_D1_v2", os = "Ubuntu", authen = "Key", pubkey = "",
+  password = "", dns.label = hostname, mode = "Sync")
 }
 \arguments{
 \item{context}{Authentication context of AzureSMR encapsulating the
@@ -27,9 +26,11 @@ only. Special characters are not permitted.}
 \item{size}{Size of the DSVM. The default is "Standard_D1_v2". All
 available sizes can be obtained by function `getVMSizes`.}
 
-\item{os}{Operating system of DSVM. Permitted values are "Linux"
-and "Windows". The default is to deploy a Linux Data Science
-Virtual Machine.}
+\item{os}{Operating system of DSVM. Permitted values are "Ubuntu",
+"CentOS", "Windows", "DeepLearning", and "MRS". The default is to deploy
+a Ubuntu Linux Data Science Virtual Machine. NOTE previously Windows
+based DSVM for deep learning toolkit is using a separated package but
+now it is merged into one.}
 
 \item{authen}{Either "Key" for public-key based authentication
 (with Linux) or "Password" for a password based authentication
@@ -48,18 +49,24 @@ accessing the deployed DSVM will be
 \item{mode}{Mode of virtual machine deployment. Default is "Sync".}
 }
 \details{
-Usually an error message will be returned if the deployment is unsuccessful. If the deployment fails without explicit error message returned visit the Azure portal
-https://ms.portal.azure.com and browse to the resource group and
-click on the failed deployment link to view the failure
-message. Typical errors include DnsRecordInUse or
-StorageAccountAlreadyTaken. If so then choose a different hostname.
+Usually an error message will be returned if the deployment is
+unsuccessful. If the deployment fails without explicit error
+message returned visit the Azure portal https://ms.portal.azure.com
+and browse to the resource group and click on the failed deployment
+link to view the failure message. Typical errors include
+DnsRecordInUse or StorageAccountAlreadyTaken. If so then choose a
+different hostname.
 }
 \examples{
 \dontrun{
-# The following deploys a Linux DSVM with public key based authentication
-deployDSVM(context, resource.group="<resource_group>", location="<location>", hostname="<machine_name>", username="<user_name>", os="Linux", pubkey="<a_valid_public_key_string_in_SSH_format>")
+# The following deploys a Ubuntu DSVM with public key based authentication
+deployDSVM(context, resource.group="<resource_group>", 
+location="<location>", hostname="<machine_name>", username="<user_name>", 
+os="Ubuntu", pubkey="<a_valid_public_key_string_in_SSH_format>")
 
-# The following deploys a Windows DSVM with password based authentication. The VM size is selected from all the available A-series machines that have the maximum number of computing cores.
+# The following deploys a Windows DSVM with password based authentication. 
+The VM size is selected from all the available A-series machines that have 
+the maximum number of computing cores.
 
 vm <- getVMSizes(context, "<location>")
 
@@ -68,6 +75,12 @@ names(vm)
 vm_sub <- vm[grep(vm[, 1], pattern="Basic_A"), ]
 vm_name <- vm_sub[vm_sub[, 2] == max(vm_sub[, 2]), 1]
 
-deployDSVM(context, resource.group="<resource_group>", location="<location>", hostname="<machine_name>", username="<user_name>", os="Windows", password="<a_valid_password>")}
+deployDSVM(context,
+           resource.group="<resource_group>",
+           location="<location>",
+           hostname="<machine_name>",
+           username="<user_name>",
+           os="Windows",
+           password="<a_valid_password>")}
 }
 

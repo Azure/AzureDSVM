@@ -4,15 +4,19 @@
 \alias{executeScript}
 \title{Remote execution of R script in an R interface new_interface.}
 \usage{
-executeScript(context, resource.group, machines, remote, user, script,
-  master = "", slaves = "", compute.context)
+executeScript(context, resource.group, hostname, remote, username, script,
+  master = "", slaves = "", compute.context = ifelse(master == "" &&
+  slaves == "", "localParallel", "clusterParallel"))
 }
 \arguments{
-\item{context}{AzureSMR context.}
+\item{context}{Authentication context of AzureSMR encapsulating the
+TID, CID, and key obtained from Azure Actrive Directory.}
 
-\item{resource.group}{Resource group of Azure resources for computation.}
+\item{resource.group}{The Azure resource group where the DSVM is
+created.}
 
-\item{machines}{Remote DSVMs that will be used for computation.}
+\item{hostname}{Name of the DSVM.  Lowercase characters or numbers
+only. Special characters are not permitted.}
 
 \item{remote}{IP address or FQDN for a computation engine. For
 DSVM, it is either the fully qualified domain name (usually in 
@@ -21,7 +25,8 @@ the format of
 address. Note if more than one machines are used for execution,
 the remote is used as master node by default.}
 
-\item{user}{Username for logging into the remote resource.}
+\item{username}{User name of the DSVM. It should be different from
+`name`.}
 
 \item{script}{R script to be executed on remote resource(s).}
 
