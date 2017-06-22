@@ -189,7 +189,7 @@ deployDSVMCluster <- function(context,
   {
     # sleep for a while as ssh to a ubuntu LDSVM cannot be immediately 
     # executed after deployment.
-    Sys.sleep(20)
+    Sys.sleep(30)
     
     df <- keyDistribution(location=location,
                           hostname=hostname,
