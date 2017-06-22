@@ -117,8 +117,10 @@ deployDSVMCluster <- function(context,
   # If the count is greater than 1 then ensure we have the right
   # lengths of hostname, username, and public keys.
 
-  if (length(hostname) == 1)
-    hostname <- sprintf("%s%03d", hostname, 1:count)
+  if (length(hostname) == 1) {
+    hostname  <- sprintf("%s%03d", hostname, 1:count)
+    dns.label <- hostname 
+  }
   
   if (length(username) == 1)
     username <- rep(username, count)
@@ -137,9 +139,6 @@ deployDSVMCluster <- function(context,
   
   if (length(size) == 1)
     size <- rep(size, count)
-  
-  if (length(dns.label) == 1)
-    dns.label <- rep(dns.label, count)
 
   # Check the number of DSVM deployments to be a reasonable number but
   # allow the user to override. This is only useful if interactive.

@@ -57,13 +57,58 @@ test_that("Deploy 3 identical DSVMs", {
                            location=location,
                            hostname=dsvm_name,
                            username=dsvm_username,
-                           authen="Password",
+                           authen=dsvm_authen,
                            password=dsvm_password,
                            os=dsvm_os,
                            size=dsvm_size,
                            count=3)
   
   expect_true(object=res) 
+})
+
+context(" - Deploy and form a cluster of DSVMs")
+
+dsvm_size     <- "Standard_D1_v2"
+dsvm_os       <- "Ubuntu"
+dsvm_name     <- paste0("dsvm", 
+                        paste(sample(letters, 3), collapse=""))
+dsvm_authen   <- "Key"
+dsvm_password <- "AzureDSVM_test123"
+dsvm_username <- "dsvmuser"
+
+test_that("Deploy and form a cluster of DSVMs", {
+  skip_if_missing_config(settingsfile)
+  
+  sys_info <- Sys.info()
+  
+  priv_key <- paste0(ifelse(sys_info["sysname"] == "Windows", 
+                            "C:/Users/zhle/.ssh/",
+                            "~/.ssh/"),
+                     "id_rsa")
+  
+  file_exist <- file.exists(priv_key)
+  
+  if (file_exist) {
+    dsvm_pubkey <- system(paste0("ssh-keygen -y -f ",
+                                 priv_key),
+                          intern=TRUE)
+  } else {
+    res <- stop("No SSH private key found in the system. Cannot proceed with 
+                test. Please manually create key pair and try again.")
+    expect_error(res)
+  }
+  
+  res <- deployDSVMCluster(asc, 
+                           resource.group=resourceGroup_name,
+                           location=location,
+                           hostname=dsvm_name,
+                           username=dsvm_username,
+                           authen=dsvm_authen,
+                           pubkey=dsvm_pubkey,
+                           os=dsvm_os,
+                           size=dsvm_size,
+                           count=3)
+  expect_true(res)
 })
 
 context(" - Deploy a set of heterogeneous DSVMs")
