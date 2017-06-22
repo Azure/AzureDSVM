@@ -14,8 +14,8 @@
 #' It is by default empty, which returns data consumption for all DSVMs 
 #' under subscription.
 #' 
-#' @param timeStart Start time.
-#' @param timeEnd End time.
+#' @param time.start Start time.
+#' @param time.end End time.
 #' @param granularity Aggregation granularity. Can be either "Daily" or 
 #' "Hourly".
 #'
@@ -23,8 +23,8 @@
 #' @export
 dataConsumptionDSVM <- function(context,
                                 hostname="",
-                                timeStart,
-                                timeEnd,
+                                time.start,
+                                time.end,
                                 granularity="Hourly",
                                 verbose=FALSE) {
   
@@ -38,16 +38,16 @@ dataConsumptionDSVM <- function(context,
   
   # preconditions here...
   
-  if(missing(timeStart))
+  if(missing(time.start))
     stop("Please specify a starting time point in YYYY-MM-DD HH:MM:SS format.")
   
-  if(missing(timeEnd))
+  if(missing(time.end))
     stop("Please specify an ending time point in YYYY-MM-DD HH:MM:SS format.")
   
   df_data <- azureDataConsumption(context,
                                   instance=hostname,
-                                  timeStart=timeStart,
-                                  timeEnd=timeEnd,
+                                  timeStart=time.start,
+                                  timeEnd=time.end,
                                   granularity=granularity)
   
   return(df_data)
@@ -55,7 +55,7 @@ dataConsumptionDSVM <- function(context,
 
 #' Calculate cost of using a specific DSVM instance of Azure for certain period.
 #' 
-#'Note if difference between \code{timeStart} and \code{timeEnd} is less than 
+#'Note if difference between \code{time.start} and \code{time.end} is less than 
 #'the finest granularity, e.g., "Hourly" (we notice this is a usual case when 
 #'one needs to be aware of the charges of a job that takes less than an hour),
 #' the expense will be estimated based solely on computation hour. That is, 
@@ -73,8 +73,8 @@ dataConsumptionDSVM <- function(context,
 #' @export
 costDSVM <- function(context,
                      hostname="",
-                     timeStart,
-                     timeEnd,
+                     time.start,
+                     time.end,
                      granularity="Daily",
                      currency="USD",
                      locale="en-US",
@@ -85,16 +85,16 @@ costDSVM <- function(context,
   if(missing(context)) stop("Please specify an active Azure context")
   assert_that(is.azureActiveContext(context))
   
-  if(missing(timeStart)) stop("Please specify a starting time point")
+  if(missing(time.start)) stop("Please specify a starting time point")
   
-  if(missing(timeEnd)) stop("Please specify an ending time point")
+  if(missing(time.end)) stop("Please specify an ending time point")
   
   if(missing(offerId)) stop("Please specify an Azure subscription offer ID.")
   
   df_cost <- azureExpenseCalculator(context, 
                                     instance=hostname, 
-                                    timeStart=timeStart, 
-                                    timeEnd=timeEnd, 
+                                    timeStart=time.start, 
+                                    timeEnd=time.end, 
                                     granularity=granularity,
                                     currency=currency,
                                     locale=locale,
