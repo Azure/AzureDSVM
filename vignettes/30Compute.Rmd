@@ -147,7 +147,7 @@ Next step is to use the DSVM for data analytics.
 
 There are many ways of interacting with a DSVM. For both Linux and
 Windows based DSVMs, it is convenient to remote login onto the
-machines with GUI (more detailed information can be found
+hostname with GUI (more detailed information can be found
 [here](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-provision-vm)). A
 lot of times remote execution within R session is preferred by data
 scientist as it can be efficiently automated by R scripts. The
@@ -178,9 +178,9 @@ t1 <- Sys.time()
 
 executeScript(context,
               resource.group=RG,
-              machines=cluster$hostname[1],
+              hostname=cluster$hostname[1],
               remote=cluster$fqdn[1],
-              user=unique(cluster$username),
+              username=unique(cluster$username),
               script=tmpf1,
               master=cluster$fqdn[1],
               slaves=cluster$fqdn[1],
@@ -192,9 +192,9 @@ t2 <- Sys.time()
 
 executeScript(context,
               resource.group=RG,
-              machines=cluster$hostname,
+              hostname=cluster$hostname,
               remote=cluster$fqdn[1],
-              user=unique(cluster$username),
+              username=unique(cluster$username),
               script=tmpf1,
               master=cluster$fqdn[1],
               slaves=cluster$fqdn[-1],
@@ -230,9 +230,9 @@ t4 <- Sys.time()
 
 executeScript(context,
               resource.group=RG,
-              machines=cluster$hostname,
+              hostname=cluster$hostname,
               remote=cluster$fqdn[1],
-              user=unique(cluster$username),
+              username=unique(cluster$username),
               script=tmpf2,
               master=cluster$fqdn[1],
               slaves=cluster$fqdn[-1],

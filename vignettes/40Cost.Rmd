@@ -38,7 +38,7 @@ library(dplyr)
 
 # Data consumption
 
-Availability of resource consumption information is significate to cloud users as this will make it convenient to plan the use of cloud resources wisely. The function of `dataConsumption` in `AzureDSVM` is helpful in obtaining data consumption of a DSVM instance during a certain period of time.
+Availability of resource consumption information is significate to cloud users as this will make it convenient to plan the use of cloud resources wisely. The function of `dataConsumptionDSVM` in `AzureDSVM` is helpful in obtaining data consumption of a DSVM instance during a certain period of time.
 
 The basic information for getting data consumption include
 
@@ -71,16 +71,16 @@ context <- createAzureContext(tenantID=TID, clientID=CID, authKey=KEY)
 ```{r}
 # get data consumption of instance.
 
-data_consum <- dataConsumption(context,
-                               instance=VM,
-                               time.start=START,
-                               time.end=END,
-                               granularity=GRA)
+data_consum <- dataConsumptionDSVM(context,
+                                   hostname=VM,
+                                   time.start=START,
+                                   time.end=END,
+                                   granularity=GRA)
 
 print(data_consum)
 ```
 
-The data consumption is often used to calculate the expense spent on the DSVM for doing analytical tasks. Retrieval of expense can be done with `expenseCalculator` function. The calculation is based on price rates of DSVM components, which are multiplied by data consumption during a given time period.
+The data consumption is often used to calculate the expense spent on the DSVM for doing analytical tasks. Retrieval of expense can be done with `costDSVM` function. The calculation is based on price rates of DSVM components, which are multiplied by data consumption during a given time period.
 
 Basic information for expense calculation include
 
@@ -105,15 +105,15 @@ OFFER  <- "MS-AZR-0015P"
 Again assuming the information is pre-stored into the "credential" script.
 
 ```{r}
-consum <- expenseCalculator(context,
-                            instance=VM,
-                            time.start=START,
-                            time.end=END,
-                            granularity=GRA,
-                            currency=CURR,
-                            locale=LOCALE,
-                            offerId=OFFER,
-                            region=REG)
+consum <- costDSVM(context,
+                   hostname=VM,
+                   time.start=START,
+                   time.end=END,
+                   granularity=GRA,
+                   currency=CURR,
+                   locale=LOCALE,
+                   offerId=OFFER,
+                   region=REG)
 
 print(consum)
 ```

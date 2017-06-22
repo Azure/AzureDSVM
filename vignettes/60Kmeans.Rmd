@@ -208,14 +208,14 @@ The following script run the analytics of the worker script in a "local parallel
 time_1 <- Sys.time()
 
 AzureDSVM::executeScript(context=context, 
-                        resource.group=RG, 
-                        machines=machines, 
-                        remote=master, 
-                        user=USER, 
-                        script="./test/workerCluster.R", 
-                        master=master, 
-                        slaves=slaves, 
-                        compute.context="localParallel")
+                         resource.group=RG, 
+                         hostname=machines, 
+                         remote=master, 
+                         username=USER, 
+                         script="./test/workerCluster.R", 
+                         master=master, 
+                         slaves=slaves, 
+                         compute.context="localParallel")
 
 time_2 <- Sys.time()
 
@@ -241,9 +241,9 @@ time_3 <- Sys.time()
 
 AzureDSVM::executeScript(context=context, 
                          resource.group=RG, 
-                         machines=machines, 
+                         hostname=machines, 
                          remote=master, 
-                         user=USER, 
+                         username=USER, 
                          script="./test/workerCluster.R", 
                          master=master, 
                          slaves=slaves, 

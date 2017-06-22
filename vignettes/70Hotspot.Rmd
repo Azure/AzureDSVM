@@ -210,9 +210,9 @@ time_1 <- Sys.time()
 
 AzureDSVM::executeScript(context=context, 
                          resource.group=RG, 
-                         machines=machines, 
+                         hostname=machines, 
                          remote=master, 
-                         user=USER, 
+                         username=USER, 
                          script="../test/workerHotspots.R", 
                          master=master, 
                          slaves=slaves, 
@@ -258,26 +258,26 @@ load("./elapsed.RData")
 cost <- 0
 
 if (length(vm$name) == 1) {
-  cost <- AzureDSVM::expenseCalculator(context=context,
-                                       instance=as.character(vm$name[1]), 
-                                       time.start=time_1,
-                                       time.end=time_2,
-                                       granularity="Hourly",
-                                       currency="currency",
-                                       locale="your_locale",
-                                       offerId="your_offer_id",
-                                       region="your_location")
+  cost <- costDSVM(context=context,
+                   hostname=as.character(vm$name[1]), 
+                   time.start=time_1,
+                   time.end=time_2,
+                   granularity="Hourly",
+                   currency="currency",
+                   locale="your_locale",
+                   offerId="your_offer_id",
+                   region="your_location")
 } else {
   for (name in as.character(vm$name)) {
-    cost <- cost + AzureDSVM::expenseCalculator(context=context,
-                                                instance=name, 
-                                                time.start=time_1,
-                                                time.end=time_2,
-                                                granularity="Hourly",
-                                                currency="currency",
-                                                locale="your_locale",
-                                                offerId="your_offer_id",
-                                                region="your_location")
+    cost <- cost + costDSVM(context=context,
+                            hostname=name, 
+                            time.start=time_1,
+                            time.end=time_2,
+                            granularity="Hourly",
+                            currency="currency",
+                            locale="your_locale",
+                            offerId="your_offer_id",
+                            region="your_location")
   }
 }
 ```
