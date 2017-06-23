@@ -22,6 +22,34 @@ mrsOneBoxConfiguration <- function(context,
                                    password) {
   assert_that(AzureSMR:::is_vm_name(hostname))
   
+  if (missing(resource.group)) 
+    stop("Please specify a resource group.")
+  assert_that(AzureSMR:::is_resource_group(resource.group))
+  
+  if(missing(location))
+    stop("Please specify a data centre location.")
+  assert_that(AzureSMR:::is_location(location))
+  
+  if(missing(hostname))
+    stop("Please specify a virtual machine hostname.")
+  assert_that(AzureSMR:::is_vm_name(hostname))
+  
+  if(missing(username))
+    stop("Please specify a virtual machine user name.")
+  assert_that(AzureSMR:::is_admin_user(username))
+  
+  if(missing(password))
+    stop("Please specify a password.")
+  assertion <- 
+    nchar(x) <= 16 &&
+    nchar(x) >= 8 && 
+    grepl("[A-Z]", x) && 
+    grepl("[a-z]", x) && 
+    grepl("[0-9]", x)
+  if(!assertion) stop("Please specify a valid password - length between 8 to
+                      16, containing at leaset one upper case letter, one
+                      lower case letter, one number, and one special character.")
+  
   status <- operateDSVM(context=context,
                         resource.group=resource.group,
                         hostname=hostname, 
