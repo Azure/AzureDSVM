@@ -73,30 +73,12 @@ dsvm_os       <- "Ubuntu"
 dsvm_name     <- paste0("dsvm", 
                         paste(sample(letters, 3), collapse=""))
 dsvm_authen   <- "Key"
-dsvm_password <- "AzureDSVM_test123"
 dsvm_username <- "dsvmuser"
 
 test_that("Deploy and form a cluster of DSVMs", {
   skip_if_missing_config(settingsfile)
   
-  sys_info <- Sys.info()
-  
-  priv_key <- paste0(ifelse(sys_info["sysname"] == "Windows", 
-                            "C:/Users/zhle/.ssh/",
-                            "~/.ssh/"),
-                     "id_rsa")
-  
-  file_exist <- file.exists(priv_key)
-  
-  if (file_exist) {
-    dsvm_pubkey <- system(paste0("ssh-keygen -y -f ",
-                                 priv_key),
-                          intern=TRUE)
-  } else {
-    res <- stop("No SSH private key found in the system. Cannot proceed with 
-                test. Please manually create key pair and try again.")
-    expect_error(res)
-  }
+  dsvm_pubkey <- pubkey_gen()
   
   res <- deployDSVMCluster(asc, 
                            resource.group=resourceGroup_name,
