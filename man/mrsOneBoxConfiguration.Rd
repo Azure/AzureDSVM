@@ -26,7 +26,9 @@ only. Special characters are not permitted.}
 username for the configuration is 'admin'.}
 }
 \description{
-One box configuration for VM with Microsoft R Server (>= 9.1)
+The function will perform one-box configuration for a MRS VM.
+A successful configuration will allow one to operationalize MRS analytics
+on a VM with mrsdeploy functions.
 }
 \references{
 More can be found at 

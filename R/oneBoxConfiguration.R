@@ -5,6 +5,10 @@
 #' @param password The password used for the one-box configuration. Default 
 #' username for the configuration is 'admin'.
 #' 
+#' @description The function will perform one-box configuration for a MRS VM.
+#' A successful configuration will allow one to operationalize MRS analytics
+#' on a VM with mrsdeploy functions.
+#' 
 #' @references More can be found at 
 #' https://msdn.microsoft.com/en-us/microsoft-r/operationalize/configuration-initial
 #' 
