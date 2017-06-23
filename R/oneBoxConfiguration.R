@@ -41,11 +41,11 @@ mrsOneBoxConfiguration <- function(context,
   if(missing(password))
     stop("Please specify a password.")
   assertion <- 
-    nchar(x) <= 16 &&
-    nchar(x) >= 8 && 
-    grepl("[A-Z]", x) && 
-    grepl("[a-z]", x) && 
-    grepl("[0-9]", x)
+    nchar(password) <= 16 &&
+    nchar(password) >= 8 && 
+    grepl("[A-Z]", password) && 
+    grepl("[a-z]", password) && 
+    grepl("[0-9]", password)
   if(!assertion) stop("Please specify a valid password - length between 8 to
                       16, containing at leaset one upper case letter, one
                       lower case letter, one number, and one special character.")

@@ -71,12 +71,16 @@ test_that("Deploy a Microsoft R Server VM", {
 context(" - one-box configuration for the MRS VM.")
 
 test_that("one-box configuration", {
-  mrsOneBoxConfiguration(asc,
-                         resource.group=resourceGroup_name,
-                         location=location,
-                         hostname=dsvm_name,
-                         username=dsvm_username,
-                         password=dsvm_password)
+  onebox_password <- "OneBox@dsvm123"
+  
+  res <- mrsOneBoxConfiguration(asc,
+                                resource.group=resourceGroup_name,
+                                location=location,
+                                hostname=dsvm_name,
+                                username=dsvm_username,
+                                password=onebox_password)
+  
+  expect_true(res)
 })
 
 context(" - delete resource group")
