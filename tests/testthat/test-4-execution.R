@@ -40,20 +40,7 @@ message("Remote execution is via SSH which relies on public key cryptograph.
 
 # pubkey key extraction.
 
-sys_info <- Sys.info()
-
-priv_key <- paste0(ifelse(sys_info["sysname"] == "Windows", 
-                          "C:/Users/zhle/.ssh/",
-                          "~/.ssh/"),
-                   "id_rsa")
-
-file_exist <- file.exists(priv_key)
-
-if (file_exist) {
-  dsvm_pubkey <- system(paste0("ssh-keygen -y -f ",
-                               priv_key),
-                        intern=TRUE)
-}
+dsvm_pubkey <- pubkey_gen()
 
 # code to execute.
 

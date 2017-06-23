@@ -23,3 +23,27 @@ skip_if_offline <- function(){
     testthat::skip("Offline. Skipping test.")
   }
 }
+
+pubkey_gen <- function() {
+  # pubkey key extraction.
+  
+  sys_info <- Sys.info()
+  
+  priv_key <- paste0(ifelse(sys_info["sysname"] == "Windows", 
+                            "C:/Users/zhle/.ssh/",
+                            "~/.ssh/"),
+                     "id_rsa")
+  
+  file_exist <- file.exists(priv_key)
+  
+  if (file_exist) {
+    dsvm_pubkey <- system(paste0("ssh-keygen -y -f ",
+                                 priv_key),
+                          intern=TRUE)
+  } else {
+    stop("Test aborted because no private key located at ~/.ssh. Please 
+         generate key pair to do test again.")
+  }
+  
+  return(dsvm_pubkey)
+}
