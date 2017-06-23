@@ -5,7 +5,7 @@
 \title{Get data consumption of an Azure subscription for a time period.
 Aggregation method can be either daily based or hourly based.}
 \usage{
-dataConsumptionDSVM(context, hostname = "", timeStart, timeEnd,
+dataConsumptionDSVM(context, hostname = "", time.start, time.end,
   granularity = "Hourly", verbose = FALSE)
 }
 \arguments{
@@ -15,9 +15,9 @@ TID, CID, and key obtained from Azure Actrive Directory.}
 \item{hostname}{Name of the DSVM.  Lowercase characters or numbers
 only. Special characters are not permitted.}
 
-\item{timeStart}{Start time.}
+\item{time.start}{Start time.}
 
-\item{timeEnd}{End time.}
+\item{time.end}{End time.}
 
 \item{granularity}{Aggregation granularity. Can be either "Daily" or 
 "Hourly".}

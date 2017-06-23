@@ -4,18 +4,32 @@
 \alias{mrsOneBoxConfiguration}
 \title{One box configuration for VM with Microsoft R Server (>= 9.1)}
 \usage{
-mrsOneBoxConfiguration(context, hostname, password)
+mrsOneBoxConfiguration(context, resource.group, hostname, location, username,
+  password)
 }
 \arguments{
 \item{context}{Authentication context of AzureSMR encapsulating the
 TID, CID, and key obtained from Azure Actrive Directory.}
 
+\item{resource.group}{The Azure resource group where the DSVM is
+created.}
+
 \item{hostname}{Name of the DSVM.  Lowercase characters or numbers
 only. Special characters are not permitted.}
 
-\item{password}{Pass word for the DSVM.}
+\item{location}{Location of the data centre to host the DSVM.}
+
+\item{username}{User name of the DSVM. It should be different from
+`name`.}
+
+\item{password}{The password used for the one-box configuration. Default 
+username for the configuration is 'admin'.}
 }
 \description{
 One box configuration for VM with Microsoft R Server (>= 9.1)
+}
+\references{
+More can be found at 
+https://msdn.microsoft.com/en-us/microsoft-r/operationalize/configuration-initial
 }
 

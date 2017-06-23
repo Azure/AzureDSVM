@@ -4,9 +4,9 @@
 \alias{costDSVM}
 \title{Calculate cost of using a specific DSVM instance of Azure for certain period.}
 \usage{
-costDSVM(context, hostname = "", timeStart, timeEnd, granularity = "Daily",
-  currency = "USD", locale = "en-US", offerId, region = "US",
-  verbose = FALSE)
+costDSVM(context, hostname = "", time.start, time.end,
+  granularity = "Daily", currency = "USD", locale = "en-US", offerId,
+  region = "US", verbose = FALSE)
 }
 \arguments{
 \item{context}{Authentication context of AzureSMR encapsulating the
@@ -15,9 +15,9 @@ TID, CID, and key obtained from Azure Actrive Directory.}
 \item{hostname}{Name of the DSVM.  Lowercase characters or numbers
 only. Special characters are not permitted.}
 
-\item{timeStart}{Start time.}
+\item{time.start}{Start time.}
 
-\item{timeEnd}{End time.}
+\item{time.end}{End time.}
 
 \item{granularity}{Aggregation granularity. Can be either "Daily" or 
 "Hourly".}
@@ -35,7 +35,7 @@ Total cost measured in the given currency of the specified DSVM
 instance in the period.
 }
 \description{
-Note if difference between \code{timeStart} and \code{timeEnd} is less than 
+Note if difference between \code{time.start} and \code{time.end} is less than 
 the finest granularity, e.g., "Hourly" (we notice this is a usual case when 
 one needs to be aware of the charges of a job that takes less than an hour),
 the expense will be estimated based solely on computation hour. That is, 
