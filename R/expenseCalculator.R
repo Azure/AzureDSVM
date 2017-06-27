@@ -30,11 +30,11 @@ dataConsumptionDSVM <- function(context,
   
   # check the validity of credentials.
   
-  assert_that(is.azureActiveContext(azureActiveContext))
+  assert_that(is.azureActiveContext(context))
   
   # renew token if it expires.
   
-  azureCheckToken(azureActiveContext)
+  azureCheckToken(context)
   
   # preconditions here...
   
