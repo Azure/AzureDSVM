@@ -158,20 +158,31 @@ named based on the *name* provided and sequentially numbered.
 ```{r deploy a cluster of DSVMs}
 # Deploy a cluster of DSVMs.
 
-cluster <- deployDSVMCluster(context, 
-                             resource.group=RG, 
-                             location=LOC, 
-                             hostname=BASE,
-                             username=USER, 
-                             pubkey=PUBKEY,
-                             count=COUNT)
+deployDSVMCluster(context, 
+                  resource.group=RG, 
+                  location=LOC, 
+                  hostname=BASE,
+                  username=USER, 
+                  authen="Key",
+                  pubkey=PUBKEY,
+                  count=COUNT)
+```
+
+```{r check existence of deployed DSVMs}
+
+cluster <- azureListVM(context,
+                       RG,
+                       LOC)
 
 # To validate the existence of deployed DSVMs.
 
 for (i in 1:COUNT)
 {
   vm <- cluster[i, "name"]
-  fqdn <- cluster[i, "fqdn"]
+  fqdn <- paste(cluster[i, "name"],
+                cluster[i, "location"],
+                "cloudapp.azure.com",
+                sep=".")
   
   cat(vm, "\n")
   
@@ -201,19 +212,21 @@ and size can also be configured.
 
 ```{r deploy a set of DSVMs, eval=FALSE}
 
+DSVM_NAMES <- paste0(BASE, c(1, 2, 3))
+
 # Deploy multiple DSVMs using deployDSVMCluster.
 
-ldsvm_set <- deployDSVMCluster(context, 
-                               resource.group=RG, 
-                               location=LOC, 
-                               count=COUNT, 
-                               hostname=LDSVM, 
-                               username=LUSER, 
-                               pubkey=rep(PUBKEY, COUNT)) 
+deployDSVMCluster(context, 
+                  resource.group=RG, 
+                  location=LOC, 
+                  hostname=DSVM_NAMES, 
+                  username=USER, 
+                  authen="Key",
+                  pubkey=rep(PUBKEY, COUNT)) 
 
 # Check the deployed machines?
 
-for (vm in LDSVM)
+for (vm in DSVM_NAMES)
 {
   cat(vm, "\n")
   
