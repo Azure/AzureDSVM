@@ -232,6 +232,11 @@ Prove that the deployed DSVM exists.
 # existence. Expect a single line with an indication of how long the
 # server has been up and running.
 
+# NOTE this must be done after a while since deployment - problem may 
+# be owing to internal processing of system setup. 
+
+Sys.sleep(20)
+
 ssh <- paste("ssh -q",
              "-o StrictHostKeyChecking=no",
              "-o UserKnownHostsFile=/dev/null",
