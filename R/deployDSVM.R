@@ -96,28 +96,33 @@ deployDSVM <- function(context,
   
   assert_that(is.azureActiveContext(context))
 
-  if (missing(resource.group)) 
+  if (missing(resource.group)) {
     stop("Please specify a resource group.")
-  assert_that(AzureSMR:::is_resource_group(resource.group))
+    assert_that(AzureSMR:::is_resource_group(resource.group))
+  }
 
-  if(missing(location))
+  if(missing(location)) {
     stop("Please specify a data centre location.")
-  assert_that(AzureSMR:::is_location(location))
+    assert_that(AzureSMR:::is_location(location))
+  }
 
-  if(missing(hostname))
+  if(missing(hostname)) {
     stop("Please specify a virtual machine hostname.")
-  assert_that(AzureSMR:::is_vm_name(hostname))
+    assert_that(AzureSMR:::is_vm_name(hostname))
+  }
 
-  if(missing(username))
+  if(missing(username)) {
     stop("Please specify a virtual machine user name.")
-  assert_that(AzureSMR:::is_admin_user(username))
+    assert_that(AzureSMR:::is_admin_user(username))
+  }
 
   if(authen == "Key" && missing(pubkey))
     stop("Please specify a valid public key.")
   
-  if(authen == "Password" && missing(password)) 
+  if(authen == "Password" && missing(password)) {
     stop("Please specify a password.")
-  assert_that(AzureSMR:::is_admin_password(password))
+    assert_that(AzureSMR:::is_admin_password(password))
+  }
 
   ## Other preconditions.
 
