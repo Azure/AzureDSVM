@@ -115,18 +115,24 @@ if (! rg_pre_exists)
 
 COUNT <- 3
 
-cluster <- deployDSVMCluster(context, 
-                             resource.group=RG, 
-                             location=LOC, 
-                             hostname=BASE,
-                             username=USER, 
-                             pubkey=PUBKEY,
-                             count=COUNT)
+deployDSVMCluster(context, 
+                  resource.group=RG, 
+                  location=LOC, 
+                  hostname=BASE,
+                  username=USER, 
+                  authen="Key",
+                  pubkey=PUBKEY,
+                  count=COUNT)
+
+cluster <- azureListVM(context, RG, LOC)
 
 for (i in 1:COUNT)
 {
-  vm   <- cluster[i, "hostname"]
-  fqdn <- cluster[i, "fqdn"]
+  vm   <- cluster[i, "name"]
+  fqdn <- paste(cluster[i, "name"],
+                cluster[i, "location"],
+                "cloudapp.azure.com",
+                sep=".")
   
   cat(vm, "\n")
   
@@ -178,12 +184,13 @@ t1 <- Sys.time()
 
 executeScript(context,
               resource.group=RG,
-              hostname=cluster$hostname[1],
-              remote=cluster$fqdn[1],
-              username=unique(cluster$username),
+              hostname=cluster$name[1],
+              remote=paste(cluster$name[1],
+                           cluster$location[1],
+                           "cloudapp.azure.com",
+                           sep="."),
+              username=unique(cluster$admin),
               script=tmpf1,
-              master=cluster$fqdn[1],
-              slaves=cluster$fqdn[1],
               compute.context="localParallel")
 
 t2 <- Sys.time()
@@ -192,12 +199,21 @@ t2 <- Sys.time()
 
 executeScript(context,
               resource.group=RG,
-              hostname=cluster$hostname,
-              remote=cluster$fqdn[1],
-              username=unique(cluster$username),
+              hostname=cluster$name[1],
+              remote=paste(cluster$name[1],
+                           cluster$location[1],
+                           "cloudapp.azure.com",
+                           sep="."),
+              master=paste(cluster$name[1],
+                           cluster$location[1],
+                           "cloudapp.azure.com",
+                           sep="."),
+              slaves=paste(cluster$name[-1],
+                           cluster$location[-1],
+                           "cloudapp.azure.com",
+                           sep="."),
+              username=unique(cluster$admin),
               script=tmpf1,
-              master=cluster$fqdn[1],
-              slaves=cluster$fqdn[-1],
               compute.context="clusterParallel")
 
 t3 <- Sys.time()
@@ -230,12 +246,21 @@ t4 <- Sys.time()
 
 executeScript(context,
               resource.group=RG,
-              hostname=cluster$hostname,
-              remote=cluster$fqdn[1],
-              username=unique(cluster$username),
+              hostname=cluster$name[1],
+              remote=paste(cluster$name[1],
+                           cluster$location[1],
+                           "cloudapp.azure.com",
+                           sep="."),
+              master=paste(cluster$name[1],
+                           cluster$location[1],
+                           "cloudapp.azure.com",
+                           sep="."),
+              slaves=paste(cluster$name[-1],
+                           cluster$location[-1],
+                           "cloudapp.azure.com",
+                           sep="."),
+              username=unique(cluster$admin),
               script=tmpf2,
-              master=cluster$fqdn[1],
-              slaves=cluster$fqdn[-1],
               compute.context="clusterParallel")
 
 t5 <- Sys.time()
