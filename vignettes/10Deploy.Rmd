@@ -286,6 +286,7 @@ wdsvm <- deployDSVM(context,
                     hostname="xxxx",
                     username=USER,
                     os="Windows",
+                    authen="Password",
                     password=PASSWORD)
 
 wdsvm
