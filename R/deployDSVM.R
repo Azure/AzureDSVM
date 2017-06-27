@@ -115,9 +115,9 @@ deployDSVM <- function(context,
   if(authen == "Key" && missing(pubkey))
     stop("Please specify a valid public key.")
   
-  if(authen == "Password" && 
-     (missing(password) || !AzureSMR:::is_valid_admin_password(password)))
+  if(authen == "Password" && missing(password)) 
     stop("Please specify a password.")
+  assert_that(AzureSMR:::is_admin_password(password))
 
   ## Other preconditions.
 
