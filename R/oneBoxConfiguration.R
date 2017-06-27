@@ -22,33 +22,38 @@ mrsOneBoxConfiguration <- function(context,
                                    password) {
   assert_that(AzureSMR:::is_vm_name(hostname))
   
-  if (missing(resource.group)) 
+  if (missing(resource.group)) {
     stop("Please specify a resource group.")
-  assert_that(AzureSMR:::is_resource_group(resource.group))
+    assert_that(AzureSMR:::is_resource_group(resource.group))
+  }
   
-  if(missing(location))
+  if(missing(location)) {
     stop("Please specify a data centre location.")
-  assert_that(AzureSMR:::is_location(location))
+    assert_that(AzureSMR:::is_location(location))
+  }
   
-  if(missing(hostname))
+  if(missing(hostname)) {
     stop("Please specify a virtual machine hostname.")
-  assert_that(AzureSMR:::is_vm_name(hostname))
+    assert_that(AzureSMR:::is_vm_name(hostname))
+  }
   
-  if(missing(username))
+  if(missing(username)) {
     stop("Please specify a virtual machine user name.")
-  assert_that(AzureSMR:::is_admin_user(username))
+    assert_that(AzureSMR:::is_admin_user(username))
+  }
   
-  if(missing(password))
+  if(missing(password)) {
     stop("Please specify a password.")
-  assertion <- 
-    nchar(password) <= 16 &&
-    nchar(password) >= 8 && 
-    grepl("[A-Z]", password) && 
-    grepl("[a-z]", password) && 
-    grepl("[0-9]", password)
-  if(!assertion) stop("Please specify a valid password - length between 8 to
+    assertion <- 
+      nchar(password) <= 16 &&
+      nchar(password) >= 8 && 
+      grepl("[A-Z]", password) && 
+      grepl("[a-z]", password) && 
+      grepl("[0-9]", password)
+    if(!assertion) stop("Please specify a valid password - length between 8 to
                       16, containing at leaset one upper case letter, one
                       lower case letter, one number, and one special character.")
+  }
   
   status <- operateDSVM(context=context,
                         resource.group=resource.group,

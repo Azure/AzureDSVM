@@ -55,16 +55,20 @@ executeScript <- function(context,
 
   # Check pre-conditions.
 
-  if (missing(resource.group)) 
+  if (missing(resource.group)) {
     stop("Please specify a resource group.")
-  assert_that(AzureSMR:::is_resource_group(resource.group))
+    assert_that(AzureSMR:::is_resource_group(resource.group))
+  }
   
-  if(missing(hostname)) stop("Please specify virtual machine hostname(s).")
-  assert_that(all(sapply(hostname, AzureSMR:::is_vm_name)))
+  if(missing(hostname)) {
+    stop("Please specify virtual machine hostname(s).")
+    assert_that(all(sapply(hostname, AzureSMR:::is_vm_name)))
+  }
   
-  if(missing(username))
+  if(missing(username)) {
     stop("Please specify a virtual machine user name.")
-  assert_that(AzureSMR:::is_admin_user(username))
+    assert_that(AzureSMR:::is_admin_user(username))
+  }
  
   if(missing(remote))
     stop("Please specify a remote machine.")

@@ -11,9 +11,10 @@ getVMSizes <- function(context, location)
 
   AzureSMR::azureCheckToken(context)
 
-  if(missing(context))
+  if(missing(context)) {
     stop("Please provide a valid AzureSMR context.")
-  assert_that(AzureSMR::is.azureActiveContext(context))
+    assert_that(AzureSMR::is.azureActiveContext(context))
+  }
 
   if(missing(location))
     stop("Please provide a location.")

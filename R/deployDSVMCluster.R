@@ -61,25 +61,30 @@ deployDSVMCluster <- function(context,
 
   # Check argument pre-conditions.
 
-  if(missing(context))
+  if(missing(context)) {
     stop("Please specify a context (contains TID, CID, KEY).")
-  assert_that(AzureSMR:::is.azureActiveContext(context))
+    assert_that(AzureSMR:::is.azureActiveContext(context))
+  }
 
-  if(missing(resource.group))
+  if(missing(resource.group)) {
     stop("Please specify an Azure resouce group.")
-  assert_that(AzureSMR:::is_resource_group(resource.group))
+    assert_that(AzureSMR:::is_resource_group(resource.group))
+  }
 
-  if(missing(location))
+  if(missing(location)) {
     stop("Please specify a data centre location.")
-  assert_that(AzureSMR:::is_location(location))
+    assert_that(AzureSMR:::is_location(location))
+  }
 
-  if(missing(hostname))
+  if(missing(hostname)) {
     stop("Please specify virtual machine hostname(s).")
-  assert_that(all(sapply(hostname, AzureSMR:::is_vm_name)))
+    assert_that(all(sapply(hostname, AzureSMR:::is_vm_name)))
+  }
 
-  if(missing(username))
+  if(missing(username)) {
     stop("Please specify virtual machine username(s).")
-  assert_that(all(sapply(username, AzureSMR:::is_admin_user)))
+    assert_that(all(sapply(username, AzureSMR:::is_admin_user)))
+  }
   
   if(missing(authen))
     stop("Please specify authentication method(s).")
