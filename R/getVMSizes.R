@@ -27,7 +27,7 @@ getVMSizes <- function(context, location)
                 "/vmSizes?api-version=",
                 api_version)
 
-  r <- AzureSMR:::call_azure_sm(asc,
+  r <- AzureSMR:::call_azure_sm(context,
                                 uri=url,
                                 verb="GET")
   
