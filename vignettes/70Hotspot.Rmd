@@ -194,7 +194,7 @@ worker_scripts <- c("workerHotspotsFuncs.R",
 
 sapply(worker_scripts, 
        fileTransfer,
-       from="../test",
+       from="test",
        to=paste0(master, ":~"), 
        user=USER)
 ```
@@ -213,7 +213,7 @@ AzureDSVM::executeScript(context=context,
                          hostname=machines, 
                          remote=master, 
                          username=USER, 
-                         script="../test/workerHotspots.R", 
+                         script="test/workerHotspots.R", 
                          compute.context="localParallel")
 
 time_2 <- Sys.time()

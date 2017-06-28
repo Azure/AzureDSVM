@@ -174,7 +174,7 @@ data are labelled and so in our clustering analysis the label is
 removed.
 
 The R code for clustering is available from github as
-[workerCluster.R]{...test/workerCluster.R}. The analysis basically
+[workerCluster.R]{./test/workerCluster.R}. The analysis basically
 normalises the credit transaction data and then performs 10 repeated
 clustering analyses (targeting 2 clusters) for each using the k-means
 algorithm. The repetition is completed in parallel with the specified
@@ -184,7 +184,7 @@ computing context information will be automatically added by the
 
 The script can then be saved and later on path to the script is used
 as reference. For example, in this demo, the script is saved with name
-"workerCluster.R" which is located in the "/test" directory.
+"workerCluster.R" which is located in the "vignettes/test" directory.
 
 The following code is to run the clustering analysis on a specified
 computing environment. This is achieved by setting computing
@@ -219,7 +219,7 @@ executeScript(context=context,
               hostname=machines[1], 
               remote=master, 
               username=USER, 
-              script="../test/workerCluster.R", 
+              script="test/workerCluster.R", 
               compute.context="localParallel")
 
 time_2 <- Sys.time()
@@ -249,7 +249,7 @@ AzureDSVM::executeScript(context=context,
                          hostname=machines, 
                          remote=master, 
                          username=USER, 
-                         script="../test/workerCluster.R", 
+                         script="test/workerCluster.R", 
                          master=master, 
                          slaves=slaves, 
                          compute.context="clusterParallel")

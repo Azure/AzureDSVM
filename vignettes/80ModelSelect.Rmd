@@ -249,7 +249,7 @@ mlProcess <- function(formula, data, modelName, modelPara) {
 
 The worker script can be executed on a remote Ubuntu DSVM or DSVM cluster with AzureDSVM function `executeScript` like what has been done in the previous tutorials. 
 
-The worker script for binary classification is located in "/test" directory, with name "worker_classficiation.R".
+The worker script for binary classification is located in "vignettes/test" directory, with name "worker_classficiation.R".
 
 ```{r}
 VM_URL <- paste(HOST, LOC, "cloudapp.azure.com", sep=".")
@@ -271,7 +271,7 @@ executeScript(context,
               hostname=HOST[1],
               remote=FQDN[1],
               username=USER,
-              script="../test/workerClassification.R",
+              script="test/workerClassification.R",
               compute.context="localParallel")
 
 # remote execution on a cluster of DSVMs.
@@ -283,7 +283,7 @@ executeScript(context,
               hostname=HOST,
               remote=FQDN[1],
               username=USER,
-              script="../test/workerClassification.R",
+              script="test/workerClassification.R",
               master=FQDN[1],
               slaves=FQDN[-1],
               compute.context="clusterParallel")
