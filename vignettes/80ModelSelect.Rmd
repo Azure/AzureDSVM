@@ -107,16 +107,15 @@ method. Name, username, and size can also be configured.
 
 # Create the required Ubuntu DSVM - generally 4 minutes.
 
-ldsvm <- deployDSVM(context, 
-                    resource.group=RG,
-                    location=LOC,
-                    hostname=HOST,
-                    username=USER,
-                    size="Standard_D12_v2",
-                    os="Ubuntu",
-                    authen="Key",
-                    pubkey=PUBKEY)
-ldsvm
+deployDSVM(context, 
+           resource.group=RG,
+           location=LOC,
+           hostname=HOST,
+           username=USER,
+           size="Standard_D12_v2",
+           os="Ubuntu",
+           authen="Key",
+           pubkey=PUBKEY)
 
 operateDSVM(context, RG, HOST, operation="Check")
 
@@ -129,13 +128,14 @@ azureListVM(context, RG)
 
 # Create a set of Ubuntu DSVMs and they will be formed as a cluster.
 
-ldsvm_set <- deployDSVMCluster(context, 
-                               resource.group=RG, 
-                               location=LOC, 
-                               count=COUNT, 
-                               hostname=HOST, 
-                               username=LUSER, 
-                               pubkey=rep(PUBKEY, COUNT)) 
+deployDSVMCluster(context, 
+                  resource.group=RG, 
+                  location=LOC, 
+                  count=COUNT, 
+                  hostname=HOST, 
+                  username=USER, 
+                  authen="Key",
+                  pubkey=rep(PUBKEY, COUNT)) 
 ```
 
 # Analytics
@@ -259,16 +259,19 @@ VM_URL <- paste(HOST, LOC, "cloudapp.azure.com", sep=".")
 
 # remote execution on a single DSVM.
 
+VMS <- azureListVM(context, RG, LOC)
+
+HOST <- VMS$name
+FQDN <- paste(HOST, LOC, "cloudapp.azure.com", sep=".")
+
 time1 <- Sys.time()
 
 executeScript(context,
               resource.group=RG,
-              hostname=HOST,
-              remote=VM_URL,
+              hostname=HOST[1],
+              remote=FQDN[1],
               username=USER,
               script="../test/workerClassification.R",
-              master=VM_URL,
-              slaves=VM_URL,
               compute.context="localParallel")
 
 # remote execution on a cluster of DSVMs.
@@ -277,12 +280,12 @@ time2 <- Sys.time()
 
 executeScript(context,
               resource.group=RG,
-              hostname=LDSVMS,
-              remote=VMS_URL[1],
+              hostname=HOST,
+              remote=FQDN[1],
               username=USER,
-              script="./workerClassification.R",
-              master=VMS_URL[1],
-              slaves=VMS_URL[-1],
+              script="../test/workerClassification.R",
+              master=FQDN[1],
+              slaves=FQDN[-1],
               compute.context="clusterParallel")
 
 time3 <- Sys.time()
