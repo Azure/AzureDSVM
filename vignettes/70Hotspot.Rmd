@@ -214,8 +214,6 @@ AzureDSVM::executeScript(context=context,
                          remote=master, 
                          username=USER, 
                          script="../test/workerHotspots.R", 
-                         master=master, 
-                         slaves=slaves, 
                          compute.context="localParallel")
 
 time_2 <- Sys.time()
@@ -240,7 +238,7 @@ results_local <-
 Save time points for later reference.
 
 ```{r}
-elapsed <- list(instances=machines
+elapsed <- list(instances=machines,
                 time_start=time_1, 
                 time_end=time_2)
 
@@ -291,7 +289,9 @@ Once finishing the analysis, switch off DSVMs.
 ```{r}
 # stop machines after the analysis.
 
-AzureDSVM::operateDSVM(context, RG, vm$name, operation="Stop")
+for (vm in machines) {
+  AzureDSVM::operateDSVM(context, RG, vm, operation="Stop")
+}
 ```
 
 Or delete the resource group to avoid unnecessary cost.
