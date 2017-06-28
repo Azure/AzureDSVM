@@ -122,21 +122,28 @@ if (!is.null(vm))
   
   # Create a cluster of Linux Data Science Virtual Machines.
   
-  cluster <- deployDSVMCluster(context, 
-                               resource.group=RG, 
-                               size=SIZE,
-                               location=LOC, 
-                               hostname=BASE,
-                               username=USER, 
-                               pubkey=PUBKEY,
-                               count=COUNT)
+  deployDSVMCluster(context, 
+                    resource.group=RG, 
+                    size=SIZE,
+                    location=LOC, 
+                    hostname=BASE,
+                    username=USER, 
+                    authen="Key",
+                    pubkey=PUBKEY,
+                    count=COUNT)
+  
+  cluster <- azureListVM(context,
+                         RG,
+                         LOC)
 
   # Confirm that each VM exists.
   
-  for (i in 1:COUNT)
-  {
-    vm <- cluster[i, "hostname"]
-    fqdn <- cluster[i, "fqdn"]
+  for (i in 1:COUNT) {
+    vm <- cluster[i, "name"]
+    fqdn <- paste(cluster[i, "name"],
+                  cluster[i, "location"],
+                  "cloudapp.azure.com",
+                  sep=".")
     
     cat(vm, "\n")
     
@@ -194,7 +201,7 @@ The following is the configuration of computing cluster which is needed for spec
 ```{r}
 # specify machine names, master, and slaves.
 
-machines <- unlist(vm$name)
+machines <- unlist(cluster$name)
 dns_list <- paste0(machines, ".", LOC, ".cloudapp.azure.com")
 master <- dns_list[1]
 slaves <- dns_list[-1]
@@ -207,24 +214,22 @@ The following script run the analytics of the worker script in a "local parallel
 
 time_1 <- Sys.time()
 
-AzureDSVM::executeScript(context=context, 
-                         resource.group=RG, 
-                         hostname=machines, 
-                         remote=master, 
-                         username=USER, 
-                         script="./test/workerCluster.R", 
-                         master=master, 
-                         slaves=slaves, 
-                         compute.context="localParallel")
+executeScript(context=context, 
+              resource.group=RG, 
+              hostname=machines[1], 
+              remote=master, 
+              username=USER, 
+              script="../test/workerCluster.R", 
+              compute.context="localParallel")
 
 time_2 <- Sys.time()
 
 # get results from remote
 
-AzureDSVM::fileTransfer(from=paste0(master, ":~"), 
-                       to=".", 
-                       user=USER, 
-                       file="results.RData")
+fileTransfer(from=paste0(master, ":~"), 
+             to=".", 
+             user=USER, 
+             file="results.RData")
 
 load("./results.RData") 
 results_local <- 
@@ -244,7 +249,7 @@ AzureDSVM::executeScript(context=context,
                          hostname=machines, 
                          remote=master, 
                          username=USER, 
-                         script="./test/workerCluster.R", 
+                         script="../test/workerCluster.R", 
                          master=master, 
                          slaves=slaves, 
                          compute.context="clusterParallel")
@@ -265,7 +270,7 @@ results_cluster <- results
 Save time points for later reference
 
 ```{r}
-save(list(time_1, time_2, time_3, time_4), "./elapsed.RData")
+save(list(time_1, time_2, time_3, time_4), file = "./elapsed.RData")
 ```
 
 Do some visualization with data.
@@ -296,7 +301,9 @@ Once finishing the analysis, switch off DSVMs.
 ```{r}
 # stop machines after the analysis.
 
-AzureDSVM::operateDSVM(context, RG, vm$name, operation="Stop")
+for (vm in machines) {
+  AzureDSVM::operateDSVM(context, RG, vm, operation="Stop")
+}
 ```
 
 The cost of running the above analytics can be obtained with
@@ -307,7 +314,7 @@ recommended to save starting and ending time points of analytical jobs
 for reference so that later on `expenseCalculator` can be safely
 called for retrieving results.
 
-```{r}
+```{r, eval=FALSE}
 # calculate expense on computations.
 
 load("./elapsed.RData")
