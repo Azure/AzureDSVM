@@ -77,7 +77,7 @@ addExtensionDSVM <- function(context,
   provision_state <- ""
   
   cat("Creating extensions")
-  while(provision_state != "succeeded") {
+  while(provision_state != "Succeeded") {
     cat(".")
     info <- checkExtensionDSVM(context,
                                resource.group,
