@@ -63,4 +63,15 @@ test_that("add an extension", {
   expect_true(res)
 })
 
+context(" - Succesfully added extension")
+
+test_that("check info of extension", {
+  res <- checkExtensionDSVM(asc,
+                            resource.group = resourceGroup_name, 
+                            hostname = dsvm_name)
+  
+  expect_is(res, "list")
+  expect_identical(res$properties$provisioningState, "Succeeded")
+})
+
 azureDeleteResourceGroup(asc, resourceGroup=resourceGroup_name)
