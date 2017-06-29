@@ -1,0 +1,20 @@
+{
+  "type": "Microsoft.Compute/virtualMachines/extensions",
+  "name": "DSVMExtensions",
+  "apiVersion": "2016-04-30-preview",
+  "location": "[parameters('location')]",
+  "properties": {
+    "publisher": "Microsoft.Compute",
+    "type": "CustomScriptExtension",
+    "typeHandlerVersion": "1.8",
+    "autoUpgradeMinorVersion": true,
+    "settings": {
+      "fileUris": ["<FILE_URL>"],
+      "commandToExecute": "<COMMAND>"
+    },
+    "protectedSettings": {}
+  },
+  "dependsOn": [
+    "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachines_name'))]"
+    ]
+}
