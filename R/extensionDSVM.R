@@ -11,6 +11,7 @@ addExtensionDSVM <- function(context,
                              location,
                              resource.group,
                              hostname,
+                             os,
                              fileurl,
                              command) {
   
@@ -33,7 +34,16 @@ addExtensionDSVM <- function(context,
   
   # based on the VM, use different types. Windows will be CustomScriptExtension.
   # Currently only Linux is supported. 
-  type <- "CustomScriptForLinux"
+  
+  if (os %in% c("Ubuntu", "CentOS", "RServer")) {
+    type_handler <- "1.5"
+    publisher    <- "Microsoft.OSTCExtensions"
+    type         <- "CustomScriptForLinux"
+  } else {
+    type_handler <- "1.4"
+    publisher    <- "Microsoft.Compute"
+    type         <- "CustomScriptExtension"
+  }
   
   # this is the default name of storage account on the DSVM.
   storage_account <- paste0(hostname, "sa")
@@ -57,9 +67,11 @@ addExtensionDSVM <- function(context,
                 "?api-version=",
                 api_version)
   
-  body <- sprintf('{"location":"%s","properties":{"publisher":"Microsoft.OSTCExtensions","type":"%s","typeHandlerVersion":"1.5","autoUpgradeMinorVersion":true,"forceUpdateTag":"RerunExtension","settings":{"fileUris":["%s"],"commandToExecute":"%s"},"protectedSettings":{"StorageAccountName":"%s","StorageaccountKey":"{%s}"}}}',
+  body <- sprintf('{"location":"%s","properties":{"publisher":"%s","type":"%s","typeHandlerVersion":"%s","autoUpgradeMinorVersion":true,"forceUpdateTag":"RerunExtension","settings":{"fileUris":["%s"],"commandToExecute":"%s"},"protectedSettings":{"StorageAccountName":"%s","StorageaccountKey":"{%s}"}}}',
                  location,
+                 publisher,
                  type,
+                 type_handler,
                  fileurl,
                  command,
                  storage_account,
@@ -83,6 +95,10 @@ addExtensionDSVM <- function(context,
                                resource.group,
                                hostname)
     provision_state <- info$properties$provisioningState
+    
+    if(provision_state == "Failed") 
+      # TODO: show detailed error log.
+      stop("Extension failed.")
     
     Sys.sleep(2)
   }
