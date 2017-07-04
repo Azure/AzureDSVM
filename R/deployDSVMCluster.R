@@ -164,18 +164,20 @@ deployDSVMCluster <- function(context,
 
   for (i in 1:count)
   {
-      deployDSVM(context=context,
-                 resource.group=resource.group,
-                 location=location,
-                 hostname=hostname[i],
-                 username=username[i],
-                 size=size[i],
-                 os=os[i],
-                 authen=authen[i],
-                 pubkey=pubkey[i],
-                 password=password[i],
-                 dns.label=hostname[i],
-                 mode=ifelse(i == count, "Sync", "Async"))
+    if (i == count) cat("\n") # Tidy the progress messages.
+    
+    deployDSVM(context=context,
+               resource.group=resource.group,
+               location=location,
+               hostname=hostname[i],
+               username=username[i],
+               size=size[i],
+               os=os[i],
+               authen=authen[i],
+               pubkey=pubkey[i],
+               password=password[i],
+               dns.label=hostname[i],
+               mode=ifelse(i == count, "Sync", "Async"))
   }
 
   # For a cluster set up public credentials for the DSVM cluster to
@@ -203,5 +205,5 @@ deployDSVMCluster <- function(context,
                           dns.label=dns.label)
   }
   
-  return(TRUE)
+  invisible(TRUE)
 }
