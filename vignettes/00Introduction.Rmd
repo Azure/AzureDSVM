@@ -9,15 +9,17 @@ vignette: >
  \usepackage[utf8]{inputenc}
 ---
 
-The Azure Data Science Virtual Machine (DSVM) provide a powerful
+The Azure Data Science Virtual Machine (DSVM) provides a powerful
 platform for data scientists supporting a full open source stack of
-tools that today's data scientist will regularly use.
+regularly used tools.
 	
 # Preliminaries
 
 1. `AzureDSVM` requires users to have access to Azure resources
 through an Azure subscription which can be obtained through a [free
-Azure account](https://azure.microsoft.com/en-us/free).
+Azure account](https://azure.microsoft.com/en-us/free) using your
+credit card (but only to identify you as it will not be charged unless
+you later decide to take ot a subscription).
 
 2. It is highly recommended that you read through the DSVM
 documentation:
@@ -53,7 +55,7 @@ if(!require("devtools")) install.packages("devtools")
 devtools::install_github("Azure/AzureDSVM")
 ```
 
-Help pages can be loaded by
+Help pages can be loaded with
 
 ```{r help azuresvm, eval=FALSE}
 library(help=AzureDSVM)
