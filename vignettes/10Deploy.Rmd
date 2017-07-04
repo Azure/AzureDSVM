@@ -21,8 +21,8 @@ vignette. Once deleted consumption (cost) will cease.
 This script is best run interactively to review its operation and to
 ensure that the interaction with Azure completes.
 
-The R script that can be generated from this vignette can be run as a
-standalone script to setup a new resource group and single Ubuntu
+An R script that can be generated from this vignette and can be run as
+a standalone script to setup a new resource group and single Ubuntu
 DSVM.
 
 # Preparation
@@ -45,7 +45,7 @@ the users desktop/laptop machine and will be found within
 to contain this information. The contents of the credentials file will
 be something like the foloowing and we assume the user creates such a
 file in the current working directory, naming the file
-<USER>_credentials.R, replace <USER> with the user's username.
+<USER>_credentials.R. Replace <USER> with the user's username.
 
 ```{r credentials, eval=FALSE}
 # Credentials come from app creation in Active Directory within Azure.
@@ -63,8 +63,8 @@ PASSWORD <- "Public%4aR3@kn"               # For Windows DSVM
 
 ```
 
-Notice we include a password (fake in this case) for account creation
-on a Windows DSVM.
+Notice we include a password (a fake password in this case) for
+account creation on a Windows DSVM.
 
 We can simply source the credentials file in R.
 
@@ -160,15 +160,14 @@ Create the resource group within which all resources we create will be
 grouped.
 
 ```{r create resource group}
-if (! rg_pre_exists) {
-  # Create a new resource group into which we create the VMs and
-  # related resources. Resource group name is RG. 
-  
-  # Note that to create a new resource group one needs to add access
-  # control of Active Directory application at subscription level.
+# Create a new resource group into which we create the VMs and related
+# resources. Resource group name is RG.  Note that to create a new
+# resource group one needs to add access control of Active Directory
+# application at subscription level.
 
+if (! rg_pre_exists)
+{
   azureCreateResourceGroup(context, RG, LOC) %>% cat("\n\n")
-
 }
 
 # Check that it now exists.
@@ -205,8 +204,7 @@ formals(deployDSVM)$size
 formals(deployDSVM)$os
 ```
 
-The following code deploys a Linux DSVM, and it will take a few
-minutes.
+The following code deploys a Linux DSVM which will take a few minutes.
 
 ```{r deploy}
 # Create the required Linux DSVM - generally 4 minutes.
@@ -232,8 +230,8 @@ Prove that the deployed DSVM exists.
 # existence. Expect a single line with an indication of how long the
 # server has been up and running.
 
-# NOTE this must be done after a while since deployment - problem may 
-# be owing to internal processing of system setup. 
+# NOTE this must be done after a while since even though deployment is
+# reported there is a small delay before actually available.
 
 Sys.sleep(20)
 
@@ -252,9 +250,9 @@ system(cmd, intern=TRUE)
 
 We can install some useful tools on a fesh server. Note that the
 Ubuntu server will still be running some background scripts as part of
-its own setup so if there are lock file error messages wait from the
-following commands then simply try again in a short while. We also
-update the operating system here though because of a bad console
+its own setup so if there are lock error messages (could not get lock)
+from the following commands then simply try again in a short while. We
+also update the operating system here though because of a bad console
 interaction from the msodbcsql package asking about licensing we have
 to do the distupgrade through a terminal so we need to log on to the
 server through the secure shell and manually run that command.  We
@@ -267,6 +265,7 @@ system(paste(ssh, "sudo apt-get -y install wajig"))
 system(paste(ssh, "wajig install -y lsb htop"))
 system(paste(ssh, "lsb_release -idrc"))
 system(paste(ssh, "wajig update"))
+# Manually ssh to the server and then ...
 # wajig distupgrade
 # sudo reboot
 ```
