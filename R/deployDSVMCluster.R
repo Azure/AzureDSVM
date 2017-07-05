@@ -205,5 +205,5 @@ deployDSVMCluster <- function(context,
                           dns.label=dns.label)
   }
   
-  invisible(TRUE)
+  return(TRUE)
 }
