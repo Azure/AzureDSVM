@@ -146,3 +146,14 @@ retrieved from Azure portal:
 2. Click on the deployed DSVM. There is "Extensiosn" found on the left pane. 
 3. Click "Extensions", and the extension installed just now can be found inside. 
 4. If it failed, detailed information can be found there for troubleshooting.
+
+Once compute resources are no longer needed, stop or delete it by 
+
+```{r, eval=FALSE}
+operateDSVM(context, RG, HOST, operation="Stop")
+```
+
+```{r optionally_delete_resource_group}
+if (! rg_pre_exists)
+  azureDeleteResourceGroup(context, RG)
+```
