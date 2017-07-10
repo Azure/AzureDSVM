@@ -9,7 +9,8 @@ Authors@R: c(
     person("Le", "Zhang", role=c("aut"), email="zhle@microsoft.com"))
 Description: The AzureDSVM is a package that aims at providing handy methods,
     with the help of underlying AzureSMR package, for doing data science jobs on
-    Azure Data Science Virtual Machine (DSVM) efficiently and economically. Basically it can be used with the
+    Azure Data Science Virtual Machine (DSVM) efficiently and economically.
+    Basically it can be used with the
     following benefits. Easy operations such as create, start, and stop of Azure
     DSVMs. Remote execution of data analytical jobs on cloud with
     specified computing context. Monitor of data consumption and calculation of

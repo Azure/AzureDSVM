@@ -10,26 +10,29 @@ vignette: >
 
 # Use Case
 
-Sometimes more than one DSVMs are needed.
+Sometimes more than one DSVM is needed.
 
 * Multi-deployment of heterogeneous DSVMs may be required for a
-  collaborative project where each of group members work on a machine
-  with specific configuration. For instance, a powerful yet expensive
-  machine is assigned to perform computation intensive tasks while a
-  cheap one can be used for explorative or interactive tasks.
+  collaborative project where each of group member works on a machine
+  with a specific configuration targetting their requirements. For
+  instance, a powerful (expensive) machine is assigned to perform
+  computationally intensive tasks while a smaller (inexpensive)
+  machine can be used for explorative or interactive tasks.
 
 * Another common use case is for a Data Scientist to create their R
-programs to analyse a dataset on their local compute platform (e.g., a
-laptop with 6GB RAM running Ubuntu with R installed). Development is
-performed with a subset of the full dataset (a random sample) that
-will not exceed the available memory and will return results
-quickly. When the experimental setup is complete the script can be
-sent across to a considerably more capable compute engine on Azure,
-possibly a cluster of servers to build models in parallel.
+  programs to analyse a dataset on their local compute platform (e.g.,
+  a laptop with 6GB RAM running Ubuntu with R installed). Development
+  is performed with a subset of the full dataset (a random sample)
+  that will not exceed the available memory and will return results
+  quickly. When the experimental setup is complete the script can be
+  sent across to a considerably more capable compute engine on Azure,
+  possibly a cluster of servers to build models in parallel in a
+  deploy/compute/destroy cycle to be a significantly more cost
+  effective alternateive to an on-premise purchase of hardware.
 
 This tutorial deploys a collection/cluster of Linux Data Science
 Virtual Machines (DSVMs) for the above two scenarios. In the latter
-one, user distributes a trivial compute task over those servers,
+scenarios the user distributes a compute task over those servers,
 collects the results and generates a report. Code is included but not
 run to then delete the resource group if the resources are no longer
 required. Once deleted consumption will cease.
@@ -39,9 +42,8 @@ ensure that the interaction with Azure completes.
 
 # Setup
 
-To get started load our Azure credentials as well as the user's ssh
-public key. This information has been saved into a file with the name
-<USER>_credentials.R where <USER> is your username.
+Refer to
+[Deploy](https://github.com/Azure/AzureDSVM/blob/master/vignettes/10Deploy.Rmd) for an explanation of the set up of the virtual machines.
 
 ```{r setup}
 # Load the required subscription resources: TID, CID, and KEY.
@@ -50,18 +52,14 @@ public key. This information has been saved into a file with the name
 USER <- Sys.info()[['user']]
 
 source(paste0(USER, "_credentials.R"))
-```
 
-```{r packages}
 # Load the required packages.
 
 library(AzureSMR)    # Support for managing Azure resources.
-library(AzureDSVM)    # Further support for the Data Scientist.
-library(magrittr)    
-library(dplyr)
-```
+library(AzureDSVM)   # Further support for the Data Scientist.
+library(magrittr)    # Pipeline computation.
+library(dplyr)       # Data wrangling.
 
-```{r tuning}
 # Parameters for this script: the name for the new resource group and
 # its location across the Azure cloud. The resource name is used to
 # name the resource group that we will create transiently for the
@@ -89,10 +87,10 @@ LOC <-
 
 cat("\n")
 
-COUNT <- 4                 # Number of VMs to deploy.
-```
+# Number of VMs to deploy.
 
-```{r connect}
+COUNT <- 4
+
 # Connect to the Azure subscription and use this as the context for
 # all of our activities.
 
@@ -103,13 +101,6 @@ context <- createAzureContext(tenantID=TID, clientID=CID, authKey=KEY)
 
 rg_pre_exists <- existsRG(context, RG, LOC)
 
-```
-# Create Resource Group
-
-Create the resource group within which all resources we create will be
-grouped.
-
-```{r create resource group}
 if (! rg_pre_exists)
 {
   # Create a new resource group into which we create the VMs and
@@ -130,30 +121,29 @@ cat("Resource group", RG, "at", LOC,
 
 # Create a Cluster
 
-Multi-deployment of DSVM can be achieved by calling
-`deployDSVMCluster` function. Note the function is designed to
-implicitly switch between cluster and collection of DSVMs, according
-to the given inputs. That is, if the `hostname`, i.e., names of the
-DSVMs consists of only one character string, the function will imply
-the deployment is to create a cluster of homogeneous DSVMs (i.e., same
-size), and use the unique machine name as the base, which is appended
-with a sequential number to form a full hostname. If the `hostname`
-is a vector of character strings, the function will create machines
-with names specified in the name vector.
+Multi-deployment of DSVMs can be achieved by calling
+`deployDSVMCluster()`. This function is designed to implicitly switch
+between cluster and collection of DSVMs, according to the given
+inputs. If the `hostname` (i.e., names of the DSVMs) consists of only
+one character string then a cluster of homogeneous DSVMs (i.e., same
+size) will be deployed. Using the unique machine name as the base a
+sequential numbering is used to form a full hostname. On the other
+hand if the `hostname` is a vector of character strings the function
+will create a collection of machines with names so specified.
 
-It is worth mentioning that a cluster of DSVMs is useful when
-batch-based analytical job needs to be done in a desired computing
-context, especially in a distributed manner across nodes of the
-cluster. The distributed computing functionality is empowered by
-Microsoft RevoScaleR parallel computing backend. The distributed and
-parallel computing is socket-based and relies on SSH for secure
-communication. To allow this communication across nodes,
-`deployDSVMCluster` added inbound security rules into security group
-of each DSVM in the cluster, and establish public key pairs for the
-machines.
+It is worth mentioning that a cluster of DSVMs is useful when a
+batch-based analytical job needs to be performed in a desired
+computing context, especially in a distributed manner across nodes of
+the cluster. The distributed computing functionality is supported by
+the Microsoft RevoScaleR parallel computing backend. The distributed
+and parallel computing backend is socket-based and relies on SSH for
+secure communication. To allow this communication across nodes,
+`deployDSVMCluster` adds inbound security rules into the security
+group of each DSVM in the cluster, and establishes public key pairs for
+the machines.
 
 We can now deploy a cluster of homogeneous DSVMs. Each DSVM will be
-named based on the *name* provided and sequentially numbered.
+named based on the *hostname* provided and sequentially numbered.
 
 ```{r deploy a cluster of DSVMs}
 # Deploy a cluster of DSVMs.
@@ -166,13 +156,8 @@ deployDSVMCluster(context,
                   authen="Key",
                   pubkey=PUBKEY,
                   count=COUNT)
-```
 
-```{r check existence of deployed DSVMs}
-
-cluster <- azureListVM(context,
-                       RG,
-                       LOC)
+cluster <- azureListVM(context, RG, LOC)
 
 # To validate the existence of deployed DSVMs.
 
@@ -212,9 +197,11 @@ and size can also be configured.
 
 ```{r deploy a set of DSVMs, eval=FALSE}
 
-DSVM_NAMES <- paste0(BASE, c(1, 2, 3))
+DSVM_NAMES <- paste0(BASE, c(1, 2, 3)) %T>% print()
 
 # Deploy multiple DSVMs using deployDSVMCluster.
+
+# TODO: CURRENTLY NOT FUNCTIONAL. NEED A FULLY FUNTIONAL EXAMPLE
 
 deployDSVMCluster(context, 
                   resource.group=RG, 
@@ -258,5 +245,3 @@ for (vm in DSVM_NAMES)
 if (! rg_pre_exists)
   azureDeleteResourceGroup(context, RG)
 ```
-
-Once deleted we are consuming no more.
