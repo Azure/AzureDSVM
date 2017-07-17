@@ -1,0 +1,148 @@
+---
+title: "Using Azure Data Science Virtual Machine: Extension of DSVM"
+author: "Graham Williams and Le Zhang"
+date: "July 10, 2017"
+output: html_document
+---
+
+# Use case
+
+Azure supports extensions to a VM. It is helpful in many data science application
+scenarios with DSVM. For example, 
+
+* An individual user can upgrade, downgrade, or uninstall
+the pre-installed software, or install new as needed. This can be achieved after a deployment of a DSVM. 
+* A custom script for system set-ups may be easily re-used across a set of DSVMs. 
+
+More details about Azure VM Extensions
+can be found [here](https://docs.microsoft.com/en-us/azure/virtual-machines/windows/extensions-features).
+
+# Setup
+
+```{r setup}
+# Load the required subscription resources: TID, CID, and KEY.
+# Also includes the ssh PUBKEY for the user.
+
+USER <- Sys.info()[['user']]
+
+source(paste0(USER, "_credentials.R"))
+```
+
+```{r packages}
+# Load the required packages.
+
+library(AzureSMR)    # Support for managing Azure resources.
+library(AzureDSVM)    # Further support for the Data Scientist.
+library(magrittr)    
+library(dplyr)
+```
+
+```{r tuning}
+# Parameters for this script: the name for the new resource group and
+# its location across the Azure cloud. The resource name is used to
+# name the resource group that we will create transiently for the
+# purposes of this script.
+
+# Create a random resource group to reduce likelihood of conflict with
+# other users.
+
+BASE <- 
+  runif(4, 1, 26) %>%
+  round() %>%
+  letters[.] %>%
+  paste(collapse="") %T>%
+  {sprintf("Base name:\t\t%s", .) %>% cat("\n")}
+
+RG <-
+  paste0("my_dsvm_", BASE,"_rg_sea") %T>%
+  {sprintf("Resource group:\t\t%s", .) %>% cat("\n")}
+
+# Choose a data centre location.
+
+LOC <-
+  "southeastasia"  %T>%
+  {sprintf("Data centre location:\t%s", .) %>% cat("\n")}
+
+# Include the random BASE in the hostname to reducely likelihood of
+# conflict.
+
+HOST <-
+  paste0("my", BASE) %T>%
+  {sprintf("Hostname:\t\t%s", .) %>% cat("\n")}
+
+cat("\n")
+```
+
+# Deployment of a DSVM
+
+Deployment is the same as that in the previous sub-section. Here in the demo, a
+Linux DSVM with public key type authenticaiton is deployed.
+
+```{r connect}
+context <- createAzureContext(tenantID=TID, clientID=CID, authKey=KEY)
+
+rg_pre_exists <- existsRG(context, RG, LOC)
+
+cat("Resource group", RG, "at", LOC,
+    ifelse(!existsRG(context, RG, LOC), "does not exist.\n", "exists.\n"), "\n")
+```
+
+```{r create resource group}
+if (! rg_pre_exists) {
+  azureCreateResourceGroup(context, RG, LOC) %>% cat("\n\n")
+}
+```
+
+```{r}
+getVMSizes(context, "southeastasia") %>%
+  set_names(c("Size", "Cores", "DiskGB", "RAM GB", "Disks"))
+
+formals(deployDSVM)$size
+
+formals(deployDSVM)$os
+```
+
+```{r deploy}
+ldsvm <- deployDSVM(context, 
+                    resource.group = RG,
+                    location       = LOC,
+                    hostname       = HOST,
+                    username       = USER,
+                    authen         = "Key",
+                    pubkey         = PUBKEY)
+ldsvm
+
+operateDSVM(context, RG, HOST, operation="Check")
+
+azureListVM(context, RG)
+```
+
+# Install an extension.
+
+To install an extension to a deployed DSVM with custom script, a URL of the custom
+script here it is hosted and a system command to execute that script are needed
+as inputs. 
+
+In our example, [a script](https://github.com/Azure/DataScienceVM/blob/master/Extensions/General/create-user-and-updatecntk.sh) available on Azure DSVM github repository is used. The script is to create user and update CNTK on the DSVM. The
+command to execute script is "sudo sh <script.R>". 
+
+```{r}
+URL <- "https://raw.githubusercontent.com/Azure/DataScienceVM/master/Extensions/General/create-user-and-updatecntk.sh"
+CMD <- "sudo sh create-user-and-updatecntk.sh"
+
+ldsvm_ext <- addExtensionDSVM(context, 
+                              resource.group = RG, 
+                              location = LOC, 
+                              hostname = HOST,
+                              os = "Ubuntu", 
+                              fileurl = URL, 
+                              command = CMD)
+```
+
+A successful installation will return a TRUE. If it fails, possible reason can be
+retrieved from Azure portal:
+
+1. Go to Azure portal.
+2. Click on the deployed DSVM. There is "Extensiosn" found on the left pane. 
+3. Click "Extensions", and the extension installed just now can be found inside. 
+4. If it failed, detailed information can be found there for troubleshooting.

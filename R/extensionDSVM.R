@@ -46,9 +46,10 @@ addExtensionDSVM <- function(context,
   }
   
   # this is the default name of storage account on the DSVM.
+  
   storage_account <- paste0(hostname, "sa")
   existing_storage_accounts <- azureListSA(context, resource.group)
-  if(!storage_account %in% existing_storage_accounts) 
+  if(!storage_account %in% existing_storage_accounts$name) 
     stop("No default storage account associated with the DSVM. You need to 
          manually create one before trying again.")
   
