@@ -105,8 +105,8 @@ library(dplyr)
 # name the resource group that we will create transiently for the
 # purposes of this script.
 
-# Create a random resource group to reduce likelihood of conflict with
-# other users.
+# Create a random name which will be used for the hostname and
+# resource group to reduce likelihood of conflict with other users.
 
 runif(4, 1, 26) %>%
   round() %>%
@@ -115,16 +115,22 @@ runif(4, 1, 26) %>%
   {sprintf("Base name:\t\t%s", .) %>% cat("\n")} ->
 BASE
 
-BASE %>%
-  paste0("my_dsvm_", .,"_rg_sea") %T>%
-  {sprintf("Resource group:\t\t%s", .) %>% cat("\n")} ->
-RG
-
-# Choose a data centre location.
+# Choose a data centre location. The abbreviation is used for the
+# resource group name.
 
 "southeastasia"  %T>%
   {sprintf("Data centre location:\t%s", .) %>% cat("\n")} ->
 LOC
+
+ABR <- "sea"
+
+# Create a random resource group to reduce likelihood of conflict with
+# other users.
+
+BASE %>%
+  paste0("my_dsvm_", .,"_rg_", ABR) %T>%
+  {sprintf("Resource group:\t\t%s", .) %>% cat("\n")} ->
+RG
 
 # Include the random BASE in the hostname to reducely likelihood of
 # conflict.
@@ -192,12 +198,17 @@ default.
 ```{r}
 # List the available VM sizes. May differ with location of the data centre.
 
-getVMSizes(context, "southeastasia") %>%
+getVMSizes(context, LOC) %>%
   set_names(c("Size", "Cores", "DiskGB", "RAM GB", "Disks"))
 
 # The default size.
 
 formals(deployDSVM)$size
+
+# Choose a size to suit
+
+SIZE <- "Standard_D1_v2" # 1 Core, 3.5 GB RAM,  50 GB SSD,  $80
+SIZE <- "Standard_D3_v2" # 4 Cores, 14 GB RAM, 200 GB SSD, $318
 
 # The default operating system.
 
@@ -214,6 +225,7 @@ ldsvm <- deployDSVM(context,
                     location       = LOC,
                     hostname       = HOST,
                     username       = USER,
+                    size           = SIZE,
                     pubkey         = PUBKEY)
 ldsvm
 
@@ -265,9 +277,10 @@ system(paste(ssh, "sudo apt-get -y install wajig"))
 system(paste(ssh, "wajig install -y lsb htop"))
 system(paste(ssh, "lsb_release -idrc"))
 system(paste(ssh, "wajig update"))
-# Manually ssh to the server and then ...
-# wajig distupgrade
-# sudo reboot
+system(paste(ssh, "wajig distupgrade -y"))
+system(paste(ssh, "sudo reboot"))
+Sys.sleep(20)
+system(paste(ssh, "uptime"))
 ```
 
 # Deploy a Windows Data Science Virtual Machine - Optional
