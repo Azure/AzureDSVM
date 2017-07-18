@@ -4,7 +4,8 @@
 \alias{addExtensionDSVM}
 \title{Add DSVM extension.}
 \usage{
-addExtensionDSVM(context, location, resource.group, hostname, fileurl, command)
+addExtensionDSVM(context, location, resource.group, hostname, os, fileurl,
+  command)
 }
 \arguments{
 \item{context}{Authentication context of AzureSMR encapsulating the
@@ -17,6 +18,12 @@ created.}
 
 \item{hostname}{Name of the DSVM.  Lowercase characters or numbers
 only. Special characters are not permitted.}
+
+\item{os}{Operating system of DSVM. Permitted values are "Ubuntu",
+"CentOS", "Windows", "DeepLearning", and "MRS". The default is to deploy
+a Ubuntu Linux Data Science Virtual Machine. NOTE previously Windows
+based DSVM for deep learning toolkit is using a separated package but
+now it is merged into one.}
 
 \item{fileurl}{The URL of script to execute.}
 
