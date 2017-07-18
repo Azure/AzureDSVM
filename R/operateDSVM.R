@@ -86,6 +86,8 @@ operateDSVM <- function(context,
 # Stop all DSVMs under subscription.
 
 #' @inheritParams deployDSVM
+#' 
+#' @export
 
 stopDSVMAll <- function(context, location) {
   # check if token is valid.
