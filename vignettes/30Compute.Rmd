@@ -10,18 +10,19 @@ vignette: >
 
 # Use Case
 
-A common use case is for a Data Scientist to create their R programs
+A common use case for a Data Scientist is to create their R programs
 to analyse a dataset on their local compute platform (e.g., a laptop
 with 6GB RAM running Ubuntu with R installed). Development is
 performed with a subset of the full dataset (a random sample) that
 will not exceed the available memory and will return results
 quickly. When the experimental setup is complete the script can be
-sent across to a considerably more capable compute engine on Azure.
+sent across to a considerably more capable compute engine on Azure for
+modelling the whole population.
 
 In this vignette a Linux Data Science Virtual Machine (DSVM) cluster
 is deployed, a distributed/parallel analysis is completed, results
 collected, and the compute resources deleted. Azure consumption occurs
-just for the duration. 
+just for the duration.
 
 # Setup
 
@@ -32,18 +33,14 @@ just for the duration.
 USER <- Sys.info()[['user']]
 
 source(paste0(USER, "_credentials.R"))
-```
 
-```{r packages}
 # Load the required packages.
 
 library(AzureSMR)    # Support for managing Azure resources.
 library(AzureDSVM)    # Further support for the Data Scientist.
 library(magrittr)    
 library(dplyr)
-```
 
-```{r tuning}
 # Parameters for this script: the name for the new resource group and
 # its location across the Azure cloud. The resource name is used to
 # name the resource group that we will create transiently for the
@@ -77,14 +74,7 @@ HOST <-
   {sprintf("Hostname:\t\t%s", .) %>% cat("\n")}
 
 cat("\n")
-```
 
-To begin with, let's check the status of the DSVM and start it if it
-is deallocated. This is achieved with AzureSMR, and again
-confidentials for authenticating the app in Active Directory should be
-provided.
-
-```{r connect}
 # Connect to the Azure subscription and use this as the context for
 # all of our activities.
 
@@ -106,23 +96,19 @@ if (! rg_pre_exists)
   azureCreateResourceGroup(context, RG, LOC)
 
 }
-```
 
-# Deploy the VM Cluster
-
-```{r deploy a cluster of DSVMs}
 # Deploy a cluster of 3 DSVMs.
 
 COUNT <- 3
 
 deployDSVMCluster(context, 
-                  resource.group=RG, 
-                  location=LOC, 
-                  hostname=BASE,
-                  username=USER, 
-                  authen="Key",
-                  pubkey=PUBKEY,
-                  count=COUNT)
+                  resource.group = RG, 
+                  location       = LOC, 
+                  hostname       = BASE,
+                  username       = USER, 
+                  authen         = "Key",
+                  pubkey         = PUBKEY,
+                  count          = COUNT)
 
 cluster <- azureListVM(context, RG, LOC)
 
@@ -152,17 +138,27 @@ for (i in 1:COUNT)
 Next step is to use the DSVM for data analytics.
 
 There are many ways of interacting with a DSVM. For both Linux and
-Windows based DSVMs, it is convenient to remote login onto the
-hostname with GUI (more detailed information can be found
-[here](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-provision-vm)). A
-lot of times remote execution within R session is preferred by data
-scientist as it can be efficiently automated by R scripts. The
-following chunks of codes demonstrate how to use an R interface for
-remote execution of R scripts under a desired computing context.
+Windows based DSVMs it is convenient to remote login onto the hostname
+with GUI (more detailed information can be found
+[here](https://docs.microsoft.com/en-us/azure/machine-learning/machine-learning-data-science-provision-vm)). Often
+remote execution within an R session is preferred by data scientists
+as it can be efficiently automated through R scripts. The following
+chunks of codes demonstrate how to use R for remote execution of R
+scripts under a desired computing context.
 
-A very simple experiment on random number generation. The function `executeScript` handles the remote execution (Note the current version only supports remote execution of script on a Linux DSVM, and the remote execution is achieved via ssh channel). Computing context can be specified for the execution. In the case of "clusterParallel", a cluster of DSVMs are used.
+We begin with a very simple experiment with random number
+generation. The function `executeScript()` handles the remote
+execution. (Note that the current version only supports remote
+execution of a script on a Linux DSVM and the remote execution is
+achieved via a ssh channel.) The computing context can be specified
+for the execution. In the case of "clusterParallel", a cluster of
+DSVMs is used.
 
-Updates - **Microsoft R Server (>= 9.0) allows remote execution on a DSVM which is properly configured. One can follow the [steps](https://msdn.microsoft.com/en-us/microsoft-r/operationalize/remote-execution) to configure the deployed DSVMs for remote interaction with Microsoft R Server.**  
+**Note that Microsoft R Server (>= 9.0) allows remote execution on a
+properly configured DSVM. One can follow the [steps
+here](https://msdn.microsoft.com/en-us/microsoft-r/operationalize/remote-execution)
+to configure the deployed DSVMs for remote interaction with Microsoft
+R Server.**
 
 ```{r set R interface}
 
@@ -178,43 +174,43 @@ tmpf1 <- tempfile(paste0("AzureDSVM_experiment_01_"))
 file.create(tmpf1)
 writeLines(code, tmpf1)
                  
-# local parallelism on node cores.
+# Local parallelism on node cores.
 
 t1 <- Sys.time()
 
 executeScript(context,
-              resource.group=RG,
-              hostname=cluster$name[1],
-              remote=paste(cluster$name[1],
-                           cluster$location[1],
-                           "cloudapp.azure.com",
-                           sep="."),
-              username=unique(cluster$admin),
-              script=tmpf1,
-              compute.context="localParallel")
+              resource.group  = RG,
+              hostname        = cluster$name[1],
+              remote          = paste(cluster$name[1],
+                                     cluster$location[1],
+                                     "cloudapp.azure.com",
+                                     sep="."),
+              username        = unique(cluster$admin),
+              script          = tmpf1,
+              compute.context = "localParallel")
 
 t2 <- Sys.time()
 
 # cluster parallelism across nodes.
 
 executeScript(context,
-              resource.group=RG,
-              hostname=cluster$name[1],
-              remote=paste(cluster$name[1],
-                           cluster$location[1],
-                           "cloudapp.azure.com",
-                           sep="."),
-              master=paste(cluster$name[1],
-                           cluster$location[1],
-                           "cloudapp.azure.com",
-                           sep="."),
-              slaves=paste(cluster$name[-1],
-                           cluster$location[-1],
-                           "cloudapp.azure.com",
-                           sep="."),
-              username=unique(cluster$admin),
-              script=tmpf1,
-              compute.context="clusterParallel")
+              resource.group  = RG,
+              hostname        = cluster$name[1],
+              remote          = paste(cluster$name[1],
+                                      cluster$location[1],
+                                      "cloudapp.azure.com",
+                                      sep="."),
+              master          = paste(cluster$name[1],
+                                      cluster$location[1],
+                                      "cloudapp.azure.com",
+                                      sep="."),
+              slaves          = paste(cluster$name[-1],
+                                      cluster$location[-1],
+                                      "cloudapp.azure.com",
+                                      sep="."),
+              username        = unique(cluster$admin),
+              script          = tmpf1,
+              compute.context = "clusterParallel")
 
 t3 <- Sys.time()
 
@@ -226,11 +222,12 @@ performance2
 
 ```
 
-Yet another example with parallel execution by using `rxExec` function from Microsoft RevoScaleR package. 
+Yet another example with parallel execution by using `rxExec` function
+from the Microsoft RevoScaleR package.
 
 ```{r}
 
-# parallelizing k-means clustering on iris data.
+# Parallelizing k-means clustering on the iris dataset.
 
 codes <- paste("library(scales)",
                "df <- scale(iris[, -5])",
@@ -245,23 +242,23 @@ writeLines(codes, tmpf2)
 t4 <- Sys.time()
 
 executeScript(context,
-              resource.group=RG,
-              hostname=cluster$name[1],
-              remote=paste(cluster$name[1],
-                           cluster$location[1],
-                           "cloudapp.azure.com",
-                           sep="."),
-              master=paste(cluster$name[1],
-                           cluster$location[1],
-                           "cloudapp.azure.com",
-                           sep="."),
-              slaves=paste(cluster$name[-1],
-                           cluster$location[-1],
-                           "cloudapp.azure.com",
-                           sep="."),
-              username=unique(cluster$admin),
-              script=tmpf2,
-              compute.context="clusterParallel")
+              resource.group  = RG,
+              hostname        = cluster$name[1],
+              remote          = paste(cluster$name[1],
+                                      cluster$location[1],
+                                      "cloudapp.azure.com",
+                                      sep="."),
+              master          = paste(cluster$name[1],
+                                      cluster$location[1],
+                                      "cloudapp.azure.com",
+                                      sep="."),
+              slaves          = paste(cluster$name[-1],
+                                      cluster$location[-1],
+                                      "cloudapp.azure.com",
+                                      sep="."),
+              username        = unique(cluster$admin),
+              script          = tmpf2,
+              compute.context = "clusterParallel")
 
 t5 <- Sys.time()
 
