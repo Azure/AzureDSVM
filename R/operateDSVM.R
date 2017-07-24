@@ -89,7 +89,9 @@ operateDSVM <- function(context,
 #' 
 #' @export
 
-stopDSVMAll <- function(context, location) {
+stopDSVMAll <- function(context, 
+                        location,
+                        resource.group="") {
   # check if token is valid.
 
   AzureSMR::azureCheckToken(context)
@@ -101,11 +103,23 @@ stopDSVMAll <- function(context, location) {
     assert_that(AzureSMR::is.azureActiveContext(context))
   }
   
-  rgs <- azureListRG(context)
-  
-  for (i in 1:nrow(rgs)) {
-    location <- rgs$location[i]
-    rg       <- rgs$name[i]
+  if (resource.group == "") {
+    rgs <- azureListRG(context)
+    
+    for (i in 1:nrow(rgs)) {
+      location <- rgs$location[i]
+      rg       <- rgs$name[i]
+      
+      vms <- azureListVM(context, rg, location)
+      
+      for (j in 1:nrow(vms)) {
+        vm <- vms$name[j]
+        
+        operateDSVM(context, rg, vm, operation="Stop")
+      }
+    }
+  } else {
+    rg <- resource.group
     
     vms <- azureListVM(context, rg, location)
     
