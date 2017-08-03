@@ -132,10 +132,6 @@ if (!is.null(vm))
                     pubkey=PUBKEY,
                     count=COUNT)
   
-  cluster <- azureListVM(context,
-                         RG,
-                         LOC)
-
   # Confirm that each VM exists.
   
   for (i in 1:COUNT) {
@@ -270,7 +266,8 @@ results_cluster <- results
 Save time points for later reference
 
 ```{r}
-save(list(time_1, time_2, time_3, time_4), file = "./elapsed.RData")
+runtime <- list(time_1, time_2, time_3, time_4)
+save(runtime, file = "./elapsed.RData")
 ```
 
 Do some visualization with data.
@@ -318,6 +315,11 @@ called for retrieving results.
 # calculate expense on computations.
 
 load("./elapsed.RData")
+
+time1 <- runtime[[1]]
+time2 <- runtime[[2]]
+time3 <- runtime[[3]]
+time4 <- runtime[[4]]
 
 cost <- 0
 
