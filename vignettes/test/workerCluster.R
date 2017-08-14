@@ -1,11 +1,11 @@
 # ---------------------------------------------------------------------------
 # THIS IS A HEADER ADDED BY COMPUTE INTERFACE
 # ---------------------------------------------------------------------------
-CI_MACHINES <- c( "jxss001", "jxss002", "jxss003", "jxss004" )
-CI_DNS <- c( "jxss001.southeastasia.cloudapp.azure.com", "jxss002.southeastasia.cloudapp.azure.com", "jxss003.southeastasia.cloudapp.azure.com", "jxss004.southeastasia.cloudapp.azure.com" )
+CI_MACHINES <- c( "llxi001", "llxi002", "llxi003", "llxi004" )
+CI_DNS <- c( "llxi001.southeastasia.cloudapp.azure.com", "llxi002.southeastasia.cloudapp.azure.com", "llxi003.southeastasia.cloudapp.azure.com", "llxi004.southeastasia.cloudapp.azure.com" )
 CI_VMUSER <- c( "zhle" )
-CI_MASTER <- c( "jxss001.southeastasia.cloudapp.azure.com" )
-CI_SLAVES <- c( "jxss002.southeastasia.cloudapp.azure.com", "jxss003.southeastasia.cloudapp.azure.com", "jxss004.southeastasia.cloudapp.azure.com" )
+CI_MASTER <- c( "llxi001.southeastasia.cloudapp.azure.com" )
+CI_SLAVES <- c( "llxi002.southeastasia.cloudapp.azure.com", "llxi003.southeastasia.cloudapp.azure.com", "llxi004.southeastasia.cloudapp.azure.com" )
 CI_DATA <- ""
 CI_CONTEXT <- "clusterParallel"
 

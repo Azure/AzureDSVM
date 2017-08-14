@@ -1,10 +1,10 @@
 # ---------------------------------------------------------------------------
 # THIS IS A HEADER ADDED BY COMPUTE INTERFACE
 # ---------------------------------------------------------------------------
-CI_MACHINES <- c( "mynngf" )
-CI_DNS <- c( "mynngf.southeastasia.cloudapp.azure.com" )
+CI_MACHINES <- c( "mytbmm" )
+CI_DNS <- c( "", "" )
 CI_VMUSER <- c( "zhle" )
-CI_MASTER <- c( "mynngf.southeastasia.cloudapp.azure.com" )
+CI_MASTER <- c( "" )
 CI_SLAVES <- c( "" )
 CI_DATA <- ""
 CI_CONTEXT <- "localParallel"

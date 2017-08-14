@@ -1,5 +1,62 @@
+# ---------------------------------------------------------------------------
+# THIS IS A HEADER ADDED BY COMPUTE INTERFACE
+# ---------------------------------------------------------------------------
+CI_MACHINES <- c( "myqjqs", "myqjqs001", "myqjqs002", "myqjqs003", "myqjqs004" )
+CI_DNS <- c( "myqjqs.southeastasia.cloudapp.azure.com", "myqjqs001.southeastasia.cloudapp.azure.com", "myqjqs002.southeastasia.cloudapp.azure.com", "myqjqs003.southeastasia.cloudapp.azure.com", "myqjqs004.southeastasia.cloudapp.azure.com" )
+CI_VMUSER <- c( "zhle" )
+CI_MASTER <- c( "myqjqs.southeastasia.cloudapp.azure.com" )
+CI_SLAVES <- c( "myqjqs001.southeastasia.cloudapp.azure.com", "myqjqs002.southeastasia.cloudapp.azure.com", "myqjqs003.southeastasia.cloudapp.azure.com", "myqjqs004.southeastasia.cloudapp.azure.com" )
+CI_DATA <- ""
+CI_CONTEXT <- "clusterParallel"
+
+library(RevoScaleR)
+# library(readr)
+library(doParallel)
+# --------- Set compute context
+cl <- makePSOCKcluster(names=CI_SLAVES, master=CI_MASTER, user=CI_VMUSER)
+registerDoParallel(cl)
+rxSetComputeContext(RxForeachDoPar())
+# --------- Load data.
+# ciData <- ifelse(CI_DATA != '', read_csv(CI_DATA), data.frame(0))
+# ---------------------------------------------------------------------------
+# END OF THE HEADER ADDED BY COMPUTE INTERFACE
+# ---------------------------------------------------------------------------
 
 # In this script a learning process that search for an optimal model for solving a classification problem is presented. To illustrate the convenience of using cloud for parallelizing such a learning process. AzureDSR is used.
+
+# data for use.
+
+# data to use for the ML process.
+
+data_config <- data.frame(name=c("Employee Attrition Prediction",
+                                 "Adult Income",
+                                 "Credit Card Transaction",
+                                 "Australia Weather",
+                                 "Mushroom",
+                                 "Hep Mass",
+                                 "Higgs"),
+                          url=c("https://zhledata.blob.core.windows.net/mldata/employee.xdf",
+                                "https://zhledata.blob.core.windows.net/mldata/adult.xdf",
+                                "https://zhledata.blob.core.windows.net/mldata/credit.xdf",
+                                "https://zhledata.blob.core.windows.net/mldata/weather.xdf",
+                                "https://zhledata.blob.core.windows.net/mldata/mushroom.xdf",
+                                "https://zhledata.blob.core.windows.net/mldata/hepmass.xdf",
+                                "https://zhledata.blob.core.windows.net/mldata/higgs.xdf"),
+                          label=c("Attrition",
+                                  "X15",
+                                  "Class",
+                                  "RainTomorrow",
+                                  "class",
+                                  "class",
+                                  "X1"),
+                          colOptions=c(TRUE,
+                                       FALSE,
+                                       TRUE,
+                                       TRUE,
+                                       TRUE,
+                                       TRUE,
+                                       FALSE),
+                          stringsAsFactors=FALSE)
 
 # algorithms for use.
 
@@ -93,6 +150,8 @@ mlProcess <- function(formula, data, modelName, modelPara) {
 # -----------------------------------------------------------------------
 
 # read data.
+
+data_index <- 3
 
 CI_DATA <- "https://zhledata.blob.core.windows.net/mldata/creditcard.xdf"
 

@@ -184,6 +184,8 @@ cat("Resource group", RG, "at", LOC,
 
 # Deploy a Linux Data Science Virtual Machine
 
+## DSVM deployment
+
 Create the actual Linux DSVM with public-key based authentication
 method. Name, username, and size can also be configured.
 
@@ -258,7 +260,7 @@ cmd
 system(cmd, intern=TRUE)
 ```
 
-# Some Standard Setup --- Optional
+## Some Standard Setup --- Optional
 
 We can install some useful tools on a fesh server. Note that the
 Ubuntu server will still be running some background scripts as part of
@@ -282,6 +284,32 @@ system(paste(ssh, "sudo reboot"))
 Sys.sleep(20)
 system(paste(ssh, "uptime"))
 ```
+
+An alternative for this post-deployment system configuration is 
+`addExtensionDSVM` function, which is detailed in vignette [11Exend.md](https://github.com/Azure/AzureDSVM/blob/master/vignettes/11Extend.Rmd).
+
+## Configuration for Microsoft R Server.
+
+Since version 9, Microsoft R Server offers methods in the package of `mrsdeploy`
+for convenient interaction with R session on a remote instance where MRS is 
+installed and properly configured. 
+
+To enable such interaction, a [one-box configuration](https://docs.microsoft.com/en-us/r-server/install/operationalize-r-server-one-box-config) is needed. One-box configuration on a Linux DSVM with
+key-based authentication methdod can be achieved via `mrsOneBoxConfiguration`
+function.
+
+```{r}
+mrsOneBoxConfiguration(context,
+                       resource.group=RG,
+                       location=LOC,
+                       hostname=HOST, 
+                       username=USER, 
+                       password=PASSWORD)
+```
+
+NOTE the passowrd here refers to password used for creating remote session with
+`mrsdeploy`. Default user name for `mrsdeploy` is "admin". More details about
+how to use `mrsdeploy` for remote interaction can be found [here](https://docs.microsoft.com/en-us/r-server/r/how-to-execute-code-remotely).
 
 # Deploy a Windows Data Science Virtual Machine - Optional
 

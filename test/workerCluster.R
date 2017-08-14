@@ -1,3 +1,26 @@
+# ---------------------------------------------------------------------------
+# THIS IS A HEADER ADDED BY COMPUTE INTERFACE
+# ---------------------------------------------------------------------------
+CI_MACHINES <- c( "jxss001", "jxss002", "jxss003", "jxss004" )
+CI_DNS <- c( "jxss001.southeastasia.cloudapp.azure.com", "jxss002.southeastasia.cloudapp.azure.com", "jxss003.southeastasia.cloudapp.azure.com", "jxss004.southeastasia.cloudapp.azure.com" )
+CI_VMUSER <- c( "zhle" )
+CI_MASTER <- c( "jxss001.southeastasia.cloudapp.azure.com" )
+CI_SLAVES <- c( "jxss002.southeastasia.cloudapp.azure.com", "jxss003.southeastasia.cloudapp.azure.com", "jxss004.southeastasia.cloudapp.azure.com" )
+CI_DATA <- ""
+CI_CONTEXT <- "clusterParallel"
+
+library(RevoScaleR)
+# library(readr)
+library(doParallel)
+# --------- Set compute context
+cl <- makePSOCKcluster(names=CI_SLAVES, master=CI_MASTER, user=CI_VMUSER)
+registerDoParallel(cl)
+rxSetComputeContext(RxForeachDoPar())
+# --------- Load data.
+# ciData <- ifelse(CI_DATA != '', read_csv(CI_DATA), data.frame(0))
+# ---------------------------------------------------------------------------
+# END OF THE HEADER ADDED BY COMPUTE INTERFACE
+# ---------------------------------------------------------------------------
 # This is to run parallel work across nodes for clustering analysis.
 
 # get data from remote blob.
