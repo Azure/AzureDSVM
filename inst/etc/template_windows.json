@@ -51,8 +51,8 @@
             "apiVersion": "2016-04-30-preview",
             "location": "[parameters('location')]",
             "plan": {
-                "name": "standard-data-science-vm",
-                "product": "standard-data-science-vm",
+                "name": "windows2016",
+                "product": "windows-data-science-vm",
                 "publisher": "microsoft-ads"
             },
             "properties": {
@@ -62,8 +62,8 @@
                 "storageProfile": {
                     "imageReference": {
                         "publisher": "microsoft-ads",
-                        "offer": "standard-data-science-vm",
-                        "sku": "standard-data-science-vm",
+                        "offer": "windows-data-science-vm",
+                        "sku": "windows-data-science-vm",
                         "version": "latest"
                     },
                     "osDisk": {
