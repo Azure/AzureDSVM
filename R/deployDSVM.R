@@ -18,10 +18,9 @@
 #'   available sizes can be obtained by function `getVMSizes`.
 #'
 #' @param os Operating system of DSVM. Permitted values are "Ubuntu",
-#'   "CentOS", "Windows", "DeepLearning", and "MRS". The default is to deploy
-#'   a Ubuntu Linux Data Science Virtual Machine. NOTE previously Windows
-#'   based DSVM for deep learning toolkit is using a separated package but
-#'   now it is merged into one. 
+#'   "CentOS", and "Windows". The default is to deploy
+#'   a Ubuntu Linux Data Science Virtual Machine. The Windows DSVM is 
+#'   based on Windows 2016 Server. 
 #'
 #' @param authen Either "Key" for public-key based authentication
 #'   (with Linux) or "Password" for a password based authentication
@@ -29,7 +28,8 @@
 #'   for Linux and password based authentication for Windows.
 #'
 #' @param pubkey Public key for the DSVM. Only applicable for
-#'   public-key based authentication of Linux based DSVM.
+#'   public-key based authentication of Linux based DSVM. The format 
+#'   is OpenSSH. 
 #'
 #' @param password Pass word for the DSVM.
 #'
@@ -150,14 +150,14 @@ deployDSVM <- function(context,
     para_path <- system.file("etc", 
                              "parameter_windows.json", 
                              package="AzureDSVM")
-  } else if(os == "DeepLearning") 
-  {
-    temp_path <- system.file("etc", 
-                             "template_deeplearning.json", 
-                             package="AzureDSVM")
-    para_path <- system.file("etc", 
-                             "parameter_windows.json", 
-                             package="AzureDSVM")
+  # } else if(os == "DeepLearning") 
+  # {
+  #   temp_path <- system.file("etc", 
+  #                            "template_deeplearning.json", 
+  #                            package="AzureDSVM")
+  #   para_path <- system.file("etc", 
+  #                            "parameter_windows.json", 
+  #                            package="AzureDSVM")
   }else if(os == "Ubuntu")
   {
     if(authen == "Key")
@@ -206,30 +206,30 @@ deployDSVM <- function(context,
            "i.e., either 'Key' for public key based or ",
            "'Password' for password based, for Linux OS based DSVM")
     }
-  } else if(os == "RServer") 
-  {
-    if(authen == "Key")
-    {
-      temp_path <- system.file("etc", 
-                               "template_mrs_key_ubuntu.json", 
-                               package="AzureDSVM")
-      para_path <- system.file("etc", 
-                               "parameter_linux_key.json", 
-                               package="AzureDSVM")
-    } else if(authen == "Password")
-    {
-      temp_path <- system.file("etc", 
-                               "template_mrs_ubuntu.json", 
-                               package="AzureDSVM")
-      para_path <- system.file("etc", 
-                               "parameter_linux.json", 
-                               package="AzureDSVM")
-    } else
-    {
-      stop("Please specific a valid authentication method, 
-           i.e., either 'Key' for public key based or 'Password' 
-           for password based, for Linux OS based DSVM")
-    }
+  # } else if(os == "RServer") 
+  # {
+  #   if(authen == "Key")
+  #   {
+  #     temp_path <- system.file("etc", 
+  #                              "template_mrs_key_ubuntu.json", 
+  #                              package="AzureDSVM")
+  #     para_path <- system.file("etc", 
+  #                              "parameter_linux_key.json", 
+  #                              package="AzureDSVM")
+  #   } else if(authen == "Password")
+  #   {
+  #     temp_path <- system.file("etc", 
+  #                              "template_mrs_ubuntu.json", 
+  #                              package="AzureDSVM")
+  #     para_path <- system.file("etc", 
+  #                              "parameter_linux.json", 
+  #                              package="AzureDSVM")
+  #   } else
+  #   {
+  #     stop("Please specific a valid authentication method, 
+  #          i.e., either 'Key' for public key based or 'Password' 
+  #          for password based, for Linux OS based DSVM")
+  #   }
   } else
   {
     stop("Please specify a valid OS type, ",
