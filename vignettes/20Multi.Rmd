@@ -202,8 +202,6 @@ DSVM_USERS <- paste0("user", c("a", "b", "c")) %T>% print()
 
 # Deploy multiple DSVMs using deployDSVMCluster.
 
-# TODO: CURRENTLY NOT FUNCTIONAL. NEED A FULLY FUNTIONAL EXAMPLE
-
 deployDSVMCluster(context, 
                   resource.group=RG, 
                   location=LOC, 
