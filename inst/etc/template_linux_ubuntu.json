@@ -52,7 +52,7 @@
             "location": "[parameters('location')]",
             "plan": {
                 "name": "linuxdsvmubuntu",
-                "product": "linux-data-science-vm-ubuntu-preview",
+                "product": "linux-data-science-vm-ubuntu",
                 "publisher": "microsoft-ads"
             },
             "properties": {
@@ -62,7 +62,7 @@
                 "storageProfile": {
                     "imageReference": {
                         "publisher": "microsoft-ads",
-                        "offer": "linux-data-science-vm-ubuntu-preview",
+                        "offer": "linux-data-science-vm-ubuntu",
                         "sku": "linuxdsvmubuntu",
                         "version": "latest"
                     },
