@@ -198,6 +198,7 @@ and size can also be configured.
 ```{r deploy a set of DSVMs, eval=FALSE}
 
 DSVM_NAMES <- paste0(BASE, c(1, 2, 3)) %T>% print()
+DSVM_USERS <- paste0("user", c("a", "b", "c")) %T>% print()
 
 # Deploy multiple DSVMs using deployDSVMCluster.
 
@@ -207,7 +208,7 @@ deployDSVMCluster(context,
                   resource.group=RG, 
                   location=LOC, 
                   hostname=DSVM_NAMES, 
-                  username=USER, 
+                  username=DSVM_USERS, 
                   authen="Key",
                   pubkey=rep(PUBKEY, COUNT)) 
 
