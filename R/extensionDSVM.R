@@ -36,11 +36,12 @@ addExtensionDSVM <- function(context,
   # Currently only Linux is supported. 
   
   if (os %in% c("Ubuntu", "CentOS", "RServer")) {
-    type_handler <- "1.5"
-    publisher    <- "Microsoft.OSTCExtensions"
-    type         <- "CustomScriptForLinux"
+    type_handler <- "2.0"
+    publisher    <- "Microsoft.Azure.Extensions"
+    type         <- "CustomScript"
   } else {
-    type_handler <- "1.4"
+    type_handler <- "1.9"
+    # type_handler <- "1.4"
     publisher    <- "Microsoft.Compute"
     type         <- "CustomScriptExtension"
   }
@@ -75,16 +76,28 @@ addExtensionDSVM <- function(context,
                 "?api-version=",
                 api_version)
   
-  body <- sprintf('{"location":"%s","properties":{"publisher":"%s","type":"%s","typeHandlerVersion":"%s","autoUpgradeMinorVersion":true,"forceUpdateTag":"RerunExtension","settings":{"fileUris":["%s"],"commandToExecute":"%s"},"protectedSettings":{"StorageAccountName":"%s","StorageaccountKey":"{%s}"}}}',
-                 location,
-                 publisher,
-                 type,
-                 type_handler,
-                 fileurl,
-                 command,
-                 storage_account,
-                 storage_key)
-                
+  if (os %in% c("Ubuntu", "CentOS", "RServer")) {  
+    body <- sprintf('{"location":"%s","properties":{"publisher":"%s","type":"%s","typeHandlerVersion":"%s","autoUpgradeMinorVersion":true,"forceUpdateTag":"RerunExtension","settings":{"fileUris":["%s"],"commandToExecute":"%s"}}}',
+                    location,
+                    publisher,
+                    type,
+                    type_handler,
+                    fileurl,
+                    command,
+                    storage_account,
+                    storage_key) 
+  } else {
+    body <- sprintf('{"location":"%s","properties":{"publisher":"%s","type":"%s","typeHandlerVersion":"%s","autoUpgradeMinorVersion":true,"forceUpdateTag":"RerunExtension","settings":{"fileUris":["%s"],"commandToExecute":"%s"},"protectedSettings":{"StorageAccountName":"%s","StorageaccountKey":"{%s}"}}}',
+                    location,
+                    publisher,
+                    type,
+                    type_handler,
+                    fileurl,
+                    command,
+                    storage_account,
+                    storage_key)
+  }
+  
   r <- AzureSMR:::call_azure_sm(context,
                                 uri=url,
                                 body=body,
