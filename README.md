@@ -25,14 +25,16 @@ Microsoft R extensions.
 
 * Elasiticity
 
-    * Deployment of a DSVM with customized information such as machine name, machine size, operating system, authentication method, etc.
+    * Deployment of a DSVM with customized information such as machine name, machine size (with compute/memory optimized general-purpose CPU, Nvidia K80/M60 GPU, etc.), operating system (Windows Server 2016, Ubunbut 16.04, and CentOS), authentication method (public key based or password based), etc.
     * Enjoy all benefits of a Windows/Linux DSVM. E.g., all tools for data science work such as R/Python/Julia programming languages, SQL Server, Visual Studio with RTVS, etc., remote working environment via RStudio Server or Jupyter Notebook interface, and machine learning & artificial intelligence packages such as Microsoft CNTK, MXNet, and XGBoost.
     * Execution of R analytics on DSVM(s) with various Microsoft R Server computing contexts such as "local parallel" and "cluster parallel".
+    * Seamless interaction with remote R Server session with `mrsdeploy` functions.
+    * Post-deployment installation of extension for customizing system environment, reinstalling/uninstalling software, etc.
 
 * Scalability 
 
     * Deployment of a collection of heterogeneous DSVMs for a group of data scientists.
-    * Scale up DSVM and form them into a cluster for parallel computation with Microsoft R Server backend. 
+    * Scale up DSVM and form them into a cluster for parallel/distributed computation with Microsoft R Server backend. 
     
 * Usability
 
