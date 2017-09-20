@@ -1,6 +1,6 @@
 ---
-title  = "Using Azure Data Science Virtual Machine: Deployment of a single DSVM"
-author = "Graham Williams and Le Zhang"
+title: "Using Azure Data Science Virtual Machine: Deployment of a single DSVM"
+author: "Graham Williams and Le Zhang"
 output: rmarkdown::html_vignette
 vignette: >
  %\VignetteIndexEntry{Vignette Title}
@@ -68,7 +68,7 @@ account creation on a Windows DSVM.
 
 We can simply source the credentials file in R.
 
-```{r setup}
+```{r, setup}
 # Load the required subscription resources: TID, CID, and KEY.
 # Also includes the ssh PUBKEY for the user.
 
@@ -143,7 +143,7 @@ HOST
 cat("\n")
 ```
 
-```{r connect}
+```{r, connect}
 # Connect to the Azure subscription and use this as the context for
 # our activities.
 
@@ -165,7 +165,7 @@ cat("Resource group", RG, "at", LOC,
 Create the resource group within which all resources we create will be
 grouped.
 
-```{r create resource group}
+```{r, create resource group}
 # Create a new resource group into which we create the VMs and related
 # resources. Resource group name is RG.  Note that to create a new
 # resource group one needs to add access control of Active Directory
@@ -219,7 +219,7 @@ formals(deployDSVM)$os
 
 The following code deploys a Linux DSVM which will take a few minutes.
 
-```{r deploy}
+```{r, deploy}
 # Create the required Linux DSVM - generally 4 minutes.
 
 ldsvm <- deployDSVM(context, 
@@ -238,7 +238,7 @@ azureListVM(context, RG)
 
 Prove that the deployed DSVM exists.
 
-```{r prove exists}
+```{r, prove exists}
 
 # Send a simple system() command across to the new server to test its
 # existence. Expect a single line with an indication of how long the
@@ -273,7 +273,7 @@ server through the secure shell and manually run that command.  We
 then reboot the server so that, for example, kernel updates, take
 effect.
 
-```{r useful tools}
+```{r, useful tools}
 system(paste(ssh, "sudo locale-gen 'en_AU.UTF-8'"))
 system(paste(ssh, "sudo apt-get -y install wajig"))
 system(paste(ssh, "wajig install -y lsb htop"))

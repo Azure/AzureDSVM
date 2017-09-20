@@ -3,6 +3,10 @@ title: "Using Azure Data Science Virtual Machine: Extension of DSVM"
 author: "Graham Williams and Le Zhang"
 date: "July 10, 2017"
 output: html_document
+vignette: >
+ %\VignetteIndexEntry{Vignette Title}
+ %\VignetteEngine{knitr::rmarkdown}
+ \usepackage[utf8]{inputenc}
 ---
 
 # Use case
