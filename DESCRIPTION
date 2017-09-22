@@ -35,3 +35,4 @@ Suggests:
     testthat
 VignetteBuilder: knitr
 RoxygenNote: 5.0.1
+Remotes: Microsoft/AzureSMR

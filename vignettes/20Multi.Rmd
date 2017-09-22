@@ -1,6 +1,6 @@
 ---
-title = "Using Azure Data Science Virtual Machine: Multi-deployment of DSVMs Quick Start"
-author= "Graham Williams"
+title: "Using Azure Data Science Virtual Machine: Multi-deployment of DSVMs Quick Start"
+author: "Graham Williams"
 output: rmarkdown::html_vignette
 vignette: >
  %\VignetteIndexEntry{Vignette Title}

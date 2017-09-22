@@ -1,6 +1,6 @@
 ---
-title = "Using Azure Data Science Virtual Machine: a use case - kmeans clustering" 
-author= "Le Zhang and Graham Williams"
+title: "Using Azure Data Science Virtual Machine: a use case - kmeans clustering" 
+author: "Le Zhang and Graham Williams"
 output: rmarkdown::html_vignette
 vignette: >
  %\VignetteIndexEntry{Vignette Title}

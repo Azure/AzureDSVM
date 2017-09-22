@@ -27,3 +27,11 @@ inst/doc
 .Rproj.user
 *_credentials.R
 *~
+
+
+# VS files
+.vs
+*.tss
+*.suo
+*.sln
+*.rxproj
