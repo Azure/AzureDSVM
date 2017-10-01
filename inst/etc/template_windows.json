@@ -63,7 +63,7 @@
                     "imageReference": {
                         "publisher": "microsoft-ads",
                         "offer": "windows-data-science-vm",
-                        "sku": "windows-data-science-vm",
+                        "sku": "windows2016",
                         "version": "latest"
                     },
                     "osDisk": {
