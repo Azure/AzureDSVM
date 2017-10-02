@@ -20,7 +20,7 @@ The demo in this tutorial shows how to perform kmeans clustering on remote DSVMs
 
 Similar to the previous sections, credentials for authentication are required to fire up the DSVMs.
 
-```{r}
+```{r, eval=FALSE}
 library(AzureDSVM)
 library(AzureSMR)
 library(dplyr)
@@ -32,7 +32,7 @@ library(rattle)
 library(ggplot2)
 ```
 
-```{r setup}
+```{r, setup, eval=FALSE}
 # Load the required subscription resources: TID, CID, and KEY.
 # Also includes the ssh PUBKEY for the user.
 
@@ -41,7 +41,7 @@ USER <- Sys.info()[['user']]
 source(paste0(USER, "_credentials.R"))
 ```
 
-```{r}
+```{r, eval=FALSE}
 COUNT <- 4  # Number of VMs to deploy.
 
 SIZE <- "Standard_DS2_v2"
@@ -76,7 +76,7 @@ cat("\n")
 Deploy a cluster of DSVMs if there is no existing, otherwise start the
 machines. 
 
-```{r}
+```{r, eval=FALSE}
 
 # --------------------------------------------------------------------------
 # Azure data science resource management
@@ -194,7 +194,7 @@ The following is the configuration of computing cluster which is needed for spec
 * `master` DNS of the DSVM where the worker script will be uploaded to for execution.
 * `slaves` DNS of DSVMs where execution of worker script will be distributed to.
 
-```{r}
+```{r, eval=FALSE}
 # specify machine names, master, and slaves.
 
 machines <- unlist(cluster$name)
@@ -205,7 +205,7 @@ slaves <- dns_list[-1]
 
 The following script run the analytics of the worker script in a "local parallel" computing context, and obtain results from remote master node to local R session.
 
-```{r}
+```{r, eval=FALSE}
 # parallel the analytics with local parallel computing context.
 
 time_1 <- Sys.time()
@@ -235,7 +235,7 @@ results_local <-
 
 For comparison purpose, the same analysis is run in the "cluster parallel" context again. 
 
-```{r}
+```{r, eval=FALSE}
 # parallel the analytics across cluster.
 
 time_3 <- Sys.time()
@@ -265,14 +265,14 @@ results_cluster <- results
 
 Save time points for later reference
 
-```{r}
+```{r, eval=FALSE}
 runtime <- list(time_1, time_2, time_3, time_4)
 save(runtime, file = "./elapsed.RData")
 ```
 
 Do some visualization with data.
 
-```{r}
+```{r, eval=FALSE}
 DATA_URL <- "https://zhledata.blob.core.windows.net/mldata/creditcard.xdf"
 
 credit_data <- rxImport(inData=DATA_URL,
@@ -295,7 +295,7 @@ ggplot(data=credit_data, aes(x=V1, y=V2, color=cluster_local)) +
 
 Once finishing the analysis, switch off DSVMs.
 
-```{r}
+```{r, eval=FALSE}
 # stop machines after the analysis.
 
 for (vm in machines) {
@@ -352,7 +352,7 @@ if (length(vm$name) == 1) {
 
 Stop or delete computing resources if they are no longer needed to avoid unnecessary cost.
 
-```{r}
+```{r, eval=FALSE}
 if (! rg_pre_exists)
   azureDeleteResourceGroup(context, RG)
 ```

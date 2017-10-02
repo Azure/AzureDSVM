@@ -10,13 +10,13 @@ The R package of `AzureDSVM` aims at offering functions that can be conveniently
 
 To install the package from github:
 
-  > devtools::install_github("Azure/AzureDSVM")
+    devtools::install_github("Azure/AzureDSVM")
 
 Help pages are also provided for all functions within the
 package. With RStudio for example type AzureDSVM into search when the
 package is loaded to see a list of functions/help pages or else
 
-  > library(help=AzureDSVM)
+    library(help=AzureDSVM)
 
 Note: The package will work with any open source R Session or with
 Microsoft R extensions.

@@ -26,7 +26,7 @@ just for the duration.
 
 # Setup
 
-```{r setup}
+```{r, setup, eval=FALSE}
 # Load the required subscription resources: TID, CID, and KEY.
 # Also includes the ssh PUBKEY for the user.
 
@@ -160,7 +160,7 @@ here](https://msdn.microsoft.com/en-us/microsoft-r/operationalize/remote-executi
 to configure the deployed DSVMs for remote interaction with Microsoft
 R Server.**
 
-```{r set R interface}
+```{r, set R interface, eval=FALSE}
 
 # Create a script for remote execution.
 
@@ -225,7 +225,7 @@ performance2
 Yet another example with parallel execution by using `rxExec` function
 from the Microsoft RevoScaleR package.
 
-```{r}
+```{r, eval=FALSE}
 
 # Parallelizing k-means clustering on the iris dataset.
 
@@ -269,7 +269,7 @@ performance3
 
 Clean up.
 
-```{r}
+```{r, eval=FALSE}
 
 file.remove(tmpf1, tmpf2)
 

@@ -10,3 +10,4 @@ Makefile
 ^test/.*$
 ^.*\.tar\.gz$
 README\.md
+misc

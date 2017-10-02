@@ -45,7 +45,7 @@ ensure that the interaction with Azure completes.
 Refer to
 [Deploy](https://github.com/Azure/AzureDSVM/blob/master/vignettes/10Deploy.Rmd) for an explanation of the set up of the virtual machines.
 
-```{r setup}
+```{r, setup, eval=FALSE}
 # Load the required subscription resources: TID, CID, and KEY.
 # Also includes the ssh PUBKEY for the user.
 
@@ -145,7 +145,7 @@ the machines.
 We can now deploy a cluster of homogeneous DSVMs. Each DSVM will be
 named based on the *hostname* provided and sequentially numbered.
 
-```{r deploy a cluster of DSVMs}
+```{r, deploy a cluster of DSVMs, eval=FALSE}
 # Deploy a cluster of DSVMs.
 
 deployDSVMCluster(context, 
@@ -195,7 +195,7 @@ We can also create a collection of Linux DSVMs each with a different
 user and with public-key based authentication method. Name, username,
 and size can also be configured.
 
-```{r deploy a set of DSVMs, eval=FALSE}
+```{r, deploy a set of DSVMs, eval=FALSE}
 
 DSVM_NAMES <- paste0(BASE, c(1, 2, 3)) %T>% print()
 DSVM_USERS <- paste0("user", c("a", "b", "c")) %T>% print()
@@ -236,7 +236,7 @@ for (vm in DSVM_NAMES)
 
 # Delete the Resource Group
 
-```{r optionally delete resource group}
+```{r, optionally delete resource group, eval=FALSE}
 # Delete the resource group now that we have proved existence. There
 # is probably no need to wait. Only delete if it did not pre-exist
 # this script. Deletion seems to take 10 minutes or more.

@@ -30,7 +30,7 @@ To automate the whole process of model creation, it is beneficial to have multip
 
 Let's repeat the same thing in the previous tutorials, to deploy DSVMs for the case studies. For comparison, two scenarios, single DSVM and cluster of DSVMs, are deployed under two resource groups. 
 
-```{r}
+```{r, eval=FALSE}
 library(AzureDSVM)
 library(AzureSMR)
 library(dplyr)
@@ -41,7 +41,7 @@ library(readr)
 library(rattle)
 ```
 
-```{r setup}
+```{r, setup, eval=FALSE}
 # Load the required subscription resources: TID, CID, and KEY.
 # Also includes the ssh PUBKEY for the user.
 
@@ -50,7 +50,7 @@ USER <- Sys.info()[['user']]
 source(file.path("..", paste0(USER, "_credentials.R")))
 ```
 
-```{r}
+```{r, eval=FALSE}
 BASE <- 
   runif(4, 1, 26) %>%
   round() %>%
@@ -80,7 +80,7 @@ cat("\n")
 
 Check existence of resource group and create one if there is no.
 
-```{r connect}
+```{r, connect, eval=FALSE}
 
 context <- createAzureContext(tenantID=TID, clientID=CID, authKey=KEY)
 
@@ -92,7 +92,7 @@ rg_pre_exists <- existsRG(context, RG, LOC)
 Create the resource group within which all resources we create will be
 grouped.
 
-```{r create resource group}
+```{r, create resource group, eval=FALSE}
 if (! rg_pre_exists) azureCreateResourceGroup(context, RG, LOC)
 
 existsRG(context, RG, LOC)
@@ -103,7 +103,7 @@ existsRG(context, RG, LOC)
 Create the actual Ubuntu DSVM with public-key based authentication
 method. Name, username, and size can also be configured.
 
-```{r deploy}
+```{r, deploy, eval=FALSE}
 
 # Create the required Ubuntu DSVM - generally 4 minutes.
 
@@ -124,7 +124,7 @@ azureListVM(context, RG)
 
 ## Deploy a cluster of Ubuntu Data Science Virtual Machines.
 
-```{r}
+```{r, eval=FALSE}
 
 # Create a set of Ubuntu DSVMs and they will be formed as a cluster.
 
@@ -142,7 +142,7 @@ deployDSVMCluster(context,
 
 To start with, candidature model types as well as their parameters are pre-configured as follows. In this case, three different algorithms available in Microsoft RevoScaleR package are used.
 
-```{r, algorithm selection and parameter tuning}
+```{r, algorithm selection and parameter tuning, eval=FALSE}
 
 # make a model config to temporarily preserve model parameters. Parameters are kept fixed.
 
@@ -182,7 +182,7 @@ Codes of solving such a machine learning problem can be obtained from
 
 Following shows snippets of the machine learning process.
 
-```{r}
+```{r, eval=FALSE}
 # functions used for model building and evaluating.
 
 mlProcess <- function(formula, data, modelName, modelPara) {
@@ -251,11 +251,11 @@ The worker script can be executed on a remote Ubuntu DSVM or DSVM cluster with A
 
 The worker script for binary classification is located in "vignettes/test" directory, with name "worker_classficiation.R".
 
-```{r}
+```{r, eval=FALSE}
 VM_URL <- paste(HOST, LOC, "cloudapp.azure.com", sep=".")
 ```
 
-```{r execution}
+```{r, execution, eval=FALSE}
 
 # remote execution on a single DSVM.
 
@@ -294,7 +294,7 @@ time3 <- Sys.time()
 
 Save time variables into a data file for later references.
 
-```{r}
+```{r, eval=FALSE}
 save(list(time_1, time_2, time_3), "./elapsed.RData")
 ```
 
@@ -302,7 +302,7 @@ save(list(time_1, time_2, time_3), "./elapsed.RData")
 
 After execution of the analytic job is done, expense on running the executions on Azure resources cannot be obtained.
 
-```{r}
+```{r, eval=FALSE}
 # calculate expense on computations. 
 
 load("./elapsed.RData")
@@ -338,7 +338,7 @@ if (length(vm$name) == 1) {
 
 Stop or delete computing resources if they are no longer needed to avoid unnecessary cost.
 
-```{r}
+```{r, eval=FALSE}
 if (! rg_pre_exists)
   azureDeleteResourceGroup(context, RG)
 ```

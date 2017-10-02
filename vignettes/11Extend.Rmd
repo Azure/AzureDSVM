@@ -23,7 +23,7 @@ can be found [here](https://docs.microsoft.com/en-us/azure/virtual-machines/wind
 
 # Setup
 
-```{r setup}
+```{r, setup, eval=FALSE}
 # Load the required subscription resources: TID, CID, and KEY.
 # Also includes the ssh PUBKEY for the user.
 
@@ -32,7 +32,7 @@ USER <- Sys.info()[['user']]
 source(paste0(USER, "_credentials.R"))
 ```
 
-```{r packages}
+```{r, packages, eval=FALSE}
 # Load the required packages.
 
 library(AzureSMR)    # Support for managing Azure resources.
@@ -41,7 +41,7 @@ library(magrittr)
 library(dplyr)
 ```
 
-```{r tuning}
+```{r, tuning, eval=FALSE}
 # Parameters for this script: the name for the new resource group and
 # its location across the Azure cloud. The resource name is used to
 # name the resource group that we will create transiently for the
@@ -82,7 +82,7 @@ cat("\n")
 Deployment is the same as that in the previous sub-section. Here in the demo, a
 Linux DSVM with public key type authenticaiton is deployed.
 
-```{r connect}
+```{r, connect, eval=FALSE}
 context <- createAzureContext(tenantID=TID, clientID=CID, authKey=KEY)
 
 rg_pre_exists <- existsRG(context, RG, LOC)
@@ -91,13 +91,13 @@ cat("Resource group", RG, "at", LOC,
     ifelse(!existsRG(context, RG, LOC), "does not exist.\n", "exists.\n"), "\n")
 ```
 
-```{r create resource group}
+```{r, create resource group, eval=FALSE}
 if (! rg_pre_exists) {
   azureCreateResourceGroup(context, RG, LOC) %>% cat("\n\n")
 }
 ```
 
-```{r}
+```{r, eval=FALSE}
 getVMSizes(context, "southeastasia") %>%
   set_names(c("Size", "Cores", "DiskGB", "RAM GB", "Disks"))
 
@@ -106,7 +106,7 @@ formals(deployDSVM)$size
 formals(deployDSVM)$os
 ```
 
-```{r deploy}
+```{r, deploy, eval=FALSE}
 ldsvm <- deployDSVM(context, 
                     resource.group = RG,
                     location       = LOC,
@@ -130,7 +130,7 @@ as inputs.
 In our example, [a script](https://github.com/Azure/DataScienceVM/blob/master/Extensions/General/create-user-and-updatecntk.sh) available on Azure DSVM github repository is used. The script is to create user and update CNTK on the DSVM. The
 command to execute script is "sudo sh <script.R>". 
 
-```{r}
+```{r, eval=FALSE}
 URL <- "https://raw.githubusercontent.com/Azure/DataScienceVM/master/Extensions/General/create-user-and-updatecntk.sh"
 CMD <- "sudo sh create-user-and-updatecntk.sh"
 
@@ -157,7 +157,7 @@ Once compute resources are no longer needed, stop or delete it by
 operateDSVM(context, RG, HOST, operation="Stop")
 ```
 
-```{r optionally_delete_resource_group}
+```{r, optionally_delete_resource_group, eval=FALSE}
 if (! rg_pre_exists)
   azureDeleteResourceGroup(context, RG)
 ```
