@@ -34,13 +34,13 @@ In this demonstration, Hot Spots analysis is used for supervised binary classifi
 
 Similar to the previous sections, credentials for authentication are required to fire up the DSVMs.
 
-```{r}
+```{r, eval=FALSE}
 library(AzureDSVM)
 library(AzureSMR)
 library(magrittr)
 ```
 
-```{r setup}
+```{r, setup, eval=FALSE}
 # Load the required subscription resources: TID, CID, and KEY.
 # Also includes the ssh PUBKEY for the user.
 
@@ -51,7 +51,7 @@ source(file.path(paste0(USER, "_credentials.R")))
 
 Specifications of computing resources.
 
-```{r}
+```{r, eval=FALSE}
 runif(4, 1, 26) %>%
   round() %>%
   letters[.] %>%
@@ -87,7 +87,7 @@ cat("\n")
 Deploy a cluster of DSVMs if there is no existing, otherwise start the
 machines. 
 
-```{r}
+```{r, eval=FALSE}
 # Connect to the Azure subscription and use this as the context for
 # all of our activities.
 
@@ -115,7 +115,7 @@ if (! rg_pre_exists)
 
 Create one Linux DSVM for running the Hot Spots analytics.
 
-```{r}
+```{r, eval=FALSE}
 vm <- AzureSMR::azureListVM(context, RG)
 
 if (!is.null(vm))
@@ -147,7 +147,7 @@ if (!is.null(vm))
 
 *Setting up a DSVM is not a trivial task as it is a complete solution for the data scientist and includes thew whole stack of open source data science technology including: R, Python, Hadoop, Spark, MRS, (SQL Server, RTVS, ...)*
 
-```{r}
+```{r, eval=FALSE}
 azureListVM(context, RG)
 ```
 
@@ -170,7 +170,7 @@ The top-level worker script for Hot Spot analysis is available as [workerHotSpot
 
 Specify the master node that will run the analytic script. In this case, it is the DSVM created just now.
 
-```{r}
+```{r, eval=FALSE}
 # specify machine names, master, and slaves.
 
 vm <- AzureSMR::azureListVM(context, RG) %T>% print()
@@ -185,7 +185,7 @@ The whole end-to-end Hot Spots analysis is run on the remote machine in a parall
 
 Functions used for the analysis are defined in separated scripts, and uploaded onto remote DSVM with `AzureDSVM::fileTransfer`.
 
-```{r}
+```{r, eval=FALSE}
 worker_scripts <- c("workerHotspotsFuncs.R", 
                     "workerHotspotsSetup.R", 
                     "workerHotspotsTrain.R", 
@@ -203,7 +203,7 @@ Remote execution of worker script (the analysis takes approximately 10 - 15 minu
 
 *Whilst this is running we continue talking about the algorithm for Hot Spots.*
 
-```{r}
+```{r, eval=FALSE}
 # parallel the analytics with local parallel computing context.
 
 time_1 <- Sys.time()
@@ -221,7 +221,7 @@ time_2 <- Sys.time()
 
 Get the results from remote DSVM.
 
-```{r}
+```{r, eval=FALSE}
 # get results from remote
 
 AzureDSVM::fileTransfer(from=paste0(master, ":~"), 
@@ -237,7 +237,7 @@ results_local <-
 
 Save time points for later reference.
 
-```{r}
+```{r, eval=FALSE}
 elapsed <- list(instances=machines,
                 time_start=time_1, 
                 time_end=time_2)
@@ -286,7 +286,7 @@ if (length(vm$name) == 1) {
 
 Once finishing the analysis, switch off DSVMs.
 
-```{r}
+```{r, eval=FALSE}
 # stop machines after the analysis.
 
 for (vm in machines) {
@@ -296,7 +296,7 @@ for (vm in machines) {
 
 Or delete the resource group to avoid unnecessary cost.
 
-```{r}
-if (! rg_pre_exists)
+```{r, eval=FALSE}
+if (! rg_pre_exi, eval=FALSEsts)
   azureDeleteResourceGroup(context, RG)
 ```

@@ -68,7 +68,7 @@ account creation on a Windows DSVM.
 
 We can simply source the credentials file in R.
 
-```{r, setup}
+```{r, setup, eval=FALSE}
 # Load the required subscription resources: TID, CID, and KEY.
 # Also includes the ssh PUBKEY for the user.
 
@@ -90,7 +90,7 @@ devtools::install_github("Azure/AzureDSVM")
 
 We can then load the required pacakges from the libraries.
 
-```{r packages}
+```{r, packages, eval=FALSE}
 # Load the required packages.
 
 library(AzureSMR)    # Support for managing Azure resources.
@@ -99,7 +99,7 @@ library(magrittr)
 library(dplyr)
 ```
 
-```{r tuning}
+```{r, tuning, eval=FALSE}
 # Parameters for this script: the name for the new resource group and
 # its location across the Azure cloud. The resource name is used to
 # name the resource group that we will create transiently for the
@@ -143,7 +143,7 @@ HOST
 cat("\n")
 ```
 
-```{r, connect}
+```{r, connect, eval=FALSE}
 # Connect to the Azure subscription and use this as the context for
 # our activities.
 
@@ -165,7 +165,7 @@ cat("Resource group", RG, "at", LOC,
 Create the resource group within which all resources we create will be
 grouped.
 
-```{r, create resource group}
+```{r, create resource group, eval=FALSE}
 # Create a new resource group into which we create the VMs and related
 # resources. Resource group name is RG.  Note that to create a new
 # resource group one needs to add access control of Active Directory
@@ -197,7 +197,7 @@ default VM size for deployment is chosen for by enhanced computation
 performance. See the documentation for deployDSVM() for the actual
 default.
 
-```{r}
+```{r, eval=FALSE}
 # List the available VM sizes. May differ with location of the data centre.
 
 getVMSizes(context, LOC) %>%
@@ -219,7 +219,7 @@ formals(deployDSVM)$os
 
 The following code deploys a Linux DSVM which will take a few minutes.
 
-```{r, deploy}
+```{r, deploy, eval=FALSE}
 # Create the required Linux DSVM - generally 4 minutes.
 
 ldsvm <- deployDSVM(context, 
@@ -238,7 +238,7 @@ azureListVM(context, RG)
 
 Prove that the deployed DSVM exists.
 
-```{r, prove exists}
+```{r, prove exists, eval=FALSE}
 
 # Send a simple system() command across to the new server to test its
 # existence. Expect a single line with an indication of how long the
@@ -273,7 +273,7 @@ server through the secure shell and manually run that command.  We
 then reboot the server so that, for example, kernel updates, take
 effect.
 
-```{r, useful tools}
+```{r, useful tools, eval=FALSE}
 system(paste(ssh, "sudo locale-gen 'en_AU.UTF-8'"))
 system(paste(ssh, "sudo apt-get -y install wajig"))
 system(paste(ssh, "wajig install -y lsb htop"))
@@ -298,7 +298,7 @@ To enable such interaction, a [one-box configuration](https://docs.microsoft.com
 key-based authentication methdod can be achieved via `mrsOneBoxConfiguration`
 function.
 
-```{r}
+```{r, eval=FALSE}
 mrsOneBoxConfiguration(context,
                        resource.group=RG,
                        location=LOC,
@@ -346,7 +346,7 @@ operateDSVM(context, RG, HOST, operation="Stop")
 Once we have finished with the server we can delete it and all of its
 related resources.
   
-```{r optionally_delete_resource_group}
+```{r, optionally_delete_resource_group, eval=FALSE}
 # Delete the resource group now that we have proved existence. There
 # is probably no need to wait. Only delete if it did not pre-exist
 # this script. Deletion takes 10 minutes or more.

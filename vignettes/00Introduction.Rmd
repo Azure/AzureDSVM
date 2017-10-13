@@ -30,13 +30,7 @@ documentation:
 
 3. `AzureDSVM` assumes R (>= 3.3.1), with dependencies on packages of
 `AzureSMR `(>= 0.2.2), `stringr` (>= 1.1.0), `stringi` (>= 1.1.2),
-`magrittr` (>= 1.5), `dplyr` (>= 0.5.0). `AzureSMR` can be installed
-from its [GitHub repository](https://github.com/Microsoft/AzureSMR):
-```{r install azuresmr, eval=FALSE}
-if(!require("devtools")) install.packages("devtools")
-devtools::install_github("Microsoft/AzureSMR")
-```
-The other packages are available on CRAN or MRAN.
+`magrittr` (>= 1.5), `dplyr` (>= 0.5.0).
 
 4. Before using the functions in `AzureDSVM`, one needs to obtain
 authentication credentials for managing Azure resources. Details are
@@ -50,14 +44,14 @@ vignette](https://github.com/Microsoft/AzureSMR/blob/master/vignettes/Authentica
 `AzureDSVM` is available from its [GitHub
 repository](https://github.com/Azure/AzureDSVM). To install,
 
-```{r install azuredsvm, eval=FALSE}
+```{r, install azuredsvm, eval=FALSE}
 if(!require("devtools")) install.packages("devtools")
 devtools::install_github("Azure/AzureDSVM")
 ```
 
 Help pages can be loaded with
 
-```{r help azuresvm, eval=FALSE}
+```{r, help azuresvm, eval=FALSE}
 library(help=AzureDSVM)
 ```
 

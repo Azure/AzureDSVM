@@ -18,7 +18,7 @@ In this tutorial, we assume that there is at least one DSVM deployed in a resour
 
 Similar to the previous sections, credentials for authentication are required.
 
-```{r setup}
+```{r, setup, eval=FALSE}
 # Load the required subscription resources: TID, CID, and KEY.
 # Also includes the ssh PUBKEY for the user.
 
@@ -27,7 +27,7 @@ USER <- Sys.info()[['user']]
 source(paste0(USER, "_credentials.R"))
 ```
 
-```{r packages}
+```{r, packages, eval=FALSE}
 # Load the required packages.
 
 library(AzureSMR)    # Support for managing Azure resources.
@@ -62,13 +62,13 @@ GRA    <- "Daily"
 
 Get data consumption of the DSVM.
 
-```{r}
+```{r, eval=FALSE}
 # authentication with Azure account.
 
 context <- createAzureContext(tenantID=TID, clientID=CID, authKey=KEY)
 ```
 
-```{r}
+```{r, eval=FALSE}
 # get data consumption of instance.
 
 data_consum <- dataConsumptionDSVM(context,
@@ -104,7 +104,7 @@ OFFER  <- "MS-AZR-0015P"
 
 Again assuming the information is pre-stored into the "credential" script.
 
-```{r}
+```{r, eval=FALSE}
 consum <- costDSVM(context,
                    hostname=VM,
                    time.start=START,
